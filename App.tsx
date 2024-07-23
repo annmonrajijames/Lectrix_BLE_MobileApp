@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, PermissionsAndroid, Platform, FlatList, StyleSheet, TextStyle, ViewStyle } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
 
+interface DeviceWithRssi extends Device {
+  rssi: number | null;  // Adding RSSI property
+}
+
 interface Styles {
   container: ViewStyle;
   title: TextStyle;
@@ -10,7 +14,7 @@ interface Styles {
 
 const App: React.FC = () => {
   const [manager] = useState(new BleManager());
-  const [devices, setDevices] = useState<Device[]>([]);
+  const [devices, setDevices] = useState<DeviceWithRssi[]>([]);
   const [permissionGranted, setPermissionGranted] = useState<boolean>(false);
 
   useEffect(() => {
@@ -49,11 +53,13 @@ const App: React.FC = () => {
       }
       if (device) {
         setDevices(prevDevices => {
-          // Prevent duplicate devices by checking before adding
-          if (prevDevices.find(d => d.id === device.id)) {
-            return prevDevices;
+          const existingDevice = prevDevices.find(d => d.id === device.id);
+          if (existingDevice) {
+            // Update the RSSI if the device already exists
+            return prevDevices.map(d => d.id === device.id ? { ...d, rssi: device.rssi } : d);
           }
-          return [...prevDevices, device];
+          // Add new device with RSSI
+          return [...prevDevices, { ...device, rssi: device.rssi }];
         });
       }
     });
@@ -71,7 +77,7 @@ const App: React.FC = () => {
         data={devices}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <Text style={styles.deviceInfo}>{item.name || 'Unnamed device'} (ID: {item.id})</Text>
+          <Text style={styles.deviceInfo}>{item.name || 'Unnamed device'} (ID: {item.id}, RSSI: {item.rssi})</Text>
         )}
       />
       <Button title="Scan for Devices" onPress={scanAndConnect} />
