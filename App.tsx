@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, PermissionsAndroid, Platform, FlatList, StyleSheet, TextStyle, ViewStyle } from 'react-native';
-import { BleManager, Device } from 'react-native-ble-plx';
+import { Base64, BleError, BleManager, Characteristic, ConnectionOptions, ConnectionPriority, Descriptor, Device, Service, Subscription, TransactionId, UUID } from 'react-native-ble-plx';
 
 interface DeviceWithRssi extends Device {
   rssi: number | null;  // Adding RSSI property
@@ -56,13 +56,83 @@ const App: React.FC = () => {
           const existingDevice = prevDevices.find(d => d.id === device.id);
           if (existingDevice) {
             // Update the RSSI if the device already exists
-            return prevDevices.map(d => d.id === device.id ? { ...d, rssi: device.rssi } : d);
+            return prevDevices.map(d =>
+              d.id === device.id ? {...d, rssi: device.rssi} as DeviceWithRssi : d
+            );
           }
-          // Add new device with RSSI
-          return [...prevDevices, { ...device, rssi: device.rssi }];
+          // Add new device with RSSI and explicitly cast it to DeviceWithRssi
+          const newDevice: DeviceWithRssi = {
+            id: device.id,
+            name: device.name,
+            rssi: device.rssi,
+            mtu: 0,
+            manufacturerData: null,
+            rawScanRecord: '',
+            serviceData: null,
+            serviceUUIDs: null,
+            localName: null,
+            txPowerLevel: null,
+            solicitedServiceUUIDs: null,
+            isConnectable: null,
+            overflowServiceUUIDs: null,
+            requestConnectionPriority: function (connectionPriority: ConnectionPriority, transactionId?: TransactionId): Promise<Device> {
+              throw new Error('Function not implemented.');
+            },
+            readRSSI: function (transactionId?: TransactionId): Promise<Device> {
+              throw new Error('Function not implemented.');
+            },
+            requestMTU: function (mtu: number, transactionId?: TransactionId): Promise<Device> {
+              throw new Error('Function not implemented.');
+            },
+            connect: function (options?: ConnectionOptions): Promise<Device> {
+              throw new Error('Function not implemented.');
+            },
+            cancelConnection: function (): Promise<Device> {
+              throw new Error('Function not implemented.');
+            },
+            isConnected: function (): Promise<boolean> {
+              throw new Error('Function not implemented.');
+            },
+            onDisconnected: function (listener: (error: BleError | null, device: Device) => void): Subscription {
+              throw new Error('Function not implemented.');
+            },
+            discoverAllServicesAndCharacteristics: function (transactionId?: TransactionId): Promise<Device> {
+              throw new Error('Function not implemented.');
+            },
+            services: function (): Promise<Service[]> {
+              throw new Error('Function not implemented.');
+            },
+            characteristicsForService: function (serviceUUID: string): Promise<Characteristic[]> {
+              throw new Error('Function not implemented.');
+            },
+            descriptorsForService: function (serviceUUID: UUID, characteristicUUID: UUID): Promise<Array<Descriptor>> {
+              throw new Error('Function not implemented.');
+            },
+            readCharacteristicForService: function (serviceUUID: UUID, characteristicUUID: UUID, transactionId?: TransactionId): Promise<Characteristic> {
+              throw new Error('Function not implemented.');
+            },
+            writeCharacteristicWithResponseForService: function (serviceUUID: UUID, characteristicUUID: UUID, valueBase64: Base64, transactionId?: TransactionId): Promise<Characteristic> {
+              throw new Error('Function not implemented.');
+            },
+            writeCharacteristicWithoutResponseForService: function (serviceUUID: UUID, characteristicUUID: UUID, valueBase64: Base64, transactionId?: TransactionId): Promise<Characteristic> {
+              throw new Error('Function not implemented.');
+            },
+            monitorCharacteristicForService: function (serviceUUID: UUID, characteristicUUID: UUID, listener: (error: BleError | null, characteristic: Characteristic | null) => void, transactionId?: TransactionId): Subscription {
+              throw new Error('Function not implemented.');
+            },
+            readDescriptorForService: function (serviceUUID: UUID, characteristicUUID: UUID, descriptorUUID: UUID, transactionId?: string): Promise<Descriptor> {
+              throw new Error('Function not implemented.');
+            },
+            writeDescriptorForService: function (serviceUUID: UUID, characteristicUUID: UUID, descriptorUUID: UUID, valueBase64: Base64, transactionId?: string): Promise<Descriptor> {
+              throw new Error('Function not implemented.');
+            }
+          };
+          return [...prevDevices, newDevice];
         });
       }
     });
+    
+    
 
     setTimeout(() => {
       manager.stopDeviceScan();
