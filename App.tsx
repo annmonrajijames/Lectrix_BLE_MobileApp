@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, PermissionsAndroid, Platform, FlatList, StyleSheet, TextStyle, ViewStyle } from 'react-native';
-import { Base64, BleError, BleManager, Characteristic, ConnectionOptions, ConnectionPriority, Descriptor, Device, Service, Subscription, TransactionId, UUID } from 'react-native-ble-plx';
+import { View, Text, Button, PermissionsAndroid, Platform, FlatList, StyleSheet, TextStyle, ViewStyle, Alert } from 'react-native';
+import { Base64, BleError, BleManager, Device, ConnectionOptions, ConnectionPriority, TransactionId, Characteristic, Descriptor, Service, Subscription, UUID } from 'react-native-ble-plx';
+import BluetoothStateManager from 'react-native-bluetooth-state-manager';
 
 interface DeviceWithRssi extends Device {
-  rssi: number | null;  // Adding RSSI property
+  rssi: number | null;
 }
 
 interface Styles {
@@ -18,8 +19,29 @@ const App: React.FC = () => {
   const [permissionGranted, setPermissionGranted] = useState<boolean>(false);
 
   useEffect(() => {
-    requestBluetoothPermissions();
+    checkBluetoothState();
   }, []);
+
+  async function checkBluetoothState() {
+    const bluetoothState = await BluetoothStateManager.getState();
+
+    if (bluetoothState === 'PoweredOff') {
+      Alert.alert(
+        'Enable Bluetooth',
+        'This app needs to use Bluetooth. Would you like to enable it?',
+        [
+          { text: 'No', onPress: () => console.log('User declined Bluetooth permissions'), style: 'cancel' },
+          { text: 'Yes', onPress: async () => {
+              await BluetoothStateManager.requestToEnable(); // Request to enable Bluetooth
+              requestBluetoothPermissions();
+            }
+          },
+        ]
+      );
+    } else {
+      requestBluetoothPermissions();
+    }
+  }
 
   async function requestBluetoothPermissions() {
     if (Platform.OS === 'android' && Platform.Version >= 31) {
@@ -33,13 +55,17 @@ const App: React.FC = () => {
 
       setPermissionGranted(granted);
       console.log("Bluetooth permissions granted:", granted);
+
+      if (granted) {
+        startScanning();
+      }
     } else {
-      // Assume permissions are granted on iOS or older Android versions
       setPermissionGranted(true);
+      startScanning();
     }
   }
 
-  const scanAndConnect = () => {
+  const startScanning = () => {
     if (!permissionGranted) {
       console.log('No permissions to use Bluetooth. Requesting...');
       requestBluetoothPermissions();
@@ -51,30 +77,17 @@ const App: React.FC = () => {
         console.log(error);
         return;
       }
-      if (device) {
+      if (device && device.name) {  // Only add devices with a name
         setDevices(prevDevices => {
           const existingDevice = prevDevices.find(d => d.id === device.id);
           if (existingDevice) {
-            // Update the RSSI if the device already exists
             return prevDevices.map(d =>
               d.id === device.id ? {...d, rssi: device.rssi} as DeviceWithRssi : d
             );
           }
-          // Add new device with RSSI and explicitly cast it to DeviceWithRssi
           const newDevice: DeviceWithRssi = {
-            id: device.id,
-            name: device.name,
+            ...device,
             rssi: device.rssi,
-            mtu: 0,
-            manufacturerData: null,
-            rawScanRecord: '',
-            serviceData: null,
-            serviceUUIDs: null,
-            localName: null,
-            txPowerLevel: null,
-            solicitedServiceUUIDs: null,
-            isConnectable: null,
-            overflowServiceUUIDs: null,
             requestConnectionPriority: function (connectionPriority: ConnectionPriority, transactionId?: TransactionId): Promise<Device> {
               throw new Error('Function not implemented.');
             },
@@ -131,8 +144,6 @@ const App: React.FC = () => {
         });
       }
     });
-    
-    
 
     setTimeout(() => {
       manager.stopDeviceScan();
@@ -150,7 +161,7 @@ const App: React.FC = () => {
           <Text style={styles.deviceInfo}>{item.name || 'Unnamed device'} (ID: {item.id}, RSSI: {item.rssi})</Text>
         )}
       />
-      <Button title="Scan for Devices" onPress={scanAndConnect} />
+      <Button title="Scan for Devices" onPress={startScanning} />
     </View>
   );
 };
