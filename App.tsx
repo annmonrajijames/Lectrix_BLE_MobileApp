@@ -77,7 +77,8 @@ const App: React.FC = () => {
         console.log(error);
         return;
       }
-      if (device && device.name) {  // Only add devices with a name
+
+      if (device) {  // Remove the condition that checks for device name
         setDevices(prevDevices => {
           const existingDevice = prevDevices.find(d => d.id === device.id);
           if (existingDevice) {
