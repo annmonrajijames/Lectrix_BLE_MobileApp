@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, PermissionsAndroid, Platform, FlatList, StyleSheet, TextStyle, ViewStyle, Alert } from 'react-native';
-import { Base64, BleError, BleManager, Device, ConnectionOptions, ConnectionPriority, TransactionId, Characteristic, Descriptor, Service, Subscription, UUID } from 'react-native-ble-plx';
+import { View, Text, Button, PermissionsAndroid, Platform, FlatList, StyleSheet, TextStyle, ViewStyle, Alert, TouchableOpacity } from 'react-native';
+import { BleManager, Device, ConnectionOptions, ConnectionPriority, TransactionId } from 'react-native-ble-plx';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
 
 interface DeviceWithRssi extends Device {
@@ -9,12 +9,11 @@ interface DeviceWithRssi extends Device {
 
 interface Styles {
   container: ViewStyle;
-  titleContainer: ViewStyle;
   title: TextStyle;
-  deviceInfoContainer: ViewStyle;
+  deviceContainer: ViewStyle;
   deviceInfo: TextStyle;
+  connectButton: ViewStyle;
   separator: ViewStyle;
-  buttonContainer: ViewStyle;
 }
 
 const App: React.FC = () => {
@@ -81,7 +80,7 @@ const App: React.FC = () => {
         console.log(error);
         return;
       }
-      if (device) {  // Add devices regardless of having a name or not
+      if (device && device.name) {  // Only add devices with a name
         setDevices(prevDevices => {
           const existingDevice = prevDevices.find(d => d.id === device.id);
           if (existingDevice) {
@@ -92,57 +91,6 @@ const App: React.FC = () => {
           const newDevice: DeviceWithRssi = {
             ...device,
             rssi: device.rssi,
-            requestConnectionPriority: function (connectionPriority: ConnectionPriority, transactionId?: TransactionId): Promise<Device> {
-              throw new Error('Function not implemented.');
-            },
-            readRSSI: function (transactionId?: TransactionId): Promise<Device> {
-              throw new Error('Function not implemented.');
-            },
-            requestMTU: function (mtu: number, transactionId?: TransactionId): Promise<Device> {
-              throw new Error('Function not implemented.');
-            },
-            connect: function (options?: ConnectionOptions): Promise<Device> {
-              throw new Error('Function not implemented.');
-            },
-            cancelConnection: function (): Promise<Device> {
-              throw new Error('Function not implemented.');
-            },
-            isConnected: function (): Promise<boolean> {
-              throw new Error('Function not implemented.');
-            },
-            onDisconnected: function (listener: (error: BleError | null, device: Device) => void): Subscription {
-              throw new Error('Function not implemented.');
-            },
-            discoverAllServicesAndCharacteristics: function (transactionId?: TransactionId): Promise<Device> {
-              throw new Error('Function not implemented.');
-            },
-            services: function (): Promise<Service[]> {
-              throw new Error('Function not implemented.');
-            },
-            characteristicsForService: function (serviceUUID: string): Promise<Characteristic[]> {
-              throw new Error('Function not implemented.');
-            },
-            descriptorsForService: function (serviceUUID: UUID, characteristicUUID: UUID): Promise<Array<Descriptor>> {
-              throw new Error('Function not implemented.');
-            },
-            readCharacteristicForService: function (serviceUUID: UUID, characteristicUUID: UUID, transactionId?: TransactionId): Promise<Characteristic> {
-              throw new Error('Function not implemented.');
-            },
-            writeCharacteristicWithResponseForService: function (serviceUUID: UUID, characteristicUUID: UUID, valueBase64: Base64, transactionId?: TransactionId): Promise<Characteristic> {
-              throw new Error('Function not implemented.');
-            },
-            writeCharacteristicWithoutResponseForService: function (serviceUUID: UUID, characteristicUUID: UUID, valueBase64: Base64, transactionId?: TransactionId): Promise<Characteristic> {
-              throw new Error('Function not implemented.');
-            },
-            monitorCharacteristicForService: function (serviceUUID: UUID, characteristicUUID: UUID, listener: (error: BleError | null, characteristic: Characteristic | null) => void, transactionId?: TransactionId): Subscription {
-              throw new Error('Function not implemented.');
-            },
-            readDescriptorForService: function (serviceUUID: UUID, characteristicUUID: UUID, descriptorUUID: UUID, transactionId?: string): Promise<Descriptor> {
-              throw new Error('Function not implemented.');
-            },
-            writeDescriptorForService: function (serviceUUID: UUID, characteristicUUID: UUID, descriptorUUID: UUID, valueBase64: Base64, transactionId?: string): Promise<Descriptor> {
-              throw new Error('Function not implemented.');
-            }
           };
           return [...prevDevices, newDevice];
         });
@@ -155,26 +103,32 @@ const App: React.FC = () => {
     }, 10000); // Stop scanning after 10 seconds
   };
 
+  const connectToDevice = (device: DeviceWithRssi) => {
+    // Implement your device connection logic here
+    console.log('Connecting to', device.name);
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>BLE Devices</Text>
-      </View>
+      <Text style={styles.title}>BLE Devices</Text>
       <FlatList
         data={devices}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <View style={styles.deviceInfoContainer}>
-            <Text style={styles.deviceInfo}>{item.name || 'Unnamed device'}</Text>
-            <Text style={styles.deviceInfo}>ID: {item.id}</Text>
-            <Text style={styles.deviceInfo}>RSSI: {item.rssi}</Text>
-            <View style={styles.separator} />
+          <View style={styles.deviceContainer}>
+            <View>
+              <Text style={styles.deviceInfo}>{item.name}</Text>
+              <Text style={styles.deviceInfo}>ID: {item.id}</Text>
+              <Text style={styles.deviceInfo}>RSSI: {item.rssi}</Text>
+            </View>
+            <TouchableOpacity style={styles.connectButton} onPress={() => connectToDevice(item)}>
+              <Text style={{ color: 'white' }}>Connect</Text>
+            </TouchableOpacity>
           </View>
         )}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-      <View style={styles.buttonContainer}>
-        <Button title="Scan for Devices" onPress={startScanning} />
-      </View>
+      <Button title="Scan for Devices" onPress={startScanning} />
     </View>
   );
 };
@@ -182,35 +136,35 @@ const App: React.FC = () => {
 const styles = StyleSheet.create<Styles>({
   container: {
     flex: 1,
-    padding: 20,
-  },
-  titleContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    padding: 20,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  deviceInfoContainer: {
-    marginVertical: 10,
+  deviceContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     width: '100%',
+    paddingVertical: 10,
   },
   deviceInfo: {
     fontSize: 16,
-    textAlign: 'left', // Align text to the left
+  },
+  connectButton: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
   },
   separator: {
     height: 2,
-    backgroundColor: 'gray',
-    width: '100%', // Make the line wider
-    marginVertical: 5,
-  },
-  buttonContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
+    width: '100%',
+    backgroundColor: '#ddd',
   }
 });
 
