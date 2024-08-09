@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, PermissionsAndroid, Platform, FlatList, StyleSheet, TextStyle, ViewStyle } from 'react-native';
+import { View, Text, Button, PermissionsAndroid, Platform, FlatList, StyleSheet, Alert, TextStyle, ViewStyle } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
+import BluetoothStateManager from 'react-native-bluetooth-state-manager';
 
 interface Styles {
   container: ViewStyle;
@@ -14,8 +15,25 @@ const App: React.FC = () => {
   const [permissionGranted, setPermissionGranted] = useState<boolean>(false);
 
   useEffect(() => {
-    requestBluetoothPermissions();
+    checkBluetoothState();
   }, []);
+
+  async function checkBluetoothState() {
+    const bluetoothState = await BluetoothStateManager.getState();
+
+    if (bluetoothState === 'PoweredOff') {
+      Alert.alert(
+        'Enable Bluetooth',
+        'This app needs Bluetooth to scan for devices. Would you like to enable it?',
+        [
+          { text: 'No', onPress: () => console.log('User declined Bluetooth enablement'), style: 'cancel' },
+          { text: 'Yes', onPress: () => BluetoothStateManager.requestToEnable().then(requestBluetoothPermissions) }
+        ]
+      );
+    } else {
+      requestBluetoothPermissions();
+    }
+  }
 
   async function requestBluetoothPermissions() {
     if (Platform.OS === 'android' && Platform.Version >= 31) {
