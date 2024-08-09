@@ -9,8 +9,12 @@ interface DeviceWithRssi extends Device {
 
 interface Styles {
   container: ViewStyle;
+  titleContainer: ViewStyle;
   title: TextStyle;
+  deviceInfoContainer: ViewStyle;
   deviceInfo: TextStyle;
+  separator: ViewStyle;
+  buttonContainer: ViewStyle;
 }
 
 const App: React.FC = () => {
@@ -77,8 +81,7 @@ const App: React.FC = () => {
         console.log(error);
         return;
       }
-
-      if (device) {  // Remove the condition that checks for device name
+      if (device) {  // Add devices regardless of having a name or not
         setDevices(prevDevices => {
           const existingDevice = prevDevices.find(d => d.id === device.id);
           if (existingDevice) {
@@ -154,15 +157,24 @@ const App: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>BLE Devices:</Text>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>BLE Devices</Text>
+      </View>
       <FlatList
         data={devices}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <Text style={styles.deviceInfo}>{item.name || 'Unnamed device'} (ID: {item.id}, RSSI: {item.rssi})</Text>
+          <View style={styles.deviceInfoContainer}>
+            <Text style={styles.deviceInfo}>{item.name || 'Unnamed device'}</Text>
+            <Text style={styles.deviceInfo}>ID: {item.id}</Text>
+            <Text style={styles.deviceInfo}>RSSI: {item.rssi}</Text>
+            <View style={styles.separator} />
+          </View>
         )}
       />
-      <Button title="Scan for Devices" onPress={startScanning} />
+      <View style={styles.buttonContainer}>
+        <Button title="Scan for Devices" onPress={startScanning} />
+      </View>
     </View>
   );
 };
@@ -170,18 +182,35 @@ const App: React.FC = () => {
 const styles = StyleSheet.create<Styles>({
   container: {
     flex: 1,
+    padding: 20,
+  },
+  titleContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    marginBottom: 20,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
+  },
+  deviceInfoContainer: {
+    marginVertical: 10,
+    width: '100%',
   },
   deviceInfo: {
     fontSize: 16,
-    marginVertical: 10,
+    textAlign: 'left', // Align text to the left
+  },
+  separator: {
+    height: 2,
+    backgroundColor: 'gray',
+    width: '100%', // Make the line wider
+    marginVertical: 5,
+  },
+  buttonContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
   }
 });
 
