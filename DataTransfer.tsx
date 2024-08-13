@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Buffer } from 'buffer';  // Import Buffer
+import { Buffer } from 'buffer';
 
 type RootStackParamList = {
   DataTransfer: { device: Device };
@@ -12,11 +12,12 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
+  const [receivedData, setReceivedData] = useState('');
 
   const writeDataToCharacteristic = async () => {
     const serviceUUID = '00FF';
     const characteristicUUID = 'FF01';
-    const hexData = 'AA01020400080C02090000001214'; // Hex data
+    const hexData = 'AA01020400080C02090000001213'; // Hex data
 
     try {
       await device.writeCharacteristicWithResponseForService(
@@ -31,10 +32,27 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     }
   };
 
+  const readDataFromCharacteristic = async () => {
+    const serviceUUID = '00FF';
+    const characteristicUUID = 'FF01'; // Use the correct UUID for reading
+
+    try {
+      const result = await device.readCharacteristicForService(serviceUUID, characteristicUUID);
+      const data = Buffer.from(result.value || '', 'base64').toString('hex');
+      setReceivedData(data);
+      Alert.alert("Read Success", `Data received: ${data}`);
+    } catch (error: any) {
+      console.error("Read failed", error);
+      Alert.alert("Read Error", `Error reading data from device: ${error.message}`);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text>Data Transfer Page</Text>
+      {receivedData ? <Text>Received Data: {receivedData}</Text> : null}
       <Button title="WRITE" onPress={writeDataToCharacteristic} />
+      <Button title="READ" onPress={readDataFromCharacteristic} />
     </View>
   );
 };
