@@ -2,12 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import DataTransfer from './DataTransfer'; // Make sure this path is correct
+import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
+import DataTransfer from './DataTransfer';
 
-const Stack = createNativeStackNavigator();
+type RootStackParamList = {
+  Home: undefined;
+  DataTransfer: { device: Device };
+};
 
-const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [manager] = useState(new BleManager());
   const [devices, setDevices] = useState<Device[]>([]);
 
@@ -23,14 +30,15 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const connectToDevice = (device: Device) => {
     manager.stopDeviceScan();
     device.connect()
-      .then((device) => {
+      .then(device => {
         return device.discoverAllServicesAndCharacteristics();
       })
-      .then((device) => {
-        navigation.navigate('DataTransfer');
+      .then(device => {
+        navigation.navigate('DataTransfer', { device });
       })
-      .catch((error) => {
-        console.log(error);
+      .catch((error: any) => {
+        console.error("Connection failed", error);
+        Alert.alert("Connection Error", `Error connecting to device: ${error.message}`);
       });
   };
 
@@ -74,8 +82,8 @@ const App: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="DataTransfer" component={DataTransfer} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Scan BLE Devices' }} />
+        <Stack.Screen name="DataTransfer" component={DataTransfer} options={{ title: 'Data Transfer' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -96,6 +104,9 @@ const styles = StyleSheet.create({
   deviceInfo: {
     fontSize: 16,
     marginVertical: 10,
+    padding: 10,
+    backgroundColor: '#DDD',
+    borderRadius: 5,
   }
 });
 
