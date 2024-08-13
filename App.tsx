@@ -1,65 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, PermissionsAndroid, Platform, FlatList, StyleSheet, Alert, TextStyle, ViewStyle } from 'react-native';
+import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
-import BluetoothStateManager from 'react-native-bluetooth-state-manager';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import DataTransfer from './DataTransfer'; // Make sure this path is correct
 
-interface Styles {
-  container: ViewStyle;
-  title: TextStyle;
-  deviceInfo: TextStyle;
-}
+const Stack = createNativeStackNavigator();
 
-const App: React.FC = () => {
+const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [manager] = useState(new BleManager());
   const [devices, setDevices] = useState<Device[]>([]);
-  const [permissionGranted, setPermissionGranted] = useState<boolean>(false);
 
   useEffect(() => {
-    checkBluetoothState();
-  }, []);
+    const subscription = manager.onStateChange((state) => {
+      if (state === 'PoweredOn') {
+        scanAndConnect();
+      }
+    }, true);
+    return () => subscription.remove();
+  }, [manager]);
 
-  async function checkBluetoothState() {
-    const bluetoothState = await BluetoothStateManager.getState();
-
-    if (bluetoothState === 'PoweredOff') {
-      Alert.alert(
-        'Enable Bluetooth',
-        'This app needs Bluetooth to scan for devices. Would you like to enable it?',
-        [
-          { text: 'No', onPress: () => console.log('User declined Bluetooth enablement'), style: 'cancel' },
-          { text: 'Yes', onPress: () => BluetoothStateManager.requestToEnable().then(requestBluetoothPermissions) }
-        ]
-      );
-    } else {
-      requestBluetoothPermissions();
-    }
-  }
-
-  async function requestBluetoothPermissions() {
-    if (Platform.OS === 'android' && Platform.Version >= 31) {
-      const result = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-      ]);
-
-      const granted = result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT] === PermissionsAndroid.RESULTS.GRANTED &&
-                      result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN] === PermissionsAndroid.RESULTS.GRANTED;
-
-      setPermissionGranted(granted);
-      console.log("Bluetooth permissions granted:", granted);
-    } else {
-      // Assume permissions are granted on iOS or older Android versions
-      setPermissionGranted(true);
-    }
-  }
+  const connectToDevice = (device: Device) => {
+    manager.stopDeviceScan();
+    device.connect()
+      .then((device) => {
+        return device.discoverAllServicesAndCharacteristics();
+      })
+      .then((device) => {
+        navigation.navigate('DataTransfer');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   const scanAndConnect = () => {
-    if (!permissionGranted) {
-      console.log('No permissions to use Bluetooth. Requesting...');
-      requestBluetoothPermissions();
-      return;
-    }
-
     manager.startDeviceScan(null, null, (error, device) => {
       if (error) {
         console.log(error);
@@ -67,18 +42,14 @@ const App: React.FC = () => {
       }
       if (device) {
         setDevices(prevDevices => {
-          // Prevent duplicate devices by checking before adding
-          if (prevDevices.find(d => d.id === device.id)) {
-            return prevDevices;
-          }
-          return [...prevDevices, device];
+          const deviceExists = prevDevices.some(d => d.id === device.id);
+          return deviceExists ? prevDevices : [...prevDevices, device];
         });
       }
     });
 
     setTimeout(() => {
       manager.stopDeviceScan();
-      console.log('Scanning stopped');
     }, 10000); // Stop scanning after 10 seconds
   };
 
@@ -89,7 +60,9 @@ const App: React.FC = () => {
         data={devices}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <Text style={styles.deviceInfo}>{item.name || 'Unnamed device'} (ID: {item.id})</Text>
+          <TouchableOpacity onPress={() => connectToDevice(item)}>
+            <Text style={styles.deviceInfo}>{item.name || 'Unnamed device'} (ID: {item.id})</Text>
+          </TouchableOpacity>
         )}
       />
       <Button title="Scan for Devices" onPress={scanAndConnect} />
@@ -97,7 +70,18 @@ const App: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create<Styles>({
+const App: React.FC = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="DataTransfer" component={DataTransfer} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
