@@ -41,8 +41,8 @@
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
-#define GATTS_SERVICE_UUID_TEST_A   0x00FF
-#define GATTS_CHAR_UUID_TEST_A      0xFF01
+#define GATTS_SERVICE_UUID_TEST_A   0x00FF // CHANGE Service UUID here, (make sure service UUID in Mobile app and in this BLE ESP32 hardware are same), example change 0x00FF to 0x00AA
+#define GATTS_CHAR_UUID_TEST_A      0xFF01 // CHANGE Characteristic UUID here, (make sure Characteristic UUID in Mobile app and in this BLE ESP32 hardware are same), example change 0xFF01 to 0xAA01
 #define GATTS_DESCR_UUID_TEST_A     0x3333
 #define GATTS_NUM_HANDLE_TEST_A     4
 
@@ -51,7 +51,7 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 #define GATTS_DESCR_UUID_TEST_B     0x2222
 #define GATTS_NUM_HANDLE_TEST_B     4
 
-#define TEST_DEVICE_NAME            "ESP_GATTS_DEMO"
+#define TEST_DEVICE_NAME            "ESP_GATTS_DEMO" // CHANGE ESP32 hardware name here(name shown while scanning in mobile app), example change ESP_GATTS_DEMO to AnnmonRajiJames
 #define TEST_MANUFACTURER_DATA_LEN  17
 
 #define GATTS_DEMO_CHAR_VAL_LEN_MAX 0x40
@@ -354,10 +354,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
         rsp.attr_value.len = 4;
-        rsp.attr_value.value[0] = 0xde;
-        rsp.attr_value.value[1] = 0xed;
-        rsp.attr_value.value[2] = 0xbe;
-        rsp.attr_value.value[3] = 0xef;
+        rsp.attr_value.value[0] = 0xde; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
+        rsp.attr_value.value[1] = 0xed; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
+        rsp.attr_value.value[2] = 0xbe; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
+        rsp.attr_value.value[3] = 0xef; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
                                     ESP_GATT_OK, &rsp);
         break;
