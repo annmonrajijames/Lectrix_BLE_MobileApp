@@ -15,9 +15,9 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [receivedData, setReceivedData] = useState('');
 
   const writeDataToCharacteristic = async () => {
-    const serviceUUID = '00FF'; // for Write, CHANGE Service UUID here, (make sure service UUID in this Mobile app and BLE ESP32 hardware are same), example change 0x00FF to 0x00AA
-    const characteristicUUID = 'FF01'; // for Write, CHANGE Characteristic UUID here, (make sure Characteristic UUID in this Mobile app and BLE ESP32 hardware are same), example change 0xFF01 to 0xAA01
-    const hexData = 'AA01020400080C02090000001213'; // CHANGE this hexadecimal data, if you want to change the data to be sent to BLE ESP32 hardware device
+    const serviceUUID = '00FF';
+    const characteristicUUID = 'FF01';
+    const hexData = 'AA01020400080C02090000001213'; // Hex data
 
     try {
       await device.writeCharacteristicWithResponseForService(
@@ -33,8 +33,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   };
 
   const readDataFromCharacteristic = async () => {
-    const serviceUUID = '00FF'; // for Read, CHANGE Service UUID here, (make sure service UUID in this Mobile app and BLE ESP32 hardware are same), example change 0x00FF to 0x00AA
-    const characteristicUUID = 'FF01'; // for Read, CHANGE Characteristic UUID here, (make sure Characteristic UUID in this Mobile app and BLE ESP32 hardware are same), example change 0xFF01 to 0xAA01
+    const serviceUUID = '00FF';
+    const characteristicUUID = 'FF01'; // Use the correct UUID for reading
 
     try {
       const result = await device.readCharacteristicForService(serviceUUID, characteristicUUID);
