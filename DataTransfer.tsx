@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
@@ -12,18 +12,19 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
+  const [inputData, setInputData] = useState('');
   const [receivedData, setReceivedData] = useState('');
 
   const writeDataToCharacteristic = async () => {
     const serviceUUID = '00FF';
     const characteristicUUID = 'FF01';
-    const hexData = 'AA01020400080C02090000001213'; // Hex data
 
     try {
+      const base64Data = Buffer.from(inputData, 'hex').toString('base64');
       await device.writeCharacteristicWithResponseForService(
         serviceUUID,
         characteristicUUID,
-        Buffer.from(hexData, 'hex').toString('base64')
+        base64Data
       );
       Alert.alert("Success", "Data written to the device successfully.");
     } catch (error: any) {
@@ -34,7 +35,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
   const readDataFromCharacteristic = async () => {
     const serviceUUID = '00FF';
-    const characteristicUUID = 'FF01'; // Use the correct UUID for reading
+    const characteristicUUID = 'FF01';
 
     try {
       const result = await device.readCharacteristicForService(serviceUUID, characteristicUUID);
@@ -50,9 +51,16 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   return (
     <View style={styles.container}>
       <Text>Data Transfer Page</Text>
-      {receivedData ? <Text>Received Data: {receivedData}</Text> : null}
+      <TextInput
+        style={styles.input}
+        placeholder="Enter Hex Data to Write"
+        value={inputData}
+        onChangeText={setInputData}
+        autoCapitalize="none"
+      />
       <Button title="WRITE" onPress={writeDataToCharacteristic} />
       <Button title="READ" onPress={readDataFromCharacteristic} />
+      {receivedData ? <Text>Received Data: {receivedData}</Text> : null}
     </View>
   );
 };
@@ -62,6 +70,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
+  },
+  input: {
+    width: '80%',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    padding: 10,
+    marginBottom: 20,
   }
 });
 
