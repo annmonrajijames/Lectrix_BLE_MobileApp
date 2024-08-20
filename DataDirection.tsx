@@ -7,6 +7,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 type RootStackParamList = {
   DataTransfer: { device: Device };
   DataDirection: { device: Device };
+  AppToVCUFeatures: { device: Device }; // Add this line
 };
 
 type DataDirectionProps = NativeStackScreenProps<RootStackParamList, 'DataDirection'>;
@@ -19,7 +20,7 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
       <Text>Select Data Direction</Text>
       <Button
         title="Mobile app to VCU"
-        onPress={() => navigation.navigate('DataTransfer', { device })}
+        onPress={() => navigation.navigate('AppToVCUFeatures', { device })}
       />
       <Button
         title="VCU to Mobile app"
