@@ -12,20 +12,43 @@ type CurrentLimitProps = NativeStackScreenProps<RootStackParamList, 'CurrentLimi
 
 const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
   const { device } = route.params;
-  const [inputData, setInputData] = useState('');
+  
+  const [customModeCurrLimit, setCustomModeCurrLimit] = useState('');
+  const [powerModeLimit, setPowerModeLimit] = useState('');
+  const [ecoModeCurrLimit, setEcoModeCurrLimit] = useState('');
   const [receivedData, setReceivedData] = useState('');
+
+  const convertDecimalToHex = (decimal: string) => {
+    const decimalNumber = parseInt(decimal, 10);
+    if (isNaN(decimalNumber) || decimalNumber < 0 || decimalNumber > 255) {
+      Alert.alert('Invalid Input', 'Please enter a valid decimal number between 0 and 255.');
+      return null;
+    }
+    return decimalNumber.toString(16).padStart(2, '0').toUpperCase(); // Converts to hex and ensures two-digit format
+  };
 
   const writeDataToCharacteristic = async () => {
     const serviceUUID = '00FF';
     const characteristicUUID = 'FF01';
 
+    const customModeHex = convertDecimalToHex(customModeCurrLimit);
+    const powerModeHex = convertDecimalToHex(powerModeLimit);
+    const ecoModeHex = convertDecimalToHex(ecoModeCurrLimit);
+
+    if (!customModeHex || !powerModeHex || !ecoModeHex) {
+      return; // Stops the process if any input is invalid
+    }
+
+    const SOF = 'AA';
+    const Source = '01';
+    const Destination = '02';
+    const OpCode = '0A';
+    const Payload_Length = '0003';
+    const message = SOF + Source + Destination + OpCode + Payload_Length + customModeHex + powerModeHex + ecoModeHex;
+
     try {
-      const base64Data = Buffer.from(inputData, 'hex').toString('base64');
-      await device.writeCharacteristicWithResponseForService(
-        serviceUUID,
-        characteristicUUID,
-        base64Data
-      );
+      const base64Data = Buffer.from(message, 'hex').toString('base64');
+      await device.writeCharacteristicWithResponseForService(serviceUUID, characteristicUUID, base64Data);
       Alert.alert("Success", "Data written to the device successfully.");
     } catch (error: any) {
       console.error("Write failed", error);
@@ -50,17 +73,41 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Data Transfer Page</Text>
+      <Text style={styles.title}>Current Limit Setup</Text>
+      
       <TextInput
         style={styles.input}
-        placeholder="Enter Hex Data to Write"
-        placeholderTextColor="#808080" 
-        value={inputData}
-        onChangeText={setInputData}
-        autoCapitalize="none"
+        placeholder="Enter Custom Mode Curr Limit (0-255)"
+        placeholderTextColor="#808080"
+        value={customModeCurrLimit}
+        onChangeText={setCustomModeCurrLimit}
+        keyboardType="numeric"
+        maxLength={3}
       />
+      
+      <TextInput
+        style={styles.input}
+        placeholder="Enter Power Mode Limit (0-255)"
+        placeholderTextColor="#808080"
+        value={powerModeLimit}
+        onChangeText={setPowerModeLimit}
+        keyboardType="numeric"
+        maxLength={3}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Enter Eco Mode Curr Limit (0-255)"
+        placeholderTextColor="#808080"
+        value={ecoModeCurrLimit}
+        onChangeText={setEcoModeCurrLimit}
+        keyboardType="numeric"
+        maxLength={3}
+      />
+      
       <Button title="WRITE" onPress={writeDataToCharacteristic} />
       <Button title="READ" onPress={readDataFromCharacteristic} />
+      
       {receivedData ? <Text>Received Data: {receivedData}</Text> : null}
     </View>
   );
