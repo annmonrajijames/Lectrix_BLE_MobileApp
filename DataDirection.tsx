@@ -1,6 +1,5 @@
-// DataDirection.tsx
 import React from 'react';
-import { View, Button, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -17,15 +16,19 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text>Select Data Direction</Text>
-      <Button
-        title="Mobile app to VCU"
+      <Text style={styles.title}>Select Data Direction</Text>
+      <TouchableOpacity
+        style={styles.button}
         onPress={() => navigation.navigate('AppToVCUFeatures', { device })}
-      />
-      <Button
-        title="VCU to Mobile app"
+      >
+        <Text style={styles.buttonText}>Mobile app to VCU</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
         onPress={() => console.log('VCU to Mobile app pressed')}
-      />
+      >
+        <Text style={styles.buttonText}>VCU to Mobile app</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -36,6 +39,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  title: {
+    fontSize: 18,
+    marginBottom: 20, // Space between title and buttons
+  },
+  button: {
+    backgroundColor: '#00aaaa',
+    paddingVertical: 30,
+    paddingHorizontal: 50,
+    borderRadius: 10,
+    marginVertical: 10, // Space between buttons
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

@@ -14,7 +14,7 @@ type RootStackParamList = {
   DataTransfer: { device: Device };
   DataDirection: { device: Device };
   AppToVCUFeatures: { device: Device };
-  CurrentLimit: {device: Device};
+  CurrentLimit: { device: Device };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -100,12 +100,22 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
         data={devices}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => connectToDevice(item)}>
-            <Text style={styles.deviceInfo}>{item.name || 'Unnamed device'} (ID: {item.id})</Text>
-          </TouchableOpacity>
+          <View style={styles.deviceContainer}>
+            <View style={styles.deviceInfoContainer}>
+              <Text style={styles.deviceName}>{item.name || 'Unnamed device'}</Text>
+              <Text style={styles.deviceId}>ID: {item.id}</Text>
+              {/* Replace 'item.rssi' with actual RSSI value if available */}
+              <Text style={styles.deviceRssi}>RSSI: {item.rssi || 'N/A'}</Text>
+            </View>
+            <TouchableOpacity style={styles.connectButton} onPress={() => connectToDevice(item)}>
+              <Text style={styles.connectButtonText}>Connect</Text>
+            </TouchableOpacity>
+          </View>
         )}
       />
-      <Button title="Scan for Devices" onPress={scanAndConnect} />
+      <TouchableOpacity style={styles.scanButton} onPress={scanAndConnect}>
+        <Text style={styles.scanButtonText}>Scan for Devices</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -136,13 +146,54 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  deviceInfo: {
-    fontSize: 16,
+  deviceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginVertical: 10,
-    padding: 10,
-    backgroundColor: '#DDD',
+    width: '100%',
+  },
+  deviceInfoContainer: {
+    flex: 1,
+  },
+  deviceName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  deviceId: {
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  deviceRssi: {
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  connectButton: {
+    backgroundColor: '#00aaaa',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     borderRadius: 5,
-  }
+    alignItems: 'center',
+  },
+  connectButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  scanButton: {
+    backgroundColor: '#00aaaa',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  scanButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default App;

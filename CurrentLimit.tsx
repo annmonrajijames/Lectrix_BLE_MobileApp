@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
@@ -28,8 +28,8 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
   };
 
   const writeDataToCharacteristic = async () => {
-    const serviceUUID = '00FF';
-    const characteristicUUID = 'FF01';
+    const serviceUUID = '1819';
+    const characteristicUUID = 'EE02';
 
     const customModeHex = convertDecimalToHex(customModeCurrLimit);
     const powerModeHex = convertDecimalToHex(powerModeLimit);
@@ -57,8 +57,8 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
   };
 
   const readDataFromCharacteristic = async () => {
-    const serviceUUID = '00FF';
-    const characteristicUUID = 'FF01';
+    const serviceUUID = '1819';
+    const characteristicUUID = 'EE02';
 
     try {
       const result = await device.readCharacteristicForService(serviceUUID, characteristicUUID);
@@ -105,8 +105,15 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
         maxLength={3}
       />
       
-      <Button title="WRITE" onPress={writeDataToCharacteristic} />
-      <Button title="READ" onPress={readDataFromCharacteristic} />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={writeDataToCharacteristic}>
+          <Text style={styles.buttonText}>WRITE</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.button} onPress={readDataFromCharacteristic}>
+          <Text style={styles.buttonText}>READ</Text>
+        </TouchableOpacity>
+      </View>
       
       {receivedData ? <Text>Received Data: {receivedData}</Text> : null}
     </View>
@@ -130,9 +137,29 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    color: '#0000FF', // Sets the text color to blue
-    fontSize: 20, // Sets the size of the font
-    fontWeight: 'bold', // Makes the font bold
+    color: '#00aaa',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '80%', // Adjust this width as needed
+  },
+  button: {
+    backgroundColor: '#00aaaa',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 10, // Space between buttons
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
