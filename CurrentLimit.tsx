@@ -14,9 +14,10 @@ type CurrentLimitProps = NativeStackScreenProps<RootStackParamList, 'CurrentLimi
 const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
   const { device } = route.params;
   
-  const [customModeCurrLimit, setCustomModeCurrLimit] = useState(0);
-  const [powerModeLimit, setPowerModeLimit] = useState(0);
-  const [ecoModeCurrLimit, setEcoModeCurrLimit] = useState(0);
+  // Initialized with default values
+  const [customModeCurrLimit, setCustomModeCurrLimit] = useState(105);
+  const [powerModeLimit, setPowerModeLimit] = useState(90);
+  const [ecoModeCurrLimit, setEcoModeCurrLimit] = useState(35);
   const [receivedData, setReceivedData] = useState('');
 
   const convertDecimalToHex = (decimal: string) => {
