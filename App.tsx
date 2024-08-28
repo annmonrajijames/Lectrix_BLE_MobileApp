@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginVertical: 10,
     padding: 10,
-    backgroundColor: '#DDD',
+    backgroundColor: '#000',
     borderRadius: 5,
   },
 });
