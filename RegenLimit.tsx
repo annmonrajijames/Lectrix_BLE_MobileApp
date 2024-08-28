@@ -6,12 +6,12 @@ import { Buffer } from 'buffer';
 import Slider from '@react-native-community/slider';
 
 type RootStackParamList = {
-  CurrentLimit: { device: Device };
+  RegenLimit: { device: Device };
 };
 
-type CurrentLimitProps = NativeStackScreenProps<RootStackParamList, 'CurrentLimit'>;
+type RegenLimitProps = NativeStackScreenProps<RootStackParamList, 'RegenLimit'>;
 
-const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
+const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
   const { device } = route.params;
   
   // Initialized with default values
@@ -22,8 +22,8 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
 
   const convertDecimalToHex = (decimal: string) => {
     const decimalNumber = parseInt(decimal, 10);
-    if (isNaN(decimalNumber) || decimalNumber < 0 || decimalNumber > 255) {
-      Alert.alert('Invalid Input', 'Please enter a valid decimal number between 0 and 255.');
+    if (isNaN(decimalNumber) || decimalNumber < 0 || decimalNumber > 400) {
+      Alert.alert('Invalid Input', 'Please enter a valid decimal number between 0 and 400.');
       return null;
     }
     return decimalNumber.toString(16).padStart(2, '0').toUpperCase();
@@ -46,10 +46,11 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
       return; // Stops the process if any input is invalid
     }
 
+    
     const SOF = 'AA';
     const Source = '01';
     const Destination = '02';
-    const OpCode = '0A';
+    const OpCode = '0B';
     const Payload_Length = '0003';
     const message = SOF + Source + Destination + OpCode + Payload_Length + customModeHex + powerModeHex + ecoModeHex;
 
@@ -67,13 +68,13 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Current Limit Setup</Text>
+      <Text style={styles.title}>Regen Limit Setup</Text>
       
       {/* Custom Mode */}
       <Text style={styles.label}>Custom Mode</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-255"
+        placeholder="0-400"
         placeholderTextColor="#808080"
         value={customModeCurrLimit.toString()}
         onChangeText={text => setCustomModeCurrLimit(parseInt(text) || 0)}
@@ -83,7 +84,7 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={400}
         step={1}
         value={customModeCurrLimit}
         onValueChange={value => handleSliderChange(value, setCustomModeCurrLimit)}
@@ -93,7 +94,7 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
       <Text style={styles.label}>Power Mode</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-255"
+        placeholder="0-400"
         placeholderTextColor="#808080"
         value={powerModeLimit.toString()}
         onChangeText={text => setPowerModeLimit(parseInt(text) || 0)}
@@ -103,7 +104,7 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={400}
         step={1}
         value={powerModeLimit}
         onValueChange={value => handleSliderChange(value, setPowerModeLimit)}
@@ -113,7 +114,7 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
       <Text style={styles.label}>Eco Mode</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-255"
+        placeholder="0-400"
         placeholderTextColor="#808080"
         value={ecoModeCurrLimit.toString()}
         onChangeText={text => setEcoModeCurrLimit(parseInt(text) || 0)}
@@ -123,7 +124,7 @@ const CurrentLimit: React.FC<CurrentLimitProps> = ({ route }) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={400}
         step={1}
         value={ecoModeCurrLimit}
         onValueChange={value => handleSliderChange(value, setEcoModeCurrLimit)}
@@ -169,4 +170,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CurrentLimit;
+export default RegenLimit;

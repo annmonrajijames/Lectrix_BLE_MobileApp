@@ -16,8 +16,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [receivedData, setReceivedData] = useState('');
 
   const writeDataToCharacteristic = async () => {
-    const serviceUUID = '00FF';
-    const characteristicUUID = 'FF01';
+    const serviceUUID = '1819';
+    const characteristicUUID = 'EE02';
 
     try {
       const base64Data = Buffer.from(inputData, 'hex').toString('base64');
