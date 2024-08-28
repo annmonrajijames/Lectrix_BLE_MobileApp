@@ -14,19 +14,19 @@ type RPMLimitProps = NativeStackScreenProps<RootStackParamList, 'RPMLimit'>;
 const RPMLimit: React.FC<RPMLimitProps> = ({ route }) => {
   const { device } = route.params;
   
-  // Initialized with default values
-  const [customModeCurrLimit, setCustomModeCurrLimit] = useState(105);
-  const [powerModeLimit, setPowerModeLimit] = useState(90);
-  const [ecoModeCurrLimit, setEcoModeCurrLimit] = useState(35);
+  // Initialized with default values within the updated limits
+  const [customModeCurrLimit, setCustomModeCurrLimit] = useState(9000); // Between 7000-12000 RPM
+  const [powerModeLimit, setPowerModeLimit] = useState(12000); // Between 10000-15000 RPM
+  const [ecoModeCurrLimit, setEcoModeCurrLimit] = useState(8000); // Between 6000-9000 RPM
   const [receivedData, setReceivedData] = useState('');
 
   const convertDecimalToHex = (decimal: string) => {
     const decimalNumber = parseInt(decimal, 10);
-    if (isNaN(decimalNumber) || decimalNumber < 0 || decimalNumber > 400) {
-      Alert.alert('Invalid Input', 'Please enter a valid decimal number between 0 and 400.');
+    if (isNaN(decimalNumber)) {
+      Alert.alert('Invalid Input', 'Please enter a valid decimal number.');
       return null;
     }
-    return decimalNumber.toString(16).padStart(2, '0').toUpperCase();
+    return decimalNumber.toString(16).padStart(4, '0').toUpperCase(); // Adjusted to pad to 4 hex digits
   };
 
   const handleSliderChange = (value: number, setter: React.Dispatch<React.SetStateAction<number>>) => {
@@ -46,7 +46,6 @@ const RPMLimit: React.FC<RPMLimitProps> = ({ route }) => {
       return; // Stops the process if any input is invalid
     }
 
-    
     const SOF = 'AA';
     const Source = '01';
     const Destination = '02';
@@ -71,61 +70,61 @@ const RPMLimit: React.FC<RPMLimitProps> = ({ route }) => {
       <Text style={styles.title}>RPM Limit Setup</Text>
       
       {/* Custom Mode */}
-      <Text style={styles.label}>Custom Mode</Text>
+      <Text style={styles.label}>Custom Mode (7,000-12,000 RPM)</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-400"
+        placeholder="7000-12000"
         placeholderTextColor="#808080"
         value={customModeCurrLimit.toString()}
-        onChangeText={text => setCustomModeCurrLimit(parseInt(text) || 0)}
+        onChangeText={text => setCustomModeCurrLimit(Math.max(7000, Math.min(parseInt(text) || 7000, 12000)))}
         keyboardType="numeric"
-        maxLength={3}
+        maxLength={5}
       />
       <Slider
         style={styles.slider}
-        minimumValue={0}
-        maximumValue={400}
-        step={1}
+        minimumValue={7000}
+        maximumValue={12000}
+        step={100}
         value={customModeCurrLimit}
         onValueChange={value => handleSliderChange(value, setCustomModeCurrLimit)}
       />
 
       {/* Power Mode */}
-      <Text style={styles.label}>Power Mode</Text>
+      <Text style={styles.label}>Power Mode (10,000-15,000 RPM)</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-400"
+        placeholder="10000-15000"
         placeholderTextColor="#808080"
         value={powerModeLimit.toString()}
-        onChangeText={text => setPowerModeLimit(parseInt(text) || 0)}
+        onChangeText={text => setPowerModeLimit(Math.max(10000, Math.min(parseInt(text) || 10000, 15000)))}
         keyboardType="numeric"
-        maxLength={3}
+        maxLength={5}
       />
       <Slider
         style={styles.slider}
-        minimumValue={0}
-        maximumValue={400}
-        step={1}
+        minimumValue={10000}
+        maximumValue={15000}
+        step={100}
         value={powerModeLimit}
         onValueChange={value => handleSliderChange(value, setPowerModeLimit)}
       />
 
       {/* Eco Mode */}
-      <Text style={styles.label}>Eco Mode</Text>
+      <Text style={styles.label}>Eco Mode (6,000-9,000 RPM)</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-400"
+        placeholder="6000-9000"
         placeholderTextColor="#808080"
         value={ecoModeCurrLimit.toString()}
-        onChangeText={text => setEcoModeCurrLimit(parseInt(text) || 0)}
+        onChangeText={text => setEcoModeCurrLimit(Math.max(6000, Math.min(parseInt(text) || 6000, 9000)))}
         keyboardType="numeric"
-        maxLength={3}
+        maxLength={4}
       />
       <Slider
         style={styles.slider}
-        minimumValue={0}
-        maximumValue={400}
-        step={1}
+        minimumValue={6000}
+        maximumValue={9000}
+        step={100}
         value={ecoModeCurrLimit}
         onValueChange={value => handleSliderChange(value, setEcoModeCurrLimit)}
       />
@@ -145,8 +144,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   input: {
-    width: '60%',  // Reduced width
-    height: 35,    // Reduced height
+    width: '60%',  
+    height: 35,    
     borderColor: 'gray',
     color: 'black',
     borderWidth: 1,
