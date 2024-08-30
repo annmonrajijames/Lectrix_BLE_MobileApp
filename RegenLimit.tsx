@@ -14,16 +14,16 @@ type RegenLimitProps = NativeStackScreenProps<RootStackParamList, 'RegenLimit'>;
 const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
   const { device } = route.params;
   
-  // Initialized with default values within the updated limits
-  const [customModeCurrLimit, setCustomModeCurrLimit] = useState(40); // Between 20-60
-  const [powerModeLimit, setPowerModeLimit] = useState(20); // Between 10-30
-  const [ecoModeCurrLimit, setEcoModeCurrLimit] = useState(60); // Between 50-70
+  // Initialized with default values
+  const [customModeCurrLimit, setCustomModeCurrLimit] = useState(105);
+  const [powerModeLimit, setPowerModeLimit] = useState(90);
+  const [ecoModeCurrLimit, setEcoModeCurrLimit] = useState(35);
   const [receivedData, setReceivedData] = useState('');
 
   const convertDecimalToHex = (decimal: string) => {
     const decimalNumber = parseInt(decimal, 10);
-    if (isNaN(decimalNumber)) {
-      Alert.alert('Invalid Input', 'Please enter a valid decimal number.');
+    if (isNaN(decimalNumber) || decimalNumber < 0 || decimalNumber > 255) {
+      Alert.alert('Invalid Input', 'Please enter a valid decimal number between 0 and 255.');
       return null;
     }
     return decimalNumber.toString(16).padStart(2, '0').toUpperCase();
@@ -70,60 +70,60 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Text style={styles.title}>Regen Limit Setup</Text>
       
       {/* Custom Mode */}
-      <Text style={styles.label}>Custom Mode (20-60 kW)</Text>
+      <Text style={styles.label}>Custom Mode (0-255 Regen)</Text>
       <TextInput
         style={styles.input}
-        placeholder="20-60"
+        placeholder="0-255"
         placeholderTextColor="#808080"
         value={customModeCurrLimit.toString()}
-        onChangeText={text => setCustomModeCurrLimit(Math.max(20, Math.min(parseInt(text) || 20, 60)))}
+        onChangeText={text => setCustomModeCurrLimit(parseInt(text) || 0)}
         keyboardType="numeric"
-        maxLength={2}
+        maxLength={5}
       />
       <Slider
         style={styles.slider}
-        minimumValue={20}
-        maximumValue={60}
+        minimumValue={0}
+        maximumValue={255}
         step={1}
         value={customModeCurrLimit}
         onValueChange={value => handleSliderChange(value, setCustomModeCurrLimit)}
       />
 
       {/* Power Mode */}
-      <Text style={styles.label}>Power Mode (10-30 kW)</Text>
+      <Text style={styles.label}>Power Mode (0-255 Regen)</Text>
       <TextInput
         style={styles.input}
-        placeholder="10-30"
+        placeholder="0-255"
         placeholderTextColor="#808080"
         value={powerModeLimit.toString()}
-        onChangeText={text => setPowerModeLimit(Math.max(10, Math.min(parseInt(text) || 10, 30)))}
+        onChangeText={text => setPowerModeLimit(parseInt(text) || 0)}
         keyboardType="numeric"
-        maxLength={2}
+        maxLength={5}
       />
       <Slider
         style={styles.slider}
-        minimumValue={10}
-        maximumValue={30}
+        minimumValue={0}
+        maximumValue={255}
         step={1}
         value={powerModeLimit}
         onValueChange={value => handleSliderChange(value, setPowerModeLimit)}
       />
 
       {/* Eco Mode */}
-      <Text style={styles.label}>Eco Mode (50-70 kW)</Text>
+      <Text style={styles.label}>Eco Mode (0-255 Regen)</Text>
       <TextInput
         style={styles.input}
-        placeholder="50-70"
+        placeholder="0-255"
         placeholderTextColor="#808080"
         value={ecoModeCurrLimit.toString()}
-        onChangeText={text => setEcoModeCurrLimit(Math.max(50, Math.min(parseInt(text) || 50, 70)))}
+        onChangeText={text => setEcoModeCurrLimit(parseInt(text) || 0)}
         keyboardType="numeric"
-        maxLength={2}
+        maxLength={5}
       />
       <Slider
         style={styles.slider}
-        minimumValue={50}
-        maximumValue={70}
+        minimumValue={0}
+        maximumValue={255}
         step={1}
         value={ecoModeCurrLimit}
         onValueChange={value => handleSliderChange(value, setEcoModeCurrLimit)}
@@ -144,8 +144,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   input: {
-    width: '60%',  
-    height: 35,    
+    width: '60%',  // Reduced width
+    height: 35,    // Reduced height
     borderColor: 'gray',
     color: 'black',
     borderWidth: 1,

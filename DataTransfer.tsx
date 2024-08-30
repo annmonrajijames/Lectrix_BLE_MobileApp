@@ -34,8 +34,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   };
 
   const readDataFromCharacteristic = async () => {
-    const serviceUUID = '00FF';
-    const characteristicUUID = 'FF01';
+    const serviceUUID = '1819';
+    const characteristicUUID = 'EE02';
 
     try {
       const result = await device.readCharacteristicForService(serviceUUID, characteristicUUID);
