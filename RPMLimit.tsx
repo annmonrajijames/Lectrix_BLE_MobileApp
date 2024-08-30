@@ -50,7 +50,7 @@ const RPMLimit: React.FC<RPMLimitProps> = ({ route }) => {
     const Source = '01';
     const Destination = '02';
     const OpCode = '0C';
-    const Payload_Length = '0003';
+    const Payload_Length = '0006';
     const message = SOF + Source + Destination + OpCode + Payload_Length + customModeHex + powerModeHex + ecoModeHex;
 
     try {
