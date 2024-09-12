@@ -14,6 +14,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
   const [inputData, setInputData] = useState('');
   const [receivedData, setReceivedData] = useState('');
+  const [hexData, setHexData] = useState('');
+  const [decData, setDecData] = useState('');
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -31,6 +33,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
           if (characteristic?.value) {
             const data = Buffer.from(characteristic.value, 'base64').toString('hex');
             setReceivedData(data);
+            formatData(data);
           }
         });
       } catch (error: any) {
@@ -45,6 +48,19 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       device.cancelConnection();  // Ensure cleanup on component unmount
     };
   }, [device]);
+
+  const formatData = (hexData: string) => {
+    let hexString = '';
+    let decString = '';
+    for (let i = 0; i < hexData.length; i += 2) {
+      const byte = hexData.substr(i, 2);
+      const decimal = parseInt(byte, 16);
+      hexString += `${byte} `;
+      decString += `${decimal} `;
+    }
+    setHexData(hexString);
+    setDecData(decString);
+  };
 
   const writeDataToCharacteristic = async () => {
     try {
@@ -73,7 +89,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         autoCapitalize="none"
       />
       <Button title="WRITE" onPress={writeDataToCharacteristic} />
-      {receivedData ? <Text>Received Data: {receivedData}</Text> : null}
+      {hexData ? <Text style={styles.hexText}>Hexadecimal: {hexData}</Text> : null}
+      {decData ? <Text style={styles.decText}>Decimal: {decData}</Text> : null}
     </View>
   );
 };
@@ -98,6 +115,12 @@ const styles = StyleSheet.create({
     color: '#0000FF', // Sets the text color to blue
     fontSize: 20, // Sets the size of the font
     fontWeight: 'bold', // Makes the font bold
+  },
+  hexText: {
+    color: 'black', // Sets the text color to black for hexadecimal
+  },
+  decText: {
+    color: 'green', // Sets the text color to green for decimal
   },
 });
 
