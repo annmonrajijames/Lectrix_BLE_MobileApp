@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
@@ -12,7 +12,6 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [inputData, setInputData] = useState('');
   const [receivedData, setReceivedData] = useState('');
 
   const serviceUUID = '00FF';
@@ -46,34 +45,10 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     };
   }, [device]);
 
-  const writeDataToCharacteristic = async () => {
-    try {
-      const base64Data = Buffer.from(inputData, 'hex').toString('base64');
-      await device.writeCharacteristicWithResponseForService(
-        serviceUUID,
-        characteristicUUID,
-        base64Data
-      );
-      Alert.alert("Success", "Data written to the device successfully.");
-    } catch (error: any) {
-      console.error("Write failed", error);
-      Alert.alert("Write Error", `Error writing data to device: ${error.message}`);
-    }
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Data Transfer Page</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter Hex Data to Write"
-        placeholderTextColor="#808080" 
-        value={inputData}
-        onChangeText={setInputData}
-        autoCapitalize="none"
-      />
-      <Button title="WRITE" onPress={writeDataToCharacteristic} />
-      {receivedData ? <Text>Received Data: {receivedData}</Text> : null}
+      <Text style={styles.title}>Data Receiving Page</Text>
+      {receivedData ? <Text>Received Data: {receivedData}</Text> : <Text>No Data Received Yet</Text>}
     </View>
   );
 };
@@ -84,15 +59,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-  },
-  input: {
-    width: '80%',
-    height: 40,
-    borderColor: 'gray',
-    color: 'black',
-    borderWidth: 1,
-    padding: 10,
-    marginBottom: 20,
   },
   title: {
     color: '#0000FF', // Sets the text color to blue
