@@ -123,8 +123,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {log.length > 0 ? (
           log.map((entry, index) => (
             <View key={index} style={styles.logEntry}>
-              <Text>Data: {entry.data}</Text>
-              <Text>Received at: {entry.timeReceived} IST</Text>
+              <Text style={{ color: 'green' }}>Data: {entry.data}</Text>
+              <Text style={{ color: 'green' }}>Received at: {entry.timeReceived} IST</Text>
             </View>
           ))
         ) : (
