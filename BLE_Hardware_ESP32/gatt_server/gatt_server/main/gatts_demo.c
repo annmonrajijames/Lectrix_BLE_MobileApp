@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021-2024 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2021-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -30,7 +30,6 @@
 #include "esp_gatts_api.h"
 #include "esp_bt_defs.h"
 #include "esp_bt_main.h"
-#include "esp_bt_device.h"
 #include "esp_gatt_common_api.h"
 
 #include "sdkconfig.h"
@@ -41,8 +40,8 @@
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
-#define GATTS_SERVICE_UUID_TEST_A   0x00FF // CHANGE Service UUID here, (make sure service UUID in Mobile app and in this BLE ESP32 hardware are same), example change 0x00FF to 0x00AA
-#define GATTS_CHAR_UUID_TEST_A      0xFF01 // CHANGE Characteristic UUID here, (make sure Characteristic UUID in Mobile app and in this BLE ESP32 hardware are same), example change 0xFF01 to 0xAA01
+#define GATTS_SERVICE_UUID_TEST_A   0x00FF
+#define GATTS_CHAR_UUID_TEST_A      0xFF01
 #define GATTS_DESCR_UUID_TEST_A     0x3333
 #define GATTS_NUM_HANDLE_TEST_A     4
 
@@ -51,7 +50,7 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 #define GATTS_DESCR_UUID_TEST_B     0x2222
 #define GATTS_NUM_HANDLE_TEST_B     4
 
-#define TEST_DEVICE_NAME            "ESP_GATTS_DEMO" // CHANGE ESP32 hardware name here(name shown while scanning in mobile app), example change ESP_GATTS_DEMO to AnnmonRajiJames
+#define TEST_DEVICE_NAME            "ESP_GATTS_DEMO"
 #define TEST_MANUFACTURER_DATA_LEN  17
 
 #define GATTS_DEMO_CHAR_VAL_LEN_MAX 0x40
@@ -76,7 +75,7 @@ static uint8_t adv_config_done = 0;
 #ifdef CONFIG_SET_RAW_ADV_DATA
 static uint8_t raw_adv_data[] = {
         0x02, 0x01, 0x06,                  // Length 2, Data Type 1 (Flags), Data 1 (LE General Discoverable Mode, BR/EDR Not Supported)
-        0x02, 0x0a, 0xeb,                  // Length 2, Data Type 10 (TX power level), Data 2 (-21)
+        0x02, 0x0a, 0xeb,                  // Length 2, Data Type 10 (TX power leve), Data 2 (-21)
         0x03, 0x03, 0xab, 0xcd,            // Length 3, Data Type 3 (Complete 16-bit Service UUIDs), Data 3 (UUID)
 };
 static uint8_t raw_scan_rsp_data[] = {     // Length 15, Data Type 9 (Complete Local Name), Data 1 (ESP_GATTS_DEMO)
@@ -235,12 +234,6 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
                   param->update_conn_params.latency,
                   param->update_conn_params.timeout);
         break;
-    case ESP_GAP_BLE_SET_PKT_LENGTH_COMPLETE_EVT:
-        ESP_LOGI(GATTS_TAG, "packet length updated: rx = %d, tx = %d, status = %d",
-                  param->pkt_data_length_cmpl.params.rx_len,
-                  param->pkt_data_length_cmpl.params.tx_len,
-                  param->pkt_data_length_cmpl.status);
-        break;
     default:
         break;
     }
@@ -354,10 +347,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
         rsp.attr_value.handle = param->read.handle;
         rsp.attr_value.len = 4;
-        rsp.attr_value.value[0] = 0xde; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
-        rsp.attr_value.value[1] = 0xed; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
-        rsp.attr_value.value[2] = 0xbe; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
-        rsp.attr_value.value[3] = 0xef; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
+        rsp.attr_value.value[0] = 0xde;
+        rsp.attr_value.value[1] = 0xed;
+        rsp.attr_value.value[2] = 0xbe;
+        rsp.attr_value.value[3] = 0xef;
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
                                     ESP_GATT_OK, &rsp);
         break;
