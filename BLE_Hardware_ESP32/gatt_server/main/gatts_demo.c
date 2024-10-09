@@ -372,10 +372,15 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
                 if (descr_value == 0x0001){
                     if (a_property & ESP_GATT_CHAR_PROP_BIT_NOTIFY){
                         ESP_LOGI(GATTS_TAG, "notify enable");
-                        uint8_t notify_data[15];
+                        uint8_t notify_data[20];
                         for (int i = 0; i < sizeof(notify_data); ++i)
                         {
                             notify_data[i] = i%0xff;
+                        }
+                        // Print notify_data contents
+                        for (int i = 0; i < sizeof(notify_data); ++i)
+                        {
+                            ESP_LOGI(GATTS_TAG, "notify_data[%d] = %d", i, notify_data[i]);
                         }
                         //the size of notify_data[] need less than MTU size
                         esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_A_APP_ID].char_handle,
