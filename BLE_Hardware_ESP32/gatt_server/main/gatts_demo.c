@@ -252,6 +252,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
     ESP_LOGI(GATTS_TAG, "Profile A Event Handler: Event = %d", event);
     switch (event) {
     case ESP_GATTS_REG_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_REG_EVT= %d", ESP_GATTS_REG_EVT);
         ESP_LOGI(GATTS_TAG, "REGISTER_APP_EVT, status %d, app_id %d", param->reg.status, param->reg.app_id);
         gl_profile_tab[PROFILE_A_APP_ID].service_id.is_primary = true;
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.inst_id = 0x00;
@@ -276,6 +277,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_ble_gatts_create_service(gatts_if, &gl_profile_tab[PROFILE_A_APP_ID].service_id, GATTS_NUM_HANDLE_TEST_A);
         break;
     case ESP_GATTS_READ_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_READ_EVT= %d", ESP_GATTS_READ_EVT);
         ESP_LOGI(GATTS_TAG, "GATT_READ_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d",
                  param->read.conn_id, param->read.trans_id, param->read.handle);
         esp_gatt_rsp_t rsp;
@@ -289,8 +291,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id, ESP_GATT_OK, &rsp);
         break;
     case ESP_GATTS_WRITE_EVT:
+    
         ESP_LOGI(GATTS_TAG, "GATT_WRITE_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d, is_prep %d, need_rsp %d",
                  param->write.conn_id, param->write.trans_id, param->write.handle, param->write.is_prep, param->write.need_rsp);
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_WRITE_EVT= %d", ESP_GATTS_WRITE_EVT);
         if (!param->write.is_prep){
             ESP_LOGI(GATTS_TAG, "Write event: value len %d, value :", param->write.len);
             esp_log_buffer_hex(GATTS_TAG, param->write.value, param->write.len);
@@ -332,17 +336,21 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         example_write_event_env(gatts_if, &a_prepare_write_env, param);
         break;
     case ESP_GATTS_EXEC_WRITE_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_EXEC_WRITE_EVT= %d", ESP_GATTS_EXEC_WRITE_EVT);
         ESP_LOGI(GATTS_TAG, "Execute write event.");
         esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, ESP_GATT_OK, NULL);
         example_exec_write_event_env(&a_prepare_write_env, param);
         break;
     case ESP_GATTS_MTU_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_MTU_EVT= %d", ESP_GATTS_MTU_EVT);
         ESP_LOGI(GATTS_TAG, "MTU updated to %d", param->mtu.mtu);
         break;
     case ESP_GATTS_UNREG_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_UNREG_EVT= %d", ESP_GATTS_UNREG_EVT);
         ESP_LOGI(GATTS_TAG, "Unregister event received.");
         break;
     case ESP_GATTS_CREATE_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_CREATE_EVT= %d", ESP_GATTS_CREATE_EVT);
         ESP_LOGI(GATTS_TAG, "Service created: status=%d, service_handle=%d", param->create.status, param->create.service_handle);
         gl_profile_tab[PROFILE_A_APP_ID].service_handle = param->create.service_handle;
         gl_profile_tab[PROFILE_A_APP_ID].char_uuid.len = ESP_UUID_LEN_16;
@@ -359,9 +367,11 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         }
         break;
     case ESP_GATTS_ADD_INCL_SRVC_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_ADD_INCL_SRVC_EVT= %d", ESP_GATTS_ADD_INCL_SRVC_EVT);
         ESP_LOGI(GATTS_TAG, "Included service added.");
         break;
     case ESP_GATTS_ADD_CHAR_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_ADD_CHAR_EVT= %d", ESP_GATTS_ADD_CHAR_EVT);
         ESP_LOGI(GATTS_TAG, "Character added: status=%d, attr_handle=%d, service_handle=%d",
                  param->add_char.status, param->add_char.attr_handle, param->add_char.service_handle);
         gl_profile_tab[PROFILE_A_APP_ID].char_handle = param->add_char.attr_handle;
@@ -374,20 +384,25 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         }
         break;
     case ESP_GATTS_ADD_CHAR_DESCR_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_ADD_CHAR_DESCR_EVT= %d", ESP_GATTS_ADD_CHAR_DESCR_EVT);
         gl_profile_tab[PROFILE_A_APP_ID].descr_handle = param->add_char_descr.attr_handle;
         ESP_LOGI(GATTS_TAG, "Descriptor added: status=%d, attr_handle=%d, service_handle=%d",
                  param->add_char_descr.status, param->add_char_descr.attr_handle, param->add_char_descr.service_handle);
         break;
     case ESP_GATTS_DELETE_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_DELETE_EVT= %d", ESP_GATTS_DELETE_EVT);
         ESP_LOGI(GATTS_TAG, "Service deleted.");
         break;
     case ESP_GATTS_START_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_START_EVT= %d", ESP_GATTS_START_EVT);
         ESP_LOGI(GATTS_TAG, "Service started: status=%d, service_handle=%d", param->start.status, param->start.service_handle);
         break;
     case ESP_GATTS_STOP_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_STOP_EVT= %d", ESP_GATTS_STOP_EVT);
         ESP_LOGI(GATTS_TAG, "Service stopped.");
         break;
     case ESP_GATTS_CONNECT_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_CONNECT_EVT= %d", ESP_GATTS_CONNECT_EVT);
         ESP_LOGI(GATTS_TAG, "Device connected: conn_id=%d, remote=%02x:%02x:%02x:%02x:%02x:%02x",
                  param->connect.conn_id,
                  param->connect.remote_bda[0], param->connect.remote_bda[1], param->connect.remote_bda[2],
@@ -403,11 +418,13 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_ble_gap_update_conn_params(&conn_params);
         break;
     case ESP_GATTS_DISCONNECT_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_DISCONNECT_EVT= %d", ESP_GATTS_DISCONNECT_EVT);
         ESP_LOGI(GATTS_TAG, "Device disconnected, reason: 0x%x", param->disconnect.reason);
         // Restart advertising after a disconnect
         esp_ble_gap_start_advertising(&adv_params);
         break;
     case ESP_GATTS_CONF_EVT:
+        ESP_LOGI(GATTS_TAG, "ESP_GATTS_CONF_EVT= %d", ESP_GATTS_CONF_EVT);
         ESP_LOGI(GATTS_TAG, "Confirmation event: status=%d, attr_handle=%d", param->conf.status, param->conf.handle);
         break;
     case ESP_GATTS_OPEN_EVT:
