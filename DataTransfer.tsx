@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
+import moment from 'moment-timezone'; // For handling IST time format
 
 type RootStackParamList = {
   DataTransfer: { device: Device };
@@ -10,87 +11,126 @@ type RootStackParamList = {
 
 type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfer'>;
 
+type LogEntry = {
+  data: string;
+  timeReceived: string;
+};
+
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [inputData, setInputData] = useState('');
-  const [receivedData, setReceivedData] = useState('');
-  const [hexData, setHexData] = useState('');
-  const [decData, setDecData] = useState('');
+  const [log, setLog] = useState<LogEntry[]>([]);
+  const [lastTime, setLastTime] = useState<number | null>(null); // Timestamp of the last received data
+  const [isConnected, setIsConnected] = useState(false);
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
+  const scrollViewRef = useRef<ScrollView>(null); // Reference to the ScrollView
 
   useEffect(() => {
-    const setupSubscription = async () => {
+    const connectToDevice = async () => {
       try {
-        await device.monitorCharacteristicForService(serviceUUID, characteristicUUID, (error, characteristic) => {
-          if (error) {
-            console.error("Subscription error:", error);
-            Alert.alert("Subscription Error", `Error subscribing to characteristic: ${error.message}`);
-            return;
-          }
+        // Connect and discover services/characteristics
+        const connected = await device.isConnected();
+        if (!connected) {
+          await device.connect();
+          await device.discoverAllServicesAndCharacteristics();
+          setIsConnected(true);
+          console.log("Connected to device.");
+        }
 
-          if (characteristic?.value) {
-            const data = Buffer.from(characteristic.value, 'base64').toString('hex');
-            setReceivedData(data);
-            formatData(data);
-          }
+        // Monitor connection state
+        device.onDisconnected(() => {
+          setIsConnected(false);
+          console.log("Device disconnected. Trying to reconnect...");
+          setTimeout(() => reconnectToDevice(), 5000); // Attempt reconnection after a delay
         });
+
+        // Subscribe to the characteristic
+        await device.monitorCharacteristicForService(
+          serviceUUID,
+          characteristicUUID,
+          (error, characteristic) => {
+            if (error) {
+              console.error("Subscription error:", error);
+              Alert.alert("Subscription Error", `Error subscribing to characteristic: ${error.message}`);
+              return;
+            }
+
+            // If characteristic data is available
+            if (characteristic?.value) {
+              const data = Buffer.from(characteristic.value, 'base64').toString('hex');
+              const currentTime = Date.now();
+
+              // Format time to IST with milliseconds
+              const timeReceived = moment(currentTime).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss.SSS');
+
+              setLastTime(currentTime); // Update lastTime to the current timestamp
+
+              // Add new log entry
+              setLog(prevLog => {
+                const updatedLog = [...prevLog, { data, timeReceived }];
+                // Scroll to end when a new entry is added
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollToEnd({ animated: true });
+                }, 100); // Slight delay to ensure entry is rendered
+                return updatedLog;
+              });
+            }
+          }
+        );
       } catch (error: any) {
-        console.error("Failed to set up subscription:", error);
-        Alert.alert("Setup Error", `Error setting up characteristic subscription: ${error.message}`);
+        console.error("Failed to connect or subscribe:", error);
+        Alert.alert("Connection Error", `Error connecting to the device: ${error.message}`);
+        setIsConnected(false);
       }
     };
 
-    setupSubscription();
+    const reconnectToDevice = async () => {
+      try {
+        const connected = await device.isConnected();
+        if (!connected) {
+          console.log("Attempting to reconnect...");
+          await device.connect();
+          await device.discoverAllServicesAndCharacteristics();
+          setIsConnected(true);
+          console.log("Reconnected successfully.");
+          connectToDevice(); // Re-setup the subscription after reconnection
+        } else {
+          console.log("Device already connected.");
+        }
+      } catch (reconnectError: any) {
+        console.error("Reconnection failed, retrying in 5 seconds...", reconnectError);
+        // Introduce a delay before retrying
+        setTimeout(() => reconnectToDevice(), 5000);
+      }
+    };
+
+    connectToDevice(); // Initial connection
 
     return () => {
-      device.cancelConnection();  // Ensure cleanup on component unmount
+      device.cancelConnection(); // Ensure cleanup on component unmount
     };
   }, [device]);
 
-  const formatData = (hexData: string) => {
-    let hexString = '';
-    let decString = '';
-    for (let i = 0; i < hexData.length; i += 2) {
-      const byte = hexData.substr(i, 2);
-      const decimal = parseInt(byte, 16);
-      hexString += `${byte} `;
-      decString += `${decimal} `;
-    }
-    setHexData(hexString);
-    setDecData(decString);
-  };
-
-  const writeDataToCharacteristic = async () => {
-    try {
-      const base64Data = Buffer.from(inputData, 'hex').toString('base64');
-      await device.writeCharacteristicWithResponseForService(
-        serviceUUID,
-        characteristicUUID,
-        base64Data
-      );
-      Alert.alert("Success", "Data written to the device successfully.");
-    } catch (error: any) {
-      console.error("Write failed", error);
-      Alert.alert("Write Error", `Error writing data to device: ${error.message}`);
-    }
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Data Transfer Page</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter Hex Data to Write"
-        placeholderTextColor="#808080" 
-        value={inputData}
-        onChangeText={setInputData}
-        autoCapitalize="none"
-      />
-      <Button title="WRITE" onPress={writeDataToCharacteristic} />
-      {hexData ? <Text style={styles.hexText}>Hexadecimal: {hexData}</Text> : null}
-      {decData ? <Text style={styles.decText}>Decimal: {decData}</Text> : null}
+      <Text style={styles.title}>Data Receiving Page</Text>
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.logContainer}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {log.length > 0 ? (
+          log.map((entry, index) => (
+            <View key={index} style={styles.logEntry}>
+              <Text style={{ color: 'green' }}>Data: {entry.data}</Text>
+              <Text style={{ color: 'green' }}>Received at: {entry.timeReceived} IST</Text>
+            </View>
+          ))
+        ) : (
+          <Text>No Data Received Yet</Text>
+        )}
+      </ScrollView>
     </View>
   );
 };
@@ -102,25 +142,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  input: {
-    width: '80%',
-    height: 40,
-    borderColor: 'gray',
-    color: 'black',
-    borderWidth: 1,
-    padding: 10,
-    marginBottom: 20,
-  },
   title: {
-    color: '#0000FF', // Sets the text color to blue
-    fontSize: 20, // Sets the size of the font
-    fontWeight: 'bold', // Makes the font bold
+    color: '#0000FF',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
-  hexText: {
-    color: 'black', // Sets the text color to black for hexadecimal
+  logContainer: {
+    flex: 1,
+    width: '100%',
+    marginTop: 20,
   },
-  decText: {
-    color: 'green', // Sets the text color to green for decimal
+  scrollContent: {
+    paddingBottom: 20, // Add padding to ensure there's space for scrolling
+  },
+  logEntry: {
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    paddingBottom: 10,
   },
 });
 
