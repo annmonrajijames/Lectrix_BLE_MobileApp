@@ -64,7 +64,6 @@ static uint8_t packCurr2 ;
 static uint8_t packCurr3 ;
 static uint8_t packCurr4 ;
 
-
 static int thr_per;
 static int batt_tmp;
 static int V_motor_out;
@@ -72,8 +71,6 @@ static int pcb;
 static float cnt_tmp;
 static int rpm;
 static int soc;
-
-
 
 /* --------------------- Definitions and static variables ------------------ */
 // Example Configuration
@@ -109,8 +106,7 @@ static int soc;
 #define ID_Battery_ProtectionsAndWarnings 0x9
 #define MotorId 0x18530902   //for throttle percentage
 #define MotorRpm 0x14520902  //For motor rpm
- 
- 
+
 #define ID_MOTOR_RPM 0x230
 #define VCU_msg 0x18f20309
 #define ID_MOTOR_TEMP 0x233
@@ -129,12 +125,10 @@ static float Pack_curr_Rx;
 static int thr_per_Rx;
 static int Ride_ack_Rx;
  
- 
 char motor_err[32];
  
 char batt_err[32];
 char batt_temp[32];
- 
  
 uint32_t THROTTLE;
 uint32_t CONT_TEMP;
@@ -212,12 +206,10 @@ static const twai_general_config_t g_config = {.mode = TWAI_MODE_NORMAL,
 .alerts_enabled = TWAI_ALERT_ALL,
 .clkout_divider = 0};
  
- 
 uint8_t arr[8];
 uint8_t combinedValue = 0;
 int new_val ;
  
-
 static void switch_ip(void *arg)
 {
 vTaskDelay(pdMS_TO_TICKS(50));
@@ -225,7 +217,6 @@ while(1)
 {
  
 vTaskDelay(pdMS_TO_TICKS(50));
- 
  
 ingi = received_value_ignition;
 brake=received_value_brake;
@@ -257,8 +248,6 @@ rpm= received_value_rpm;
      packCurr2 = (PackCurrent_twos_complement_value >> 16) & 0xFF;
      packCurr3 = (PackCurrent_twos_complement_value >> 8) & 0xFF;
      packCurr4 = PackCurrent_twos_complement_value & 0xFF;
-
-
 
 struct ControlBits {
     unsigned int b0 : 1;                //single bit is allocated for each ('1' represents that bit)- this is to pack several boolean flags inside a single byte(for space efficiency)
@@ -306,17 +295,13 @@ vTaskDelete(NULL);
  
 }
  
- 
 int Dout ;
 int Vmax = 100 ;
 int Dmax = 4095 ;
 
-
 int Dout ;
 int V_motor_max = 150 ;
 int D_motor_max = 4095 ;
-
-
 
 void uart_send_task(void *arg) {
     const uart_port_t uart_num = ECHO_UART_PORT_NUM;
@@ -328,7 +313,6 @@ void uart_send_task(void *arg) {
     char thr_per_Rx_buffer[25];
     char mode_ack_buffer[25];
     char Ride_ack_buffer[25];
-
 
     while (1) {
         snprintf(motor_buffer, sizeof(motor_buffer), "Motor_status:%d\n", Motor_status);
@@ -365,12 +349,10 @@ void uart_send_task(void *arg) {
     }
 }
 
- 
 static void twai_transmit_task(void *arg)
 {
     ESP_LOGI(EXAMPLE_TAG, "Transmitting to battery");
     vTaskDelay(pdMS_TO_TICKS(100));
-
     
     while (1)
     {
@@ -387,8 +369,7 @@ static void twai_transmit_task(void *arg)
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
         vTaskDelay(pdMS_TO_TICKS(100));
-
-    
+ 
         twai_message_t transmit_message_batteryTemp = {.identifier = (0x000000A), .data_length_code = 8, .extd = 1, .data = {batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp}};
         if (twai_transmit(&transmit_message_batteryTemp, 10000) == ESP_OK)
         {
@@ -401,8 +382,7 @@ static void twai_transmit_task(void *arg)
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
         vTaskDelay(pdMS_TO_TICKS(100));
-    
-    
+     
         twai_message_t transmit_message_otherTemp = {.identifier = (0x18530903), .data_length_code = 8, .extd = 1, .data = {cnt_tmp, V_motor_out, V_motor_out, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
         if (twai_transmit(&transmit_message_otherTemp, 10000) == ESP_OK)
         {
@@ -410,8 +390,7 @@ static void twai_transmit_task(void *arg)
         vTaskDelay(pdMS_TO_TICKS(100));
         }
         else
-        {
-        
+        {     
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
         vTaskDelay(pdMS_TO_TICKS(100));
@@ -429,7 +408,6 @@ static void twai_transmit_task(void *arg)
         }
         vTaskDelay(pdMS_TO_TICKS(100));
 
-///////////////////////////////////
         twai_message_t transmit_message_PackCurrAndPackVol= {.identifier = ID_LX_BATTERY_VI , .data_length_code = 8, .extd = 1, .data = {packCurr1,packCurr2,packCurr3, packCurr4, 0x00 , 0x00 , 0x00 , 0x00 }};    //First 4 bytes for PackCurrent and last 4 bytes for PackVoltage
         if (twai_transmit(&transmit_message_PackCurrAndPackVol, 10000) == ESP_OK)
         {
@@ -442,8 +420,6 @@ static void twai_transmit_task(void *arg)
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
         vTaskDelay(pdMS_TO_TICKS(100));
-///////////////////////////////////
-
 
         twai_message_t transmit_message_rpm = {.identifier = (0x14520902), .data_length_code = 8, .extd = 1, .data = {rpm2_hex, rpm1_hex, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
         if (twai_transmit(&transmit_message_rpm, 10000) == ESP_OK)
@@ -457,8 +433,6 @@ static void twai_transmit_task(void *arg)
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
         vTaskDelay(pdMS_TO_TICKS(100));
-
-
         
         twai_message_t transmit_message_warning = {.identifier = ID_Battery_ProtectionsAndWarnings , .data_length_code = 8, .extd = 1, .data = {0x00, BattLowWarn, BattWarn , 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
         if (twai_transmit(&transmit_message_warning, 10000) == ESP_OK)
@@ -468,14 +442,12 @@ static void twai_transmit_task(void *arg)
         }
         else
         {
-        
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
         vTaskDelay(pdMS_TO_TICKS(100));
     }
     vTaskDelete(NULL);
 }
-
 
 static void twai_receive_task(void *arg)
 {
@@ -488,7 +460,6 @@ static void twai_receive_task(void *arg)
  
   ESP_LOGI(EXAMPLE_TAG, "Receiving1");
 
- 
   // uint32_t MSG = 0;
  
       while (1)
@@ -496,20 +467,7 @@ static void twai_receive_task(void *arg)
              twai_message_t message;
               // ESP_LOGI(EXAMPLE_TAG, "Before receive call");
               if (twai_receive(&message, pdMS_TO_TICKS(250)) == ESP_OK)
-              {
-                  // ESP_LOGI(EXAMPLE_TAG, "After receive call with identifier: %lx", message.identifier);
-                  // ESP_LOGI(EXAMPLE_TAG, "Received message with identifier: %lx, data: %x %x %x %x %x %x %x %x",
-                  //         message.identifier,
-                  //         message.data[0], message.data[1], message.data[2], message.data[3],
-                  //         message.data[4], message.data[5], message.data[6], message.data[7]);
-
-                  // if (MSG == message.identifier)
-                  // {
-                  //     twai_clear_receive_queue();  // Commented out to prevent clearing the queue
-                  //     MSG = 0;
-                  // }
-              
-              
+              {            
                   // MSG = message.identifier;
                   ESP_LOGI(EXAMPLE_TAG, "message id------> %lx",message.identifier);
                   printf("mtr decode =  %x , %x , %x, %x , %x, %x, %x, %x  \n", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
@@ -608,289 +566,8 @@ static void twai_receive_task(void *arg)
                                         mode_ack = message.data[2];
                                     }
                                 }
-
-
-
-
-                 
-
-/////////////////////////////////////////////////////
-            //   if (message.identifier == ID_MOTOR_RPM)
-            //       { 
-            //         ESP_LOGI(EXAMPLE_TAG, "ID_MOTOR_RPM------------------------------------------------>");
-
-            //         if (!(message.rtr))
-
-            //             {
-                  
-            //               // mcu_data = message.data;
-                  
-            //               RPM = (message.data[1]) | (message.data[0] << 8);
-                  
-            //                   Motor_err = (message.data[7]) | (message.data[6]<<8) | (message.data[5]<<16)|(message.data[4]<<24) |(message.data[3]<<32)|(message.data[2]<<40) | (message.data[1]<<48)|(message.data[0]<<56);
-                  
-            //                   sprintf(motor_err, "%x,%x,%x,%x,%x,%x,%x,%x", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
-                  
-                  
-            //               union
-
-            //               {
-
-            //                 uint32_t b;
-
-            //                 int f;
-
-            //               } u; // crazy
-
-            //               u.b = RPM;
-                  
-            //               // M_RPM = u.f;
-                  
-            //               twai_message_t transmit_message = {.identifier = (0x14520902 ), .data_length_code = 8, .extd = 1, .data = {RPM, 0, 0, DC_VOLTAGE, DC_CURRENT}};
-
-            //               // twai_message_t transmit_message_SoC= {.identifier = ID_LX_BATTERY_SOC , .data_length_code = 8, .extd = 1, .data = {soc, 0x00, 0x00, 0x9A , 0xB0 , 0x63 , 0x1D , 0x01 }};
-
-
-            //             if (twai_transmit(&transmit_message, 1000) == ESP_OK)
-
-            //             {
-                  
-            //               //          ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-
-            //               //          vTaskDelay(pdMS_TO_TICKS(250));
-
-            //             }
-
-            //             else
-
-            //             {
-                  
-            //               ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-
-            //             }
-                  
-            //             vTaskDelay(pdMS_TO_TICKS(50));
-            //             }
-
-            //         }
-        //   //////////////////////////
-        //       else if (message.identifier == ID_MOTOR_TEMP)
-
-        //           { 
-        //             ESP_LOGI(EXAMPLE_TAG, "ID_MOTOR_TEMP------------------------------------------------>");
-        //             if (!(message.rtr))
-
-        //             {
-
-        //               THROTTLE = (message.data[0]);
-              
-        //               CONT_TEMP = (message.data[1]);
-
-        //               MOT_TEMP = (message.data[2]);
-
-        //               union
-
-        //               {
-
-        //                 uint32_t b;
-
-        //                 int f;
-
-        //               } u; // crazy
-
-        //               u.b = THROTTLE;
-
-        //               M_THROTTLE = u.f;
-
-        //               u.b = CONT_TEMP;
-
-        //               M_CONT_TEMP = u.f - 40;
-
-        //               u.b = MOT_TEMP;
-
-        //               M_MOT_TEMP = u.f - 40;
-
-        //               //  printf("Temp =  %d \n", M_CONT_TEMP);
-
-        //             }
-
-        //           }
-          
-        //       else if (message.identifier == ID_MOTOR_CURR_VOLT)
-
-        //             {
-        //               ESP_LOGI(EXAMPLE_TAG, "ID_MOTOR_CURR_VOLT------------------------------------------------>");
-                
-        //               DC_CURRENT = (message.data[0]) | (message.data[1] << 8);
-
-        //               AC_CURRENT = (message.data[4]) | (message.data[5] << 8);
-                
-        //               AC_VOLTAGE = (message.data[3]);
-                
-        //               DC_VOLTAGE = (message.data[2]);
-                
-        //               union
-
-        //               {
-
-        //                 uint32_t b;
-
-        //                 int f;
-
-        //               } u; // crazy
-
-        //               u.b = DC_CURRENT;
-                
-        //               M_DC_CURRENT = u.f;
-                
-        //               u.b = AC_CURRENT;
-                
-        //               M_AC_CURRENT = u.f;
-                
-        //               u.b = AC_VOLTAGE;
-                
-        //               M_AC_VOLTAGE = u.f;
-                
-        //               u.b = DC_VOLTAGE;
-                
-        //               M_DC_VOLATGE = u.f;
-                
-        //             } /////        motor temp
-          
-          
-        //       else if (message.identifier == ID_LX_BATTERY_SOC)
-
-        //           {
-        //             ESP_LOGI(EXAMPLE_TAG, "ID_LX_BATTERY_SOC------------------------------------------------>");
-        //             if (!(message.rtr))
-
-        //             {
-
-        //               SOC3_hx = (message.data[1] << 8) | message.data[0];
-
-        //               SOH3_hx = message.data[5]  ;
-
-        //               union
-
-        //               {
-
-        //                 uint32_t b;
-
-        //                 int f;
-
-        //               } u; // crazy
-
-        //               u.b = SOC3_hx;
-
-        //               SOC_3 = u.f;
-
-        //               u.b = SOH3_hx;
-
-        //               SOH_3 = u.f;
-
-        //           //              printf("Battery 3 --> SOC[ %d ]   SOH[ %d ] \n", SOC_3,SOH_3);
-
-        //             }
-
-        //           }
-          
-        //       else if (message.identifier == ID_LX_BATTERY_VI)
-
-        //           {
-        //             ESP_LOGI(EXAMPLE_TAG, "ID_LX_BATTERY_VI------------------------------------------------>");
-
-        //             if (!(message.rtr))
-
-        //             {
-
-        //             current2_hx  =  (message.data[0] << 24) | (message.data[1] << 16) | (message.data[2] << 8) | message.data[3];
-
-        //               voltage2_hx =  (message.data[6] << 8) | (message.data[7] ) ;
-              
-                  
-
-        //             union
-
-        //               {
-
-        //                 uint32_t b;
-
-        //                 int f;
-
-        //               } u; // crazy
-
-        //               u.b = voltage2_hx;
-
-        //               Voltage_2 = u.f;
-
-        //               u.b = current2_hx;
-
-        //               Current_2 = u.f;
-
-        //           //      printf("Battery 2 --> Volatge[%d]   current[%f]   \n", ( Voltage_2),(Current_2*0.001));
-              
-        //             }
-
-        //           }
-          
-          
-        //       else if (message.identifier == ID_LX_BATTERY_PROT)
-
-        //           { ESP_LOGI(EXAMPLE_TAG, "ID_LX_BATTERY_PROT------------------------------------------------>");
-
-        //             if (!(message.rtr))
-
-        //             {
-              
-        //               // mcu_data = message.data;
-              
-              
-        //               //   BATT_ERR = (message.data[7]) | (message.data[6]<<8) | (message.data[5]<<16)|(message.data[4]<<24) |(message.data[3]<<32)|(message.data[2]<<40) | (message.data[1]<<48)|(message.data[0]<<56);
-              
-        //                   sprintf(batt_err, "%x,%x,%x,%x,%x,%x,%x,%x", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
-              
-        //             }
-
-        //           }
-              
-          
-        //       else if (message.identifier == ID_LX_BATTERY_T)
-
-        //           { 
-        //             ESP_LOGI(EXAMPLE_TAG, "ID_LX_BATTERY_T------------------------------------------------>");
-                    
-        //             if (!(message.rtr))
-
-        //             {
-              
-        //               // mcu_data = message.data;
-              
-              
-        //               //   BATT_ERR = (message.data[7]) | (message.data[6]<<8) | (message.data[5]<<16)|(message.data[4]<<24) |(message.data[3]<<32)|(message.data[2]<<40) | (message.data[1]<<48)|(message.data[0]<<56);
-              
-        //                   sprintf(batt_temp, "%x,%x,%x,%x,%x,%x,%x,%x", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
-
-        //                   printf("batt temp------------>%c",batt_temp[0]);
-        //                   printf("batt temp------------>%c",batt_temp[1]);
-        //                   printf("batt temp------------>%c",batt_temp[2]);
-        //                   printf("batt temp------------>%c",batt_temp[3]);
-        //             }
-
-        //           }
-              
-        //       else
-        //             {
-
-        //               //   ESP_LOGE(EXAMPLE_TAG, " ID not match - %lx ",message.identifier );
-
-        //               //   vTaskDelay(pdMS_TO_TICKS(250));
-
-        //             }
             } 
         }
-
-        /////////////////////
-  // xSemaphoreGive(done_sem);
   vTaskDelete(NULL);
 }
 
@@ -909,7 +586,6 @@ void configure_uart(void)
     uart_driver_install(ECHO_UART_PORT_NUM, 256 * 2, 0, 0, NULL, 0);
     xTaskCreate(uart_send_task, "uart_send_task", ECHO_TASK_STACK_SIZE, NULL, 10, NULL);
 }
- 
  
 void process_uart_data(uint8_t *data, int len) {
     int switch_number = data[0]; // No need to convert to integer
@@ -1052,14 +728,12 @@ void process_uart_data(uint8_t *data, int len) {
             case 'z':
                 // sidestand_pulse = switch_state = 1 ? 64 : 0;
                 
-
             default:
                 // Handle invalid switch number
                 break;
         }
     }
 }
-
 
 void app_main(void) {
     ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config));
