@@ -21,6 +21,8 @@
 #include <time.h>
 #include <stdbool.h>
 
+#include "driver/twai.h"
+
 #define GATTS_TAG "GATTS_DEMO"
 
 // Declare the static function
@@ -120,6 +122,20 @@ static esp_ble_adv_params_t adv_params = {
     .own_addr_type      = BLE_ADDR_TYPE_PUBLIC,
     .channel_map        = ADV_CHNL_ALL,
     .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
+};
+
+static const twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
+static const twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+static const twai_general_config_t g_config = {
+    .mode = TWAI_MODE_NORMAL,
+    .tx_io = GPIO_NUM_21,
+    .rx_io = GPIO_NUM_22,
+    .clkout_io = TWAI_IO_UNUSED,
+    .bus_off_io = TWAI_IO_UNUSED,
+    .tx_queue_len = 10,
+    .rx_queue_len = 20,
+    .alerts_enabled = TWAI_ALERT_ALL,
+    .clkout_divider = 0
 };
 
 #define PROFILE_NUM 2
@@ -361,6 +377,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
                     if (notify_task_handle == NULL) {
                         xTaskCreate(notification_task, "notify_task", 2048, NULL, 10, &notify_task_handle);
                     }
+                    printf("DC %x",first_byte);
                 } else if (descr_value == 0x0000) { // Notification disabled
                     notify_enabled = false;
                 }
@@ -474,6 +491,24 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
     }
 }
 
+static void twai_receive_task(void *arg) {
+    ESP_LOGI("TWAI Receiver", "Starting TWAI receive task");
+    twai_message_t message;
+    while (1) {
+        if (twai_receive(&message, pdMS_TO_TICKS(100)) == ESP_OK) {
+            // Assuming '0x18f20309' is the identifier for relevant messages
+            if (message.identifier == 0x18f20309) {
+                // Assuming byte 3 contains the DC current limit
+                first_byte = message.data[3];  // Update the global variable used for notifications
+                printf("DC current limit: %d\n", first_byte);
+            }
+        } else {
+            ESP_LOGE("TWAI Receiver", "Failed to receive message");
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));  // Delay to manage task frequency
+    }
+}
+
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
     ESP_LOGD(GATTS_TAG, "Global GATT event handler: event=%d, gatts_if=%d", event, gatts_if);
@@ -506,7 +541,13 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
 void app_main(void)
 {
+    ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config));
+    ESP_LOGI("TWAI", "Driver installed");
+    ESP_ERROR_CHECK(twai_start());
+    ESP_LOGI("TWAI", "Driver started");
+
     srand(time(NULL)); // Seed the random number generator
+    xTaskCreate(twai_receive_task, "twai_receive_task", 2048, NULL, 5, NULL);
     xTaskCreate(notification_task, "notification_task", 2048, NULL, 10, NULL);
     esp_err_t ret;
 
