@@ -59,6 +59,28 @@ static uint8_t adv_service_uuid128[32] = {
     0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00,
 };
 
+// Define variables for each byte to be sent
+uint8_t first_byte = 0x01;
+uint8_t second_byte = 0x02;
+uint8_t third_byte = 0x03;
+uint8_t fourth_byte = 0x04;
+uint8_t fifth_byte = 0x05;
+uint8_t sixth_byte = 0x06;
+uint8_t seventh_byte = 0x07;
+uint8_t eighth_byte = 0x08;
+uint8_t ninth_byte = 0x09;
+uint8_t tenth_byte = 0x0A;
+uint8_t eleventh_byte = 0x0B;
+uint8_t twelfth_byte = 0x0C;
+uint8_t thirteenth_byte = 0x0D;
+uint8_t fourteenth_byte = 0x0E;
+uint8_t fifteenth_byte = 0x0F;
+uint8_t sixteenth_byte = 0x10;
+uint8_t seventeenth_byte = 0x11;
+uint8_t eighteenth_byte = 0x12;
+uint8_t nineteenth_byte = 0x13;
+uint8_t twentieth_byte = 0x14;
+
 static esp_ble_adv_data_t adv_data = {
     .set_scan_rsp = false,
     .include_name = true,
@@ -261,12 +283,12 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
 // Notification task
 void notification_task(void *param) {
     while (notify_enabled) {
-        uint8_t notify_data[20]; // Adjust size as needed
-
-        // Fill the array with random data
-        for (int i = 0; i < sizeof(notify_data); ++i) {
-            notify_data[i] = rand() % 256; // Random byte
-        }
+        uint8_t notify_data[20] = {
+            first_byte, second_byte, third_byte, fourth_byte, fifth_byte,
+            sixth_byte, seventh_byte, eighth_byte, ninth_byte, tenth_byte,
+            eleventh_byte, twelfth_byte, thirteenth_byte, fourteenth_byte, fifteenth_byte,
+            sixteenth_byte, seventeenth_byte, eighteenth_byte, nineteenth_byte, twentieth_byte
+        };
 
         // Check if the interface is valid before sending data
         if (global_gatts_if != ESP_GATT_IF_NONE) {
@@ -281,6 +303,7 @@ void notification_task(void *param) {
     notify_task_handle = NULL;
     vTaskDelete(NULL);
 }
+
 
 
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
