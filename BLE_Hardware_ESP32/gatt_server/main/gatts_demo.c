@@ -21,6 +21,8 @@
 #include <time.h>
 #include <stdbool.h>
 
+#include "driver/twai.h"
+
 #define GATTS_TAG "GATTS_DEMO"
 
 // Declare the static function
@@ -58,6 +60,28 @@ static uint8_t adv_service_uuid128[32] = {
     0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0xEE, 0x00, 0x00, 0x00,
     0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00,
 };
+
+// Define variables for each byte to be sent
+uint8_t first_byte = 0x01;
+uint8_t second_byte = 0x02;
+uint8_t third_byte = 0x03;
+uint8_t fourth_byte = 0x04;
+uint8_t fifth_byte = 0x05;
+uint8_t sixth_byte = 0x06;
+uint8_t seventh_byte = 0x07;
+uint8_t eighth_byte = 0x08;
+uint8_t ninth_byte = 0x09;
+uint8_t tenth_byte = 0x0A;
+uint8_t eleventh_byte = 0x0B;
+uint8_t twelfth_byte = 0x0C;
+uint8_t thirteenth_byte = 0x0D;
+uint8_t fourteenth_byte = 0x0E;
+uint8_t fifteenth_byte = 0x0F;
+uint8_t sixteenth_byte = 0x10;
+uint8_t seventeenth_byte = 0x11;
+uint8_t eighteenth_byte = 0x12;
+uint8_t nineteenth_byte = 0x13;
+uint8_t twentieth_byte = 0x14;
 
 static esp_ble_adv_data_t adv_data = {
     .set_scan_rsp = false,
@@ -98,6 +122,20 @@ static esp_ble_adv_params_t adv_params = {
     .own_addr_type      = BLE_ADDR_TYPE_PUBLIC,
     .channel_map        = ADV_CHNL_ALL,
     .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
+};
+
+static const twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
+static const twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+static const twai_general_config_t g_config = {
+    .mode = TWAI_MODE_NORMAL,
+    .tx_io = GPIO_NUM_21,
+    .rx_io = GPIO_NUM_22,
+    .clkout_io = TWAI_IO_UNUSED,
+    .bus_off_io = TWAI_IO_UNUSED,
+    .tx_queue_len = 10,
+    .rx_queue_len = 20,
+    .alerts_enabled = TWAI_ALERT_ALL,
+    .clkout_divider = 0
 };
 
 #define PROFILE_NUM 2
@@ -261,12 +299,12 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
 // Notification task
 void notification_task(void *param) {
     while (notify_enabled) {
-        uint8_t notify_data[20]; // Adjust size as needed
-
-        // Fill the array with random data
-        for (int i = 0; i < sizeof(notify_data); ++i) {
-            notify_data[i] = rand() % 256; // Random byte
-        }
+        uint8_t notify_data[20] = {
+            first_byte, second_byte, third_byte, fourth_byte, fifth_byte,
+            sixth_byte, seventh_byte, eighth_byte, ninth_byte, tenth_byte,
+            eleventh_byte, twelfth_byte, thirteenth_byte, fourteenth_byte, fifteenth_byte,
+            sixteenth_byte, seventeenth_byte, eighteenth_byte, nineteenth_byte, twentieth_byte
+        };
 
         // Check if the interface is valid before sending data
         if (global_gatts_if != ESP_GATT_IF_NONE) {
@@ -281,6 +319,7 @@ void notification_task(void *param) {
     notify_task_handle = NULL;
     vTaskDelete(NULL);
 }
+
 
 
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
@@ -338,6 +377,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
                     if (notify_task_handle == NULL) {
                         xTaskCreate(notification_task, "notify_task", 2048, NULL, 10, &notify_task_handle);
                     }
+                    printf("DC %x",first_byte);
                 } else if (descr_value == 0x0000) { // Notification disabled
                     notify_enabled = false;
                 }
@@ -451,6 +491,24 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
     }
 }
 
+static void twai_receive_task(void *arg) {
+    ESP_LOGI("TWAI Receiver", "Starting TWAI receive task");
+    twai_message_t message;
+    while (1) {
+        if (twai_receive(&message, pdMS_TO_TICKS(100)) == ESP_OK) {
+            // Assuming '0x18f20309' is the identifier for relevant messages
+            if (message.identifier == 0x18f20309) {
+                // Assuming byte 3 contains the DC current limit
+                first_byte = message.data[3];  // Update the global variable used for notifications
+                printf("DC current limit: %d\n", first_byte);
+            }
+        } else {
+            ESP_LOGE("TWAI Receiver", "Failed to receive message");
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));  // Delay to manage task frequency
+    }
+}
+
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
     ESP_LOGD(GATTS_TAG, "Global GATT event handler: event=%d, gatts_if=%d", event, gatts_if);
@@ -483,7 +541,13 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
 void app_main(void)
 {
+    ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config));
+    ESP_LOGI("TWAI", "Driver installed");
+    ESP_ERROR_CHECK(twai_start());
+    ESP_LOGI("TWAI", "Driver started");
+
     srand(time(NULL)); // Seed the random number generator
+    xTaskCreate(twai_receive_task, "twai_receive_task", 2048, NULL, 5, NULL);
     xTaskCreate(notification_task, "notification_task", 2048, NULL, 10, NULL);
     esp_err_t ret;
 
