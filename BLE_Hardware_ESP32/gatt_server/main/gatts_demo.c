@@ -496,14 +496,47 @@ static void twai_receive_task(void *arg) {
     twai_message_t message;
     while (1) {
         if (twai_receive(&message, pdMS_TO_TICKS(100)) == ESP_OK) {
-            // Assuming '0x18f20309' is the identifier for relevant messages
-            if (message.identifier == 0x18f20309) {
-                // Assuming byte 3 contains the DC current limit
-                first_byte = message.data[3];  // Update the global variable used for notifications
-                printf("DC current limit: %d\n", first_byte);
+            switch (message.identifier) {
+                case 0x18F20309: // Handle the first set of parameters
+                    second_byte = message.data[2]; // Set_Regen
+                    third_byte = message.data[3]; // DC Current Limit
+                    fourth_byte = message.data[5]; // Custom_freq
+                    fifth_byte = message.data[6]; // Custom_freq
+                    sixth_byte = message.data[7]; // Custom_torque
+                    break;
+                
+                case 0x18F20311: // Handle the second set of parameters
+                    eighth_byte = message.data[0]; // Buffer_speed
+                    ninth_byte = message.data[1]; // Buffer_speed
+                    tenth_byte = message.data[2]; // Base_speed
+                    eleventh_byte = message.data[3]; // Base_speed
+                    twelfth_byte = message.data[4]; // Initial_torque
+                    thirteenth_byte = message.data[5]; // Final_torque
+                    break;
+                
+                case 0x14520902: // Handle the third set of parameters
+                    thirteenth_byte = message.data[0]; // MotorSpeed
+                    fourteenth_byte = message.data[1]; // MotorSpeed
+                    fifteenth_byte = message.data[2]; // BatteryVoltage
+                    sixteenth_byte = message.data[3]; // BatteryCurrent
+                    seventeenth_byte = message.data[4]; // BatteryCurrent
+                    break;
+                
+                case 0x14520903: // Handle the fourth set of parameters
+                    eighteenth_byte = message.data[5]; // AC_Current
+                    nineteenth_byte = message.data[6]; // AC_Current
+                    break;
+                
+                case 0x14520904: // Handle the fifth set of parameters
+                    twentieth_byte = message.data[7]; // AC_Voltage
+                    break;
+                
+                default:
+                    // ESP_LOGI("TWAI Receiver", "Unknown CAN ID: 0x%08X", message.identifier);
+                    break;
             }
         } else {
-            ESP_LOGE("TWAI Receiver", "Failed to receive message");
+            // ESP_LOGE("TWAI Receiver", "Failed to receive message");
         }
         vTaskDelay(pdMS_TO_TICKS(100));  // Delay to manage task frequency
     }
