@@ -62,26 +62,26 @@ static uint8_t adv_service_uuid128[32] = {
 };
 
 // Define variables for each byte to be sent
-uint8_t first_byte = 0x01;
-uint8_t second_byte = 0x02;
-uint8_t third_byte = 0x03;
-uint8_t fourth_byte = 0x04;
-uint8_t fifth_byte = 0x05;
-uint8_t sixth_byte = 0x06;
-uint8_t seventh_byte = 0x07;
-uint8_t eighth_byte = 0x08;
-uint8_t ninth_byte = 0x09;
-uint8_t tenth_byte = 0x0A;
-uint8_t eleventh_byte = 0x0B;
-uint8_t twelfth_byte = 0x0C;
-uint8_t thirteenth_byte = 0x0D;
-uint8_t fourteenth_byte = 0x0E;
-uint8_t fifteenth_byte = 0x0F;
-uint8_t sixteenth_byte = 0x10;
-uint8_t seventeenth_byte = 0x11;
-uint8_t eighteenth_byte = 0x12;
-uint8_t nineteenth_byte = 0x13;
-uint8_t twentieth_byte = 0x14;
+uint8_t first_byte;
+uint8_t second_byte;
+uint8_t third_byte;
+uint8_t fourth_byte;
+uint8_t fifth_byte;
+uint8_t sixth_byte;
+uint8_t seventh_byte;
+uint8_t eighth_byte;
+uint8_t ninth_byte;
+uint8_t tenth_byte;
+uint8_t eleventh_byte;
+uint8_t twelfth_byte;
+uint8_t thirteenth_byte;
+uint8_t fourteenth_byte;
+uint8_t fifteenth_byte;
+uint8_t sixteenth_byte;
+uint8_t seventeenth_byte;
+uint8_t eighteenth_byte;
+uint8_t nineteenth_byte;
+uint8_t twentieth_byte;
 
 static esp_ble_adv_data_t adv_data = {
     .set_scan_rsp = false,
@@ -497,6 +497,9 @@ static void twai_receive_task(void *arg) {
     while (1) {
         if (twai_receive(&message, pdMS_TO_TICKS(100)) == ESP_OK) {
             switch (message.identifier) {
+                case 0x8:
+                    first_byte = message.data[0]; // SOC
+                    break;
                 case 0x18F20309: // Handle the first set of parameters
                     second_byte = message.data[2]; // Set_Regen
                     third_byte = message.data[3]; // DC Current Limit
