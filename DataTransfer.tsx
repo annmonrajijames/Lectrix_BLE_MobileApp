@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
-import moment from 'moment-timezone'; // For handling IST time format
+import moment from 'moment-timezone';
 
 type RootStackParamList = {
   DataTransfer: { device: Device };
@@ -18,18 +18,15 @@ type LogEntry = {
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [log, setLog] = useState<LogEntry[]>([]);
-  const [lastTime, setLastTime] = useState<number | null>(null); // Timestamp of the last received data
+  const [soc, setSoc] = useState<number | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
-  const scrollViewRef = useRef<ScrollView>(null); // Reference to the ScrollView
 
   useEffect(() => {
     const connectToDevice = async () => {
       try {
-        // Connect and discover services/characteristics
         const connected = await device.isConnected();
         if (!connected) {
           await device.connect();
@@ -38,14 +35,12 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
           console.log("Connected to device.");
         }
 
-        // Monitor connection state
         device.onDisconnected(() => {
           setIsConnected(false);
           console.log("Device disconnected. Trying to reconnect...");
-          setTimeout(() => reconnectToDevice(), 5000); // Attempt reconnection after a delay
+          setTimeout(() => reconnectToDevice(), 5000);
         });
 
-        // Subscribe to the characteristic
         await device.monitorCharacteristicForService(
           serviceUUID,
           characteristicUUID,
@@ -56,25 +51,11 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
               return;
             }
 
-            // If characteristic data is available
             if (characteristic?.value) {
               const data = Buffer.from(characteristic.value, 'base64').toString('hex');
-              const currentTime = Date.now();
-
-              // Format time to IST with milliseconds
-              const timeReceived = moment(currentTime).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss.SSS');
-
-              setLastTime(currentTime); // Update lastTime to the current timestamp
-
-              // Add new log entry
-              setLog(prevLog => {
-                const updatedLog = [...prevLog, { data, timeReceived }];
-                // Scroll to end when a new entry is added
-                setTimeout(() => {
-                  scrollViewRef.current?.scrollToEnd({ animated: true });
-                }, 100); // Slight delay to ensure entry is rendered
-                return updatedLog;
-              });
+              const firstByte = data.substring(0, 2); // Get the first byte
+              const decimalValue = parseInt(firstByte, 16); // Convert hex to decimal
+              setSoc(decimalValue); // Set State of Charge
             }
           }
         );
@@ -94,43 +75,31 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
           await device.discoverAllServicesAndCharacteristics();
           setIsConnected(true);
           console.log("Reconnected successfully.");
-          connectToDevice(); // Re-setup the subscription after reconnection
+          connectToDevice();
         } else {
           console.log("Device already connected.");
         }
       } catch (reconnectError: any) {
         console.error("Reconnection failed, retrying in 5 seconds...", reconnectError);
-        // Introduce a delay before retrying
         setTimeout(() => reconnectToDevice(), 5000);
       }
     };
 
-    connectToDevice(); // Initial connection
+    connectToDevice();
 
     return () => {
-      device.cancelConnection(); // Ensure cleanup on component unmount
+      device.cancelConnection();
     };
   }, [device]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Data Receiving Page</Text>
-      <ScrollView
-        ref={scrollViewRef}
-        style={styles.logContainer}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {log.length > 0 ? (
-          log.map((entry, index) => (
-            <View key={index} style={styles.logEntry}>
-              <Text style={{ color: 'green' }}>Data: {entry.data}</Text>
-              <Text style={{ color: 'green' }}>Received at: {entry.timeReceived} IST</Text>
-            </View>
-          ))
-        ) : (
-          <Text>No Data Received Yet</Text>
-        )}
-      </ScrollView>
+      <Text style={styles.title}>State of Charge</Text>
+      {soc !== null ? (
+        <Text style={styles.socDisplay}>{`${soc}%`}</Text>
+      ) : (
+        <Text style={styles.noData}>No Data Received Yet</Text>
+      )}
     </View>
   );
 };
@@ -141,25 +110,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#fff', // White background
   },
   title: {
     color: '#0000FF',
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 20,
   },
-  logContainer: {
-    flex: 1,
-    width: '100%',
-    marginTop: 20,
+  socDisplay: {
+    fontSize: 60,
+    fontWeight: 'bold',
+    color: '#32CD32', // Lime green
   },
-  scrollContent: {
-    paddingBottom: 20, // Add padding to ensure there's space for scrolling
-  },
-  logEntry: {
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    paddingBottom: 10,
+  noData: {
+    fontSize: 20,
+    color: '#ff0000', // Red
   },
 });
 
