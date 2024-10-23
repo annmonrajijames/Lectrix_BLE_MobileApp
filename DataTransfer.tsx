@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
@@ -11,14 +11,10 @@ type RootStackParamList = {
 
 type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfer'>;
 
-type LogEntry = {
-  data: string;
-  timeReceived: string;
-};
-
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
   const [soc, setSoc] = useState<number | null>(null);
+  const [batteryVoltage, setBatteryVoltage] = useState<number | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
   const serviceUUID = '00FF';
@@ -53,9 +49,14 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
             if (characteristic?.value) {
               const data = Buffer.from(characteristic.value, 'base64').toString('hex');
-              const firstByte = data.substring(0, 2); // Get the first byte
-              const decimalValue = parseInt(firstByte, 16); // Convert hex to decimal
-              setSoc(decimalValue); // Set State of Charge
+              const firstByte = data.substring(0, 2); // Get the first byte for SOC
+              const fifteenthByte = data.substring(28, 30); // Get the fifteenth byte for Battery Voltage
+
+              const decimalSoc = parseInt(firstByte, 16); // Convert hex to decimal for SOC
+              const decimalVoltage = parseInt(fifteenthByte, 16); // Convert hex to decimal for Battery Voltage
+
+              setSoc(decimalSoc);
+              setBatteryVoltage(decimalVoltage);
             }
           }
         );
@@ -94,12 +95,23 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>State of Charge</Text>
-      {soc !== null ? (
-        <Text style={styles.socDisplay}>{`${soc}%`}</Text>
-      ) : (
-        <Text style={styles.noData}>No Data Received Yet</Text>
-      )}
+      <Text style={styles.title}>Device Metrics</Text>
+      <View style={styles.metricContainer}>
+        <Text style={styles.metricTitle}>State of Charge</Text>
+        {soc !== null ? (
+          <Text style={styles.metricValue}>{`${soc}%`}</Text>
+        ) : (
+          <Text style={styles.noData}>No SOC Data</Text>
+        )}
+      </View>
+      <View style={styles.metricContainer}>
+        <Text style={styles.metricTitle}>Battery Voltage</Text>
+        {batteryVoltage !== null ? (
+          <Text style={styles.metricValue}>{`${batteryVoltage} V`}</Text>
+        ) : (
+          <Text style={styles.noData}>No Voltage Data</Text>
+        )}
+      </View>
     </View>
   );
 };
@@ -110,7 +122,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff', // White background
+    backgroundColor: '#fff',
   },
   title: {
     color: '#0000FF',
@@ -118,14 +130,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  socDisplay: {
-    fontSize: 60,
+  metricContainer: {
+    marginBottom: 30,
+  },
+  metricTitle: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#32CD32', // Lime green
+    color: '#000',
+  },
+  metricValue: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: '#32CD32',
   },
   noData: {
     fontSize: 20,
-    color: '#ff0000', // Red
+    color: '#ff0000',
   },
 });
 
