@@ -23,6 +23,8 @@
 
 #include "driver/twai.h"
 
+#include <inttypes.h>
+
 #define GATTS_TAG "GATTS_DEMO"
 
 // Declare the static function
@@ -82,6 +84,26 @@ uint8_t seventeenth_byte;
 uint8_t eighteenth_byte;
 uint8_t nineteenth_byte;
 uint8_t twentieth_byte;
+uint8_t twentyfirst_byte=0x21;
+uint8_t twentysecond_byte; 
+uint8_t twentythird_byte;
+uint8_t twentyfourth_byte;
+uint8_t twentyfifth_byte;
+uint8_t twentysixth_byte;
+uint8_t twentyseventh_byte;
+uint8_t twentyeighth_byte;
+uint8_t twentyninth_byte;
+uint8_t thirtieth_byte;
+uint8_t thirtyfirst_byte;
+uint8_t thirtysecond_byte;
+uint8_t thirtythird_byte;
+uint8_t thirtyfourth_byte;
+uint8_t thirtyfifth_byte;
+uint8_t thirtysixth_byte;
+uint8_t thirtyseventh_byte;
+uint8_t thirtyeighth_byte;
+uint8_t thirtyninth_byte; 
+uint8_t fortieth_byte=0x40;
 
 static esp_ble_adv_data_t adv_data = {
     .set_scan_rsp = false,
@@ -298,19 +320,39 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
 }
 // Notification task
 void notification_task(void *param) {
-    while (notify_enabled) {
-        uint8_t notify_data[20] = {
-            first_byte, second_byte, third_byte, fourth_byte, fifth_byte,
-            sixth_byte, seventh_byte, eighth_byte, ninth_byte, tenth_byte,
-            eleventh_byte, twelfth_byte, thirteenth_byte, fourteenth_byte, fifteenth_byte,
-            sixteenth_byte, seventeenth_byte, eighteenth_byte, nineteenth_byte, twentieth_byte
-        };
+    bool send_first_set = true;  // Flag to determine which set to send
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
-            esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
-                                        gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-                                        sizeof(notify_data), notify_data, false);
+    while (notify_enabled) {
+        if (send_first_set) {
+            uint8_t notify_data[20] = {
+                first_byte, second_byte, third_byte, fourth_byte, fifth_byte,
+                sixth_byte, seventh_byte, eighth_byte, ninth_byte, tenth_byte,
+                eleventh_byte, twelfth_byte, thirteenth_byte, fourteenth_byte, fifteenth_byte,
+                sixteenth_byte, seventeenth_byte, eighteenth_byte, nineteenth_byte, twentieth_byte
+            };
+
+            // Send the notification with the first set of data
+            if (global_gatts_if != ESP_GATT_IF_NONE) {
+                esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
+                                            gl_profile_tab[PROFILE_A_APP_ID].char_handle,
+                                            sizeof(notify_data), notify_data, false);
+            }
+            send_first_set = false;  // Toggle to send the second set next time
+        } else {
+            uint8_t notify_data[20] = {
+                twentyfirst_byte, twentysecond_byte, twentythird_byte, twentyfourth_byte, twentyfifth_byte,
+                twentysixth_byte, twentyseventh_byte, twentyeighth_byte, twentyninth_byte, thirtieth_byte,
+                thirtyfirst_byte, thirtysecond_byte, thirtythird_byte, thirtyfourth_byte, thirtyfifth_byte,
+                thirtysixth_byte, thirtyseventh_byte, thirtyeighth_byte, thirtyninth_byte, fortieth_byte
+            };
+
+            // Send the notification with the second set of data
+            if (global_gatts_if != ESP_GATT_IF_NONE) {
+                esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
+                                            gl_profile_tab[PROFILE_A_APP_ID].char_handle,
+                                            sizeof(notify_data), notify_data, false);
+            }
+            send_first_set = true;  // Toggle to send the first set next time
         }
 
         vTaskDelay(pdMS_TO_TICKS(1000)); // Adjust timing as needed
@@ -319,8 +361,6 @@ void notification_task(void *param) {
     notify_task_handle = NULL;
     vTaskDelete(NULL);
 }
-
-
 
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
     ESP_LOGI(GATTS_TAG, "Profile A Event Handler: Event = %d", event);
@@ -535,11 +575,11 @@ static void twai_receive_task(void *arg) {
                     break;
                 
                 default:
-                    // ESP_LOGI("TWAI Receiver", "Unknown CAN ID: 0x%08X", message.identifier);
+                    ESP_LOGI("TWAI Receiver", "Unknown CAN ID: 0x%08" PRIx32, message.identifier);
                     break;
             }
         } else {
-            // ESP_LOGE("TWAI Receiver", "Failed to receive message");
+            ESP_LOGE("TWAI Receiver", "Failed to receive message");
         }
         vTaskDelay(pdMS_TO_TICKS(100));  // Delay to manage task frequency
     }
