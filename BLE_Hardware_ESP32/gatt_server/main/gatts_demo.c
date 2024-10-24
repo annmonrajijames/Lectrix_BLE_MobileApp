@@ -590,59 +590,59 @@ static esp_gatt_if_t global_gatts_if = ESP_GATT_IF_NONE; // Default to an invali
 
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
-    ESP_LOGI(GATTS_TAG, "GAP event handler event: %d", event);
+    // ESP_LOGI(GATTS_TAG, "GAP event handler event: %d", event);
     switch (event) {
     case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
         adv_config_done &= (~adv_config_flag);
         if (adv_config_done == 0){
             esp_ble_gap_start_advertising(&adv_params);
-            ESP_LOGI(GATTS_TAG, "Starting advertising.");
+            // ESP_LOGI(GATTS_TAG, "Starting advertising.");
         }
         break;
     case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
         adv_config_done &= (~scan_rsp_config_flag);
         if (adv_config_done == 0){
             esp_ble_gap_start_advertising(&adv_params);
-            ESP_LOGI(GATTS_TAG, "Scan response set, starting advertising.");
+            // ESP_LOGI(GATTS_TAG, "Scan response set, starting advertising.");
         }
         break;
     case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
         if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) {
-            ESP_LOGE(GATTS_TAG, "Advertising start failed: %d", param->adv_start_cmpl.status);
+            // ESP_LOGE(GATTS_TAG, "Advertising start failed: %d", param->adv_start_cmpl.status);
         } else {
-            ESP_LOGI(GATTS_TAG, "Advertising started successfully.");
+            // ESP_LOGI(GATTS_TAG, "Advertising started successfully.");
         }
         break;
     case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
         if (param->adv_stop_cmpl.status != ESP_BT_STATUS_SUCCESS) {
-            ESP_LOGE(GATTS_TAG, "Advertising stop failed: %d", param->adv_stop_cmpl.status);
+            // ESP_LOGE(GATTS_TAG, "Advertising stop failed: %d", param->adv_stop_cmpl.status);
         } else {
-            ESP_LOGI(GATTS_TAG, "Advertising stopped successfully.");
+            // ESP_LOGI(GATTS_TAG, "Advertising stopped successfully.");
         }
         break;
     case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
-        ESP_LOGI(GATTS_TAG, "Connection parameters updated: min_int=%d, max_int=%d, conn_int=%d, latency=%d, timeout=%d",
-                 param->update_conn_params.min_int, param->update_conn_params.max_int,
-                 param->update_conn_params.conn_int, param->update_conn_params.latency,
-                 param->update_conn_params.timeout);
+        // ESP_LOGI(GATTS_TAG, "Connection parameters updated: min_int=%d, max_int=%d, conn_int=%d, latency=%d, timeout=%d",
+        //          param->update_conn_params.min_int, param->update_conn_params.max_int,
+        //          param->update_conn_params.conn_int, param->update_conn_params.latency,
+        //          param->update_conn_params.timeout);
         break;
     case ESP_GAP_BLE_SET_PKT_LENGTH_COMPLETE_EVT:
-        ESP_LOGI(GATTS_TAG, "Packet length set complete: rx=%d, tx=%d, status=%d",
-                 param->pkt_data_length_cmpl.params.rx_len, param->pkt_data_length_cmpl.params.tx_len,
-                 param->pkt_data_length_cmpl.status);
+        // ESP_LOGI(GATTS_TAG, "Packet length set complete: rx=%d, tx=%d, status=%d",
+        //          param->pkt_data_length_cmpl.params.rx_len, param->pkt_data_length_cmpl.params.tx_len,
+        //          param->pkt_data_length_cmpl.status);
         break;
     default:
-        ESP_LOGI(GATTS_TAG, "Unhandled GAP event: %d", event);
+        // ESP_LOGI(GATTS_TAG, "Unhandled GAP event: %d", event);
         break;
     }
 }
 
 void example_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param){
-    ESP_LOGI(GATTS_TAG, "Handling GATT write event: need_rsp=%d, is_prep=%d, offset=%d, len=%d",
-             param->write.need_rsp, param->write.is_prep, param->write.offset, param->write.len);
+    // ESP_LOGI(GATTS_TAG, "Handling GATT write event: need_rsp=%d, is_prep=%d, offset=%d, len=%d",
+    //          param->write.need_rsp, param->write.is_prep, param->write.offset, param->write.len);
 
     // Log the actual data written
-    ESP_LOGI(GATTS_TAG, "Data written:");
+    // ESP_LOGI(GATTS_TAG, "Data written:");
     esp_log_buffer_hex(GATTS_TAG, param->write.value, param->write.len);  // Log data in hexadecimal format
 
     esp_gatt_status_t status = ESP_GATT_OK;
@@ -695,10 +695,10 @@ void example_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare
 
 void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param){
     if (param->exec_write.exec_write_flag == ESP_GATT_PREP_WRITE_EXEC){
-        ESP_LOGI(GATTS_TAG, "Executing write with buffer length: %d", prepare_write_env->prepare_len);
+        // ESP_LOGI(GATTS_TAG, "Executing write with buffer length: %d", prepare_write_env->prepare_len);
         esp_log_buffer_hex(GATTS_TAG, prepare_write_env->prepare_buf, prepare_write_env->prepare_len);
     } else {
-        ESP_LOGI(GATTS_TAG, "Prepared write cancelled.");
+        // ESP_LOGI(GATTS_TAG, "Prepared write cancelled.");
     }
     if (prepare_write_env->prepare_buf) {
         free(prepare_write_env->prepare_buf);
@@ -706,7 +706,7 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
     }
     prepare_write_env->prepare_len = 0;
 }
-
+int count=0;
 // Notification task
 void notification_task(void *param) {
     while (notify_enabled) {
@@ -718,11 +718,11 @@ void notification_task(void *param) {
         };
 
         // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data), notify_data, false);
-        }
+        count=count+1;
         uint8_t notify_data1[20] = {
             byte_21, byte_22, byte_23, byte_24, byte_25,
             byte_26, byte_27, byte_28, byte_29, byte_30,
@@ -730,12 +730,11 @@ void notification_task(void *param) {
             byte_36, byte_37, byte_38, byte_39, byte_40
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data1), notify_data1, false);
-        }
+        count=count+1;
         uint8_t notify_data2[20] = {
             byte_41, byte_42, byte_43, byte_44, byte_45,
             byte_46, byte_47, byte_48, byte_49, byte_50,
@@ -743,12 +742,11 @@ void notification_task(void *param) {
             byte_56, byte_57, byte_58, byte_59, byte_60
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data2), notify_data2, false);
-        }
+count=count+1;
         uint8_t notify_data3[20] = {
             byte_61, byte_62, byte_63, byte_64, byte_65,
             byte_66, byte_67, byte_68, byte_69, byte_70,
@@ -756,12 +754,11 @@ void notification_task(void *param) {
             byte_76, byte_77, byte_78, byte_79, byte_80
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data3), notify_data3, false);
-        }
+        count=count+1;
         uint8_t notify_data4[20] = {
             byte_81, byte_82, byte_83, byte_84, byte_85,
             byte_86, byte_87, byte_88, byte_89, byte_90,
@@ -769,12 +766,11 @@ void notification_task(void *param) {
             byte_96, byte_97, byte_98, byte_99, byte_100
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data4), notify_data4, false);
-        }
+        count=count+1;
         uint8_t notify_data5[20] = {
             byte_101, byte_102, byte_103, byte_104, byte_105,
             byte_106, byte_107, byte_108, byte_109, byte_110,
@@ -782,13 +778,11 @@ void notification_task(void *param) {
             byte_116, byte_117, byte_118, byte_119, byte_120
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data5), notify_data5, false);
-        }
-
+        count=count+1;
         uint8_t notify_data6[20] = {
             byte_101, byte_102, byte_103, byte_104, byte_105,
             byte_106, byte_107, byte_108, byte_109, byte_110,
@@ -796,12 +790,11 @@ void notification_task(void *param) {
             byte_116, byte_117, byte_118, byte_119, byte_120
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data6), notify_data6, false);
-        }
+        count=count+1;
         uint8_t notify_data7[20] = {
             byte_121, byte_122, byte_123, byte_124, byte_125,
             byte_126, byte_127, byte_128, byte_129, byte_130,
@@ -809,13 +802,12 @@ void notification_task(void *param) {
             byte_136, byte_137, byte_138, byte_139, byte_140
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data7), notify_data7, false);
-        }
 
+            count=count+1;
         uint8_t notify_data8[20] = {
             byte_141, byte_142, byte_143, byte_144, byte_145,
             byte_146, byte_147, byte_148, byte_149, byte_150,
@@ -823,13 +815,11 @@ void notification_task(void *param) {
             byte_156, byte_157, byte_158, byte_159, byte_160
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data8), notify_data8, false);
-        }
-
+            count=count+1;
         uint8_t notify_data9[20] = {
             byte_161, byte_162, byte_163, byte_164, byte_165,
             byte_166, byte_167, byte_168, byte_169, byte_170,
@@ -837,13 +827,11 @@ void notification_task(void *param) {
             byte_176, byte_177, byte_178, byte_179, byte_180
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data9), notify_data9, false);
-        }
 
+            count=count+1;
         uint8_t notify_data10[20] = {
             byte_181, byte_182, byte_183, byte_184, byte_185,
             byte_186, byte_187, byte_188, byte_189, byte_190,
@@ -851,13 +839,11 @@ void notification_task(void *param) {
             byte_196, byte_197, byte_198, byte_199, byte_200
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data10), notify_data10, false);
-        }
-
+            count=count+1;
         uint8_t notify_data11[20] = {
             byte_201, byte_202, byte_203, byte_204, byte_205,
             byte_206, byte_207, byte_208, byte_209, byte_210,
@@ -865,13 +851,11 @@ void notification_task(void *param) {
             byte_216, byte_217, byte_218, byte_219, byte_220
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data11), notify_data11, false);
-        }
-
+            count=count+1;
         uint8_t notify_data12[20] = {
             byte_221, byte_222, byte_223, byte_224, byte_225,
             byte_226, byte_227, byte_228, byte_229, byte_230,
@@ -879,13 +863,12 @@ void notification_task(void *param) {
             byte_236, byte_237, byte_238, byte_239, byte_240
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data12), notify_data12, false);
-        }
-
+    
+            count=count+1;
         uint8_t notify_data13[20] = {
             byte_241, byte_242, byte_243, byte_244, byte_245,
             byte_246, byte_247, byte_248, byte_249, byte_250,
@@ -893,13 +876,12 @@ void notification_task(void *param) {
             byte_256, byte_257, byte_258, byte_259, byte_260
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data13), notify_data13, false);
-        }
 
+            count=count+1;
         uint8_t notify_data14[20] = {
             byte_261, byte_262, byte_263, byte_264, byte_265,
             byte_266, byte_267, byte_268, byte_269, byte_270,
@@ -907,13 +889,12 @@ void notification_task(void *param) {
             byte_276, byte_277, byte_278, byte_279, byte_280
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data14), notify_data14, false);
-        }
 
+            count=count+1;
         uint8_t notify_data15[20] = {
             byte_281, byte_282, byte_283, byte_284, byte_285,
             byte_286, byte_287, byte_288, byte_289, byte_290,
@@ -921,13 +902,12 @@ void notification_task(void *param) {
             byte_296, byte_297, byte_298, byte_299, byte_300
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data15), notify_data15, false);
-        }
 
+            count=count+1;
         uint8_t notify_data16[20] = {
             byte_301, byte_302, byte_303, byte_304, byte_305,
             byte_306, byte_307, byte_308, byte_309, byte_310,
@@ -935,13 +915,11 @@ void notification_task(void *param) {
             byte_316, byte_317, byte_318, byte_319, byte_320
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data16), notify_data16, false);
-        }
-
+            count=count+1;
         uint8_t notify_data17[20] = {
             byte_321, byte_322, byte_323, byte_324, byte_325,
             byte_326, byte_327, byte_328, byte_329, byte_330,
@@ -949,13 +927,12 @@ void notification_task(void *param) {
             byte_336, byte_337, byte_338, byte_339, byte_340
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data17), notify_data17, false);
-        }
 
+            count=count+1;
         uint8_t notify_data18[20] = {
             byte_341, byte_342, byte_343, byte_344, byte_345,
             byte_346, byte_347, byte_348, byte_349, byte_350,
@@ -963,13 +940,11 @@ void notification_task(void *param) {
             byte_356, byte_357, byte_358, byte_359, byte_360
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data18), notify_data18, false);
-        }
-
+            count=count+1;
         uint8_t notify_data19[20] = {
             byte_361, byte_362, byte_363, byte_364, byte_365,
             byte_366, byte_367, byte_368, byte_369, byte_370,
@@ -977,12 +952,11 @@ void notification_task(void *param) {
             byte_376, byte_377, byte_378, byte_379, byte_380
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data19), notify_data19, false);
-        }
+            count=count+1;
 
         uint8_t notify_data20[20] = {
             byte_381, byte_382, byte_383, byte_384, byte_385,
@@ -991,14 +965,16 @@ void notification_task(void *param) {
             byte_396, byte_397, byte_398, byte_399, byte_400
         };
 
-        // Check if the interface is valid before sending data
-        if (global_gatts_if != ESP_GATT_IF_NONE) {
+
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data20), notify_data20, false);
-        }
 
-        vTaskDelay(pdMS_TO_TICKS(5000)); // Adjust timing as needed
+            count=count+1;
+        vTaskDelay(pdMS_TO_TICKS(10000)); // Adjust timing as needed
+
+
+        printf("Count %d", count);
     }
 
     notify_task_handle = NULL;
@@ -1006,11 +982,11 @@ void notification_task(void *param) {
 }
 
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
-    ESP_LOGI(GATTS_TAG, "Profile A Event Handler: Event = %d", event);
+    // ESP_LOGI(GATTS_TAG, "Profile A Event Handler: Event = %d", event);
     switch (event) {
     case ESP_GATTS_REG_EVT:
-        ESP_LOGI(GATTS_TAG, "ESP_GATTS_REG_EVT= %d", ESP_GATTS_REG_EVT);
-        ESP_LOGI(GATTS_TAG, "REGISTER_APP_EVT, status %d, app_id %d", param->reg.status, param->reg.app_id);
+        // ESP_LOGI(GATTS_TAG, "ESP_GATTS_REG_EVT= %d", ESP_GATTS_REG_EVT);
+        // ESP_LOGI(GATTS_TAG, "REGISTER_APP_EVT, status %d, app_id %d", param->reg.status, param->reg.app_id);
         global_gatts_if = gatts_if; // Store the interface ID
         gl_profile_tab[PROFILE_A_APP_ID].service_id.is_primary = true;
         gl_profile_tab[PROFILE_A_APP_ID].service_id.id.inst_id = 0x00;
@@ -1050,8 +1026,8 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         break;
     // Modify the ESP_GATTS_WRITE_EVT case
     case ESP_GATTS_WRITE_EVT:
-        ESP_LOGI(GATTS_TAG, "GATT_WRITE_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d, is_prep %d, need_rsp %d",
-                param->write.conn_id, param->write.trans_id, param->write.handle, param->write.is_prep, param->write.need_rsp);
+        // ESP_LOGI(GATTS_TAG, "GATT_WRITE_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d, is_prep %d, need_rsp %d",
+        //         param->write.conn_id, param->write.trans_id, param->write.handle, param->write.is_prep, param->write.need_rsp);
         if (!param->write.is_prep){
             uint16_t descr_value = param->write.value[1] << 8 | param->write.value[0];
             if (gl_profile_tab[PROFILE_A_APP_ID].descr_handle == param->write.handle && param->write.len == 2){
@@ -1060,7 +1036,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
                     if (notify_task_handle == NULL) {
                         xTaskCreate(notification_task, "notify_task", 2048, NULL, 10, &notify_task_handle);
                     }
-                    printf("DC %x",byte_01);
+                    // printf("DC %x",byte_01);
                 } else if (descr_value == 0x0000) { // Notification disabled
                     notify_enabled = false;
                 }
@@ -1261,12 +1237,12 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 void app_main(void)
 {
     ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config));
-    ESP_LOGI("TWAI", "Driver installed");
+    // ESP_LOGI("TWAI", "Driver installed");
     ESP_ERROR_CHECK(twai_start());
-    ESP_LOGI("TWAI", "Driver started");
+    // ESP_LOGI("TWAI", "Driver started");
 
     srand(time(NULL)); // Seed the random number generator
-    xTaskCreate(twai_receive_task, "twai_receive_task", 2048, NULL, 5, NULL);
+    // xTaskCreate(twai_receive_task, "twai_receive_task", 2048, NULL, 5, NULL);
     xTaskCreate(notification_task, "notification_task", 2048, NULL, 10, NULL);
     esp_err_t ret;
 
