@@ -18,12 +18,12 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
   const [log, setLog] = useState<LogEntry[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
+  const maxLogSize = 500; // Keeps the log to the latest 500 entries
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
   const dataBuffer = useRef<LogEntry[]>([]);
-  const updateInterval = 500; // Adjust the batch update interval as needed
-  let count = 0;
+  let count=0;
   useEffect(() => {
     const connectToDevice = async () => {
       try {
@@ -64,10 +64,10 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     // Periodically update the log state from the buffer
     const intervalId = setInterval(() => {
       if (dataBuffer.current.length > 0) {
-        setLog(prevLog => [...prevLog, ...dataBuffer.current]);
+        setLog(prevLog => [...prevLog.slice(-maxLogSize + dataBuffer.current.length), ...dataBuffer.current]);
         dataBuffer.current = [];
       }
-    }, updateInterval);
+    }, 1000); // Update the state every second
 
     return () => {
       clearInterval(intervalId);
