@@ -64,15 +64,15 @@ static uint8_t adv_service_uuid128[32] = {
 };
 
 // Define variables for each byte to be sent
-uint8_t byte_01=0x0;
-uint8_t byte_02=0x0;
-uint8_t byte_03=0x0;
-uint8_t byte_04=0x0;
-uint8_t byte_05=0x0;
-uint8_t byte_06=0x0;
-uint8_t byte_07=0x0;
-uint8_t byte_08=0x0;
-uint8_t byte_09=0x0;
+uint8_t byte_01=0x1;
+uint8_t byte_02=0x1;
+uint8_t byte_03=0x1;
+uint8_t byte_04=0x1;
+uint8_t byte_05=0x1;
+uint8_t byte_06=0x1;
+uint8_t byte_07=0x1;
+uint8_t byte_08=0x1;
+uint8_t byte_09=0x1;
 uint8_t byte_10=0x1;
 uint8_t byte_11=0x1;
 uint8_t byte_12=0x1;
@@ -83,7 +83,7 @@ uint8_t byte_16=0x1;
 uint8_t byte_17=0x1;
 uint8_t byte_18=0x1;
 uint8_t byte_19=0x1;
-uint8_t byte_20=0x2;
+uint8_t byte_20=0x1;
 uint8_t byte_21=0x2;
 uint8_t byte_22=0x2; 
 uint8_t byte_23=0x2;
@@ -93,405 +93,378 @@ uint8_t byte_26=0x2;
 uint8_t byte_27=0x2;
 uint8_t byte_28=0x2;
 uint8_t byte_29=0x2;
-uint8_t byte_30=0x3;
-uint8_t byte_31=0x3;
-uint8_t byte_32=0x3;
-uint8_t byte_33=0x3;
-uint8_t byte_34=0x3;
-uint8_t byte_35=0x3;
-uint8_t byte_36=0x3;
-uint8_t byte_37=0x3;
-uint8_t byte_38=0x3;
-uint8_t byte_39=0x3; 
-uint8_t byte_40=0x4;
-uint8_t byte_41 = 0x4;
-uint8_t byte_42 = 0x4;
-uint8_t byte_43 = 0x4;
-uint8_t byte_44 = 0x4;
-uint8_t byte_45 = 0x4;
-uint8_t byte_46 = 0x4;
-uint8_t byte_47 = 0x4;
-uint8_t byte_48 = 0x4;
-uint8_t byte_49 = 0x4;
-uint8_t byte_50 = 0x5;
-uint8_t byte_51 = 0x5;
-uint8_t byte_52 = 0x5;
-uint8_t byte_53 = 0x5;
-uint8_t byte_54 = 0x5;
-uint8_t byte_55 = 0x5;
-uint8_t byte_56 = 0x5;
-uint8_t byte_57 = 0x5;
-uint8_t byte_58 = 0x5;
-uint8_t byte_59 = 0x5;
-uint8_t byte_60 = 0x6;
-uint8_t byte_61 = 0x6;
-uint8_t byte_62 = 0x6;
-uint8_t byte_63 = 0x6;
-uint8_t byte_64 = 0x6;
-uint8_t byte_65 = 0x6;
-uint8_t byte_66 = 0x6;
-uint8_t byte_67 = 0x6;
-uint8_t byte_68 = 0x6;
-uint8_t byte_69 = 0x6;
-uint8_t byte_70 = 0x7;
-uint8_t byte_71 = 0x7;
-uint8_t byte_72 = 0x7;
-uint8_t byte_73 = 0x7;
-uint8_t byte_74 = 0x7;
-uint8_t byte_75 = 0x7;
-uint8_t byte_76 = 0x7;
-uint8_t byte_77 = 0x7;
-uint8_t byte_78 = 0x7;
-uint8_t byte_79 = 0x7;
-uint8_t byte_80 = 0x8;
-uint8_t byte_81 = 0x8;
-uint8_t byte_82 = 0x8;
-uint8_t byte_83 = 0x8;
-uint8_t byte_84 = 0x8;
-uint8_t byte_85 = 0x8;
-uint8_t byte_86 = 0x8;
-uint8_t byte_87 = 0x8;
-uint8_t byte_88 = 0x8;
-uint8_t byte_89 = 0x8;
-uint8_t byte_90 = 0x9;
-uint8_t byte_91 = 0x9;
-uint8_t byte_92 = 0x9;
-uint8_t byte_93 = 0x9;
-uint8_t byte_94 = 0x9;
-uint8_t byte_95 = 0x9;
-uint8_t byte_96 = 0x9;
-uint8_t byte_97 = 0x9;
-uint8_t byte_98 = 0x9;
-uint8_t byte_99 = 0x9;
-uint8_t byte_100 = 0x10;
-uint8_t byte_101 = 0x10;
-uint8_t byte_102 = 0x10;
-uint8_t byte_103 = 0x10;
-uint8_t byte_104 = 0x10;
-uint8_t byte_105 = 0x10;
-uint8_t byte_106 = 0x10;
-uint8_t byte_107 = 0x10;
-uint8_t byte_108 = 0x10;
-uint8_t byte_109 = 0x10;
-uint8_t byte_110 = 0x10;
+uint8_t byte_30=0x2;
+uint8_t byte_31=0x2;
+uint8_t byte_32=0x2;
+uint8_t byte_33=0x2;
+uint8_t byte_34=0x2;
+uint8_t byte_35=0x2;
+uint8_t byte_36=0x2;
+uint8_t byte_37=0x2;
+uint8_t byte_38=0x2;
+uint8_t byte_39=0x2; 
+uint8_t byte_40=0x2;
+uint8_t byte_41=0x3;
+uint8_t byte_42=0x3;
+uint8_t byte_43=0x3;
+uint8_t byte_44=0x3;
+uint8_t byte_45=0x3;
+uint8_t byte_46=0x3;
+uint8_t byte_47=0x3;
+uint8_t byte_48=0x3;
+uint8_t byte_49=0x3;
+uint8_t byte_50=0x3;
+uint8_t byte_51=0x3;
+uint8_t byte_52=0x3;
+uint8_t byte_53=0x3;
+uint8_t byte_54=0x3;
+uint8_t byte_55=0x3;
+uint8_t byte_56=0x3;
+uint8_t byte_57=0x3;
+uint8_t byte_58=0x3;
+uint8_t byte_59=0x3;
+uint8_t byte_60=0x4;
+uint8_t byte_61=0x4;
+uint8_t byte_62=0x4;
+uint8_t byte_63=0x4;
+uint8_t byte_64=0x4;
+uint8_t byte_65=0x4;
+uint8_t byte_66=0x4;
+uint8_t byte_67=0x4;
+uint8_t byte_68=0x4;
+uint8_t byte_69=0x4;
+uint8_t byte_70=0x4;
+uint8_t byte_71=0x4;
+uint8_t byte_72=0x4;
+uint8_t byte_73=0x4;
+uint8_t byte_74=0x4;
+uint8_t byte_75=0x4;
+uint8_t byte_76=0x4;
+uint8_t byte_77=0x4;
+uint8_t byte_78=0x4;
+uint8_t byte_79=0x4;
+uint8_t byte_80=0x4;
+uint8_t byte_81=0x5;
+uint8_t byte_82=0x5;
+uint8_t byte_83=0x5;
+uint8_t byte_84=0x5;
+uint8_t byte_85=0x5;
+uint8_t byte_86=0x5;
+uint8_t byte_87=0x5;
+uint8_t byte_88=0x5;
+uint8_t byte_89=0x5;
+uint8_t byte_90=0x5;
+uint8_t byte_91=0x5;
+uint8_t byte_92=0x5;
+uint8_t byte_93=0x5;
+uint8_t byte_94=0x5;
+uint8_t byte_95=0x5;
+uint8_t byte_96=0x5;
+uint8_t byte_97=0x5;
+uint8_t byte_98=0x5;
+uint8_t byte_99=0x5;
+uint8_t byte_100=0x5;
+uint8_t byte_101=0x6;
+uint8_t byte_102=0x6;
+uint8_t byte_103=0x6;
+uint8_t byte_104=0x6;
+uint8_t byte_105=0x6;
+uint8_t byte_106=0x6;
+uint8_t byte_107=0x6;
+uint8_t byte_108=0x6;
+uint8_t byte_109=0x6;
+uint8_t byte_110=0x6;
+uint8_t byte_111=0x6;
+uint8_t byte_112=0x6;
+uint8_t byte_113=0x6;
+uint8_t byte_114=0x6;
+uint8_t byte_115=0x6;
+uint8_t byte_116=0x6;
+uint8_t byte_117=0x6;
+uint8_t byte_118=0x6;
+uint8_t byte_119=0x6;
+uint8_t byte_120=0x6;
+uint8_t byte_121=0x7;
+uint8_t byte_122=0x7;
+uint8_t byte_123=0x7;
+uint8_t byte_124=0x7;
+uint8_t byte_125=0x7;
+uint8_t byte_126=0x7;
+uint8_t byte_127=0x7;
+uint8_t byte_128=0x7;
+uint8_t byte_129=0x7;
+uint8_t byte_130=0x7;
+uint8_t byte_131=0x7;
+uint8_t byte_132=0x7;
+uint8_t byte_133=0x7;
+uint8_t byte_134=0x7;
+uint8_t byte_135=0x7;
+uint8_t byte_136=0x7;
+uint8_t byte_137=0x7;
+uint8_t byte_138=0x7;
+uint8_t byte_139=0x7;
+uint8_t byte_140=0x7;
+uint8_t byte_141=0x8;
+uint8_t byte_142=0x8;
+uint8_t byte_143=0x8;
+uint8_t byte_144=0x8;
+uint8_t byte_145=0x8;
+uint8_t byte_146=0x8;
+uint8_t byte_147=0x8;
+uint8_t byte_148=0x8;
+uint8_t byte_149=0x8;
+uint8_t byte_150=0x8;
+uint8_t byte_151=0x8;
+uint8_t byte_152=0x8;
+uint8_t byte_153=0x8;
+uint8_t byte_154=0x8;
+uint8_t byte_155=0x8;
+uint8_t byte_156=0x8;
+uint8_t byte_157=0x8;
+uint8_t byte_158=0x8;
+uint8_t byte_159=0x8;
+uint8_t byte_160=0x8;
+uint8_t byte_161=0x9;
+uint8_t byte_162=0x9;
+uint8_t byte_163=0x9;
+uint8_t byte_164=0x9;
+uint8_t byte_165=0x9;
+uint8_t byte_166=0x9;
+uint8_t byte_167=0x9;
+uint8_t byte_168=0x9;
+uint8_t byte_169=0x9;
+uint8_t byte_170=0x9;
+uint8_t byte_171=0x9;
+uint8_t byte_172=0x9;
+uint8_t byte_173=0x9;
+uint8_t byte_174=0x9;
+uint8_t byte_175=0x9;
+uint8_t byte_176=0x9;
+uint8_t byte_177=0x9;
+uint8_t byte_178=0x9;
+uint8_t byte_179=0x9;
+uint8_t byte_180=0x9;
+uint8_t byte_181=0x10;
+uint8_t byte_182=0x10;
+uint8_t byte_183=0x10;
+uint8_t byte_184=0x10;
+uint8_t byte_185=0x10;
+uint8_t byte_186=0x10;
+uint8_t byte_187=0x10;
+uint8_t byte_188=0x10;
+uint8_t byte_189=0x10;
+uint8_t byte_190=0x10;
+uint8_t byte_191=0x10;
+uint8_t byte_192=0x10;
+uint8_t byte_193=0x10;
+uint8_t byte_194=0x10;
+uint8_t byte_195=0x10;
+uint8_t byte_196=0x10;
+uint8_t byte_197=0x10;
+uint8_t byte_198=0x10;
+uint8_t byte_199=0x10;
+uint8_t byte_200=0x10;
+uint8_t byte_201=0x11;
+uint8_t byte_202=0x11;
+uint8_t byte_203=0x11;
+uint8_t byte_204=0x11;
+uint8_t byte_205=0x11;
+uint8_t byte_206=0x11;
+uint8_t byte_207=0x11;
+uint8_t byte_208=0x11;
+uint8_t byte_209=0x11;
+uint8_t byte_210=0x11;
+uint8_t byte_211=0x11;
+uint8_t byte_212=0x11;
+uint8_t byte_213=0x11;
+uint8_t byte_214=0x11;
+uint8_t byte_215=0x11;
+uint8_t byte_216=0x11;
+uint8_t byte_217=0x11;
+uint8_t byte_218=0x11;
+uint8_t byte_219=0x11;
+uint8_t byte_220=0x11;
+uint8_t byte_221=0x12;
+uint8_t byte_222=0x12;
+uint8_t byte_223=0x12;
+uint8_t byte_224=0x12;
+uint8_t byte_225=0x12;
+uint8_t byte_226=0x12;
+uint8_t byte_227=0x12;
+uint8_t byte_228=0x12;
+uint8_t byte_229=0x12;
+uint8_t byte_230=0x12;
+uint8_t byte_231=0x12;
+uint8_t byte_232=0x12;
+uint8_t byte_233=0x12;
+uint8_t byte_234=0x12;
+uint8_t byte_235=0x12;
+uint8_t byte_236=0x12;
+uint8_t byte_237=0x12;
+uint8_t byte_238=0x12;
+uint8_t byte_239=0x12;
+uint8_t byte_240=0x12;
+uint8_t byte_241=0x13;
+uint8_t byte_242=0x13;
+uint8_t byte_243=0x13;
+uint8_t byte_244=0x13;
+uint8_t byte_245=0x13;
+uint8_t byte_246=0x13;
+uint8_t byte_247=0x13;
+uint8_t byte_248=0x13;
+uint8_t byte_249=0x13;
+uint8_t byte_250=0x13;
+uint8_t byte_251=0x13;
+uint8_t byte_252=0x13;
+uint8_t byte_253=0x13;
+uint8_t byte_254=0x13;
+uint8_t byte_255=0x13;
+uint8_t byte_256=0x13;
+uint8_t byte_257=0x13;
+uint8_t byte_258=0x13;
+uint8_t byte_259=0x13;
+uint8_t byte_260=0x13;
+uint8_t byte_261=0x14;
+uint8_t byte_262=0x14;
+uint8_t byte_263=0x14;
+uint8_t byte_264=0x14;
+uint8_t byte_265=0x14;
+uint8_t byte_266=0x14;
+uint8_t byte_267=0x14;
+uint8_t byte_268=0x14;
+uint8_t byte_269=0x14;
+uint8_t byte_270=0x14;
+uint8_t byte_271=0x14;
+uint8_t byte_272=0x14;
+uint8_t byte_273=0x14;
+uint8_t byte_274=0x14;
+uint8_t byte_275=0x14;
+uint8_t byte_276=0x14;
+uint8_t byte_277=0x14;
+uint8_t byte_278=0x14;
+uint8_t byte_279=0x14;
+uint8_t byte_280=0x14;
+uint8_t byte_281=0x15;
+uint8_t byte_282=0x15;
+uint8_t byte_283=0x15;
+uint8_t byte_284=0x15;
+uint8_t byte_285=0x15;
+uint8_t byte_286=0x15;
+uint8_t byte_287=0x15;
+uint8_t byte_288=0x15;
+uint8_t byte_289=0x15;
+uint8_t byte_290=0x15;
+uint8_t byte_291=0x15;
+uint8_t byte_292=0x15;
+uint8_t byte_293=0x15;
+uint8_t byte_294=0x15;
+uint8_t byte_295=0x15;
+uint8_t byte_296=0x15;
+uint8_t byte_297=0x15;
+uint8_t byte_298=0x15;
+uint8_t byte_299=0x15;
+uint8_t byte_300=0x15;
+uint8_t byte_301=0x16;
+uint8_t byte_302=0x16;
+uint8_t byte_303=0x16;
+uint8_t byte_304=0x16;
+uint8_t byte_305=0x16;
+uint8_t byte_306=0x16;
+uint8_t byte_307=0x16;
+uint8_t byte_308=0x16;
+uint8_t byte_309=0x16;
+uint8_t byte_310=0x16;
+uint8_t byte_311=0x16;
+uint8_t byte_312=0x16;
+uint8_t byte_313=0x16;
+uint8_t byte_314=0x16;
+uint8_t byte_315=0x16;
+uint8_t byte_316=0x16;
+uint8_t byte_317=0x16;
+uint8_t byte_318=0x16;
+uint8_t byte_319=0x16;
+uint8_t byte_320=0x16;
+uint8_t byte_321=0x17;
+uint8_t byte_322=0x17;
+uint8_t byte_323=0x17;
+uint8_t byte_324=0x17;
+uint8_t byte_325=0x17;
+uint8_t byte_326=0x17;
+uint8_t byte_327=0x17;
+uint8_t byte_328=0x17;
+uint8_t byte_329=0x17;
+uint8_t byte_330=0x17;
+uint8_t byte_331=0x17;
+uint8_t byte_332=0x17;
+uint8_t byte_333=0x17;
+uint8_t byte_334=0x17;
+uint8_t byte_335=0x17;
+uint8_t byte_336=0x17;
+uint8_t byte_337=0x17;
+uint8_t byte_338=0x17;
+uint8_t byte_339=0x17;
+uint8_t byte_340=0x17;
+uint8_t byte_341=0x18;
+uint8_t byte_342=0x18;
+uint8_t byte_343=0x18;
+uint8_t byte_344=0x18;
+uint8_t byte_345=0x18;
+uint8_t byte_346=0x18;
+uint8_t byte_347=0x18;
+uint8_t byte_348=0x18;
+uint8_t byte_349=0x18;
+uint8_t byte_350=0x18;
+uint8_t byte_351=0x18;
+uint8_t byte_352=0x18;
+uint8_t byte_353=0x18;
+uint8_t byte_354=0x18;
+uint8_t byte_355=0x18;
+uint8_t byte_356=0x18;
+uint8_t byte_357=0x18;
+uint8_t byte_358=0x18;
+uint8_t byte_359=0x18;
+uint8_t byte_360=0x18;
+uint8_t byte_361=0x19;
+uint8_t byte_362=0x19;
+uint8_t byte_363=0x19;
+uint8_t byte_364=0x19;
+uint8_t byte_365=0x19;
+uint8_t byte_366=0x19;
+uint8_t byte_367=0x19;
+uint8_t byte_368=0x19;
+uint8_t byte_369=0x19;
+uint8_t byte_370=0x19;
+uint8_t byte_371=0x19;
+uint8_t byte_372=0x19;
+uint8_t byte_373=0x19;
+uint8_t byte_374=0x19;
+uint8_t byte_375=0x19;
+uint8_t byte_376=0x19;
+uint8_t byte_377=0x19;
+uint8_t byte_378=0x19;
+uint8_t byte_379=0x19;
+uint8_t byte_380=0x19;
+uint8_t byte_381=0x20;
+uint8_t byte_382=0x20;
+uint8_t byte_383=0x20;
+uint8_t byte_384=0x20;
+uint8_t byte_385=0x20;
+uint8_t byte_386=0x20;
+uint8_t byte_387=0x20;
+uint8_t byte_388=0x20;
+uint8_t byte_389=0x20;
+uint8_t byte_390=0x20;
+uint8_t byte_391=0x20;
+uint8_t byte_392=0x20;
+uint8_t byte_393=0x20;
+uint8_t byte_394=0x20;
+uint8_t byte_395=0x20;
+uint8_t byte_396=0x20;
+uint8_t byte_397=0x20;
+uint8_t byte_398=0x20;
+uint8_t byte_399=0x20;
+uint8_t byte_400=0x20;
 
-uint8_t byte_111 = 0x11;
-uint8_t byte_112 = 0x11;
-uint8_t byte_113 = 0x11;
-uint8_t byte_114 = 0x11;
-uint8_t byte_115 = 0x11;
-uint8_t byte_116 = 0x11;
-uint8_t byte_117 = 0x11;
-uint8_t byte_118 = 0x11;
-uint8_t byte_119 = 0x11;
-uint8_t byte_120 = 0x11;
-
-uint8_t byte_121 = 0x12;
-uint8_t byte_122 = 0x12;
-uint8_t byte_123 = 0x12;
-uint8_t byte_124 = 0x12;
-uint8_t byte_125 = 0x12;
-uint8_t byte_126 = 0x12;
-uint8_t byte_127 = 0x12;
-uint8_t byte_128 = 0x12;
-uint8_t byte_129 = 0x12;
-uint8_t byte_130 = 0x12;
-
-uint8_t byte_131 = 0x13;
-uint8_t byte_132 = 0x13;
-uint8_t byte_133 = 0x13;
-uint8_t byte_134 = 0x13;
-uint8_t byte_135 = 0x13;
-uint8_t byte_136 = 0x13;
-uint8_t byte_137 = 0x13;
-uint8_t byte_138 = 0x13;
-uint8_t byte_139 = 0x13;
-uint8_t byte_140 = 0x13;
-
-uint8_t byte_141 = 0x14;
-uint8_t byte_142 = 0x14;
-uint8_t byte_143 = 0x14;
-uint8_t byte_144 = 0x14;
-uint8_t byte_145 = 0x14;
-uint8_t byte_146 = 0x14;
-uint8_t byte_147 = 0x14;
-uint8_t byte_148 = 0x14;
-uint8_t byte_149 = 0x14;
-uint8_t byte_150 = 0x14;
-
-uint8_t byte_151 = 0x15;
-uint8_t byte_152 = 0x15;
-uint8_t byte_153 = 0x15;
-uint8_t byte_154 = 0x15;
-uint8_t byte_155 = 0x15;
-uint8_t byte_156 = 0x15;
-uint8_t byte_157 = 0x15;
-uint8_t byte_158 = 0x15;
-uint8_t byte_159 = 0x15;
-uint8_t byte_160 = 0x15;
-
-uint8_t byte_161 = 0x16;
-uint8_t byte_162 = 0x16;
-uint8_t byte_163 = 0x16;
-uint8_t byte_164 = 0x16;
-uint8_t byte_165 = 0x16;
-uint8_t byte_166 = 0x16;
-uint8_t byte_167 = 0x16;
-uint8_t byte_168 = 0x16;
-uint8_t byte_169 = 0x16;
-uint8_t byte_170 = 0x16;
-
-uint8_t byte_171 = 0x17;
-uint8_t byte_172 = 0x17;
-uint8_t byte_173 = 0x17;
-uint8_t byte_174 = 0x17;
-uint8_t byte_175 = 0x17;
-uint8_t byte_176 = 0x17;
-uint8_t byte_177 = 0x17;
-uint8_t byte_178 = 0x17;
-uint8_t byte_179 = 0x17;
-uint8_t byte_180 = 0x17;
-
-uint8_t byte_181 = 0x18;
-uint8_t byte_182 = 0x18;
-uint8_t byte_183 = 0x18;
-uint8_t byte_184 = 0x18;
-uint8_t byte_185 = 0x18;
-uint8_t byte_186 = 0x18;
-uint8_t byte_187 = 0x18;
-uint8_t byte_188 = 0x18;
-uint8_t byte_189 = 0x18;
-uint8_t byte_190 = 0x18;
-
-uint8_t byte_191 = 0x19;
-uint8_t byte_192 = 0x19;
-uint8_t byte_193 = 0x19;
-uint8_t byte_194 = 0x19;
-uint8_t byte_195 = 0x19;
-uint8_t byte_196 = 0x19;
-uint8_t byte_197 = 0x19;
-uint8_t byte_198 = 0x19;
-uint8_t byte_199 = 0x19;
-uint8_t byte_200 = 0x20;
-uint8_t byte_201 = 0x20;
-uint8_t byte_202 = 0x20;
-uint8_t byte_203 = 0x20;
-uint8_t byte_204 = 0x20;
-uint8_t byte_205 = 0x20;
-uint8_t byte_206 = 0x20;
-uint8_t byte_207 = 0x20;
-uint8_t byte_208 = 0x20;
-uint8_t byte_209 = 0x20;
-uint8_t byte_210 = 0x20;
-
-uint8_t byte_211 = 0x21;
-uint8_t byte_212 = 0x21;
-uint8_t byte_213 = 0x21;
-uint8_t byte_214 = 0x21;
-uint8_t byte_215 = 0x21;
-uint8_t byte_216 = 0x21;
-uint8_t byte_217 = 0x21;
-uint8_t byte_218 = 0x21;
-uint8_t byte_219 = 0x21;
-uint8_t byte_220 = 0x21;
-
-uint8_t byte_221 = 0x22;
-uint8_t byte_222 = 0x22;
-uint8_t byte_223 = 0x22;
-uint8_t byte_224 = 0x22;
-uint8_t byte_225 = 0x22;
-uint8_t byte_226 = 0x22;
-uint8_t byte_227 = 0x22;
-uint8_t byte_228 = 0x22;
-uint8_t byte_229 = 0x22;
-uint8_t byte_230 = 0x22;
-
-uint8_t byte_231 = 0x23;
-uint8_t byte_232 = 0x23;
-uint8_t byte_233 = 0x23;
-uint8_t byte_234 = 0x23;
-uint8_t byte_235 = 0x23;
-uint8_t byte_236 = 0x23;
-uint8_t byte_237 = 0x23;
-uint8_t byte_238 = 0x23;
-uint8_t byte_239 = 0x23;
-uint8_t byte_240 = 0x23;
-
-uint8_t byte_241 = 0x24;
-uint8_t byte_242 = 0x24;
-uint8_t byte_243 = 0x24;
-uint8_t byte_244 = 0x24;
-uint8_t byte_245 = 0x24;
-uint8_t byte_246 = 0x24;
-uint8_t byte_247 = 0x24;
-uint8_t byte_248 = 0x24;
-uint8_t byte_249 = 0x24;
-uint8_t byte_250 = 0x24;
-
-uint8_t byte_251 = 0x25;
-uint8_t byte_252 = 0x25;
-uint8_t byte_253 = 0x25;
-uint8_t byte_254 = 0x25;
-uint8_t byte_255 = 0x25;
-uint8_t byte_256 = 0x25;
-uint8_t byte_257 = 0x25;
-uint8_t byte_258 = 0x25;
-uint8_t byte_259 = 0x25;
-uint8_t byte_260 = 0x25;
-
-uint8_t byte_261 = 0x26;
-uint8_t byte_262 = 0x26;
-uint8_t byte_263 = 0x26;
-uint8_t byte_264 = 0x26;
-uint8_t byte_265 = 0x26;
-uint8_t byte_266 = 0x26;
-uint8_t byte_267 = 0x26;
-uint8_t byte_268 = 0x26;
-uint8_t byte_269 = 0x26;
-uint8_t byte_270 = 0x26;
-
-uint8_t byte_271 = 0x27;
-uint8_t byte_272 = 0x27;
-uint8_t byte_273 = 0x27;
-uint8_t byte_274 = 0x27;
-uint8_t byte_275 = 0x27;
-uint8_t byte_276 = 0x27;
-uint8_t byte_277 = 0x27;
-uint8_t byte_278 = 0x27;
-uint8_t byte_279 = 0x27;
-uint8_t byte_280 = 0x27;
-
-uint8_t byte_281 = 0x28;
-uint8_t byte_282 = 0x28;
-uint8_t byte_283 = 0x28;
-uint8_t byte_284 = 0x28;
-uint8_t byte_285 = 0x28;
-uint8_t byte_286 = 0x28;
-uint8_t byte_287 = 0x28;
-uint8_t byte_288 = 0x28;
-uint8_t byte_289 = 0x28;
-uint8_t byte_290 = 0x28;
-
-uint8_t byte_291 = 0x29;
-uint8_t byte_292 = 0x29;
-uint8_t byte_293 = 0x29;
-uint8_t byte_294 = 0x29;
-uint8_t byte_295 = 0x29;
-uint8_t byte_296 = 0x29;
-uint8_t byte_297 = 0x29;
-uint8_t byte_298 = 0x29;
-uint8_t byte_299 = 0x29;
-uint8_t byte_300 = 0x30;
-
-uint8_t byte_301 = 0x30;
-uint8_t byte_302 = 0x30;
-uint8_t byte_303 = 0x30;
-uint8_t byte_304 = 0x30;
-uint8_t byte_305 = 0x30;
-uint8_t byte_306 = 0x30;
-uint8_t byte_307 = 0x30;
-uint8_t byte_308 = 0x30;
-uint8_t byte_309 = 0x30;
-uint8_t byte_310 = 0x30;
-
-uint8_t byte_311 = 0x31;
-uint8_t byte_312 = 0x31;
-uint8_t byte_313 = 0x31;
-uint8_t byte_314 = 0x31;
-uint8_t byte_315 = 0x31;
-uint8_t byte_316 = 0x31;
-uint8_t byte_317 = 0x31;
-uint8_t byte_318 = 0x31;
-uint8_t byte_319 = 0x31;
-uint8_t byte_320 = 0x31;
-
-uint8_t byte_321 = 0x32;
-uint8_t byte_322 = 0x32;
-uint8_t byte_323 = 0x32;
-uint8_t byte_324 = 0x32;
-uint8_t byte_325 = 0x32;
-uint8_t byte_326 = 0x32;
-uint8_t byte_327 = 0x32;
-uint8_t byte_328 = 0x32;
-uint8_t byte_329 = 0x32;
-uint8_t byte_330 = 0x32;
-
-uint8_t byte_331 = 0x33;
-uint8_t byte_332 = 0x33;
-uint8_t byte_333 = 0x33;
-uint8_t byte_334 = 0x33;
-uint8_t byte_335 = 0x33;
-uint8_t byte_336 = 0x33;
-uint8_t byte_337 = 0x33;
-uint8_t byte_338 = 0x33;
-uint8_t byte_339 = 0x33;
-uint8_t byte_340 = 0x33;
-
-uint8_t byte_341 = 0x34;
-uint8_t byte_342 = 0x34;
-uint8_t byte_343 = 0x34;
-uint8_t byte_344 = 0x34;
-uint8_t byte_345 = 0x34;
-uint8_t byte_346 = 0x34;
-uint8_t byte_347 = 0x34;
-uint8_t byte_348 = 0x34;
-uint8_t byte_349 = 0x34;
-uint8_t byte_350 = 0x34;
-
-uint8_t byte_351 = 0x35;
-uint8_t byte_352 = 0x35;
-uint8_t byte_353 = 0x35;
-uint8_t byte_354 = 0x35;
-uint8_t byte_355 = 0x35;
-uint8_t byte_356 = 0x35;
-uint8_t byte_357 = 0x35;
-uint8_t byte_358 = 0x35;
-uint8_t byte_359 = 0x35;
-uint8_t byte_360 = 0x35;
-
-uint8_t byte_361 = 0x36;
-uint8_t byte_362 = 0x36;
-uint8_t byte_363 = 0x36;
-uint8_t byte_364 = 0x36;
-uint8_t byte_365 = 0x36;
-uint8_t byte_366 = 0x36;
-uint8_t byte_367 = 0x36;
-uint8_t byte_368 = 0x36;
-uint8_t byte_369 = 0x36;
-uint8_t byte_370 = 0x36;
-
-uint8_t byte_371 = 0x37;
-uint8_t byte_372 = 0x37;
-uint8_t byte_373 = 0x37;
-uint8_t byte_374 = 0x37;
-uint8_t byte_375 = 0x37;
-uint8_t byte_376 = 0x37;
-uint8_t byte_377 = 0x37;
-uint8_t byte_378 = 0x37;
-uint8_t byte_379 = 0x37;
-uint8_t byte_380 = 0x37;
-
-uint8_t byte_381 = 0x38;
-uint8_t byte_382 = 0x38;
-uint8_t byte_383 = 0x38;
-uint8_t byte_384 = 0x38;
-uint8_t byte_385 = 0x38;
-uint8_t byte_386 = 0x38;
-uint8_t byte_387 = 0x38;
-uint8_t byte_388 = 0x38;
-uint8_t byte_389 = 0x38;
-uint8_t byte_390 = 0x38;
-
-uint8_t byte_391 = 0x39;
-uint8_t byte_392 = 0x39;
-uint8_t byte_393 = 0x39;
-uint8_t byte_394 = 0x39;
-uint8_t byte_395 = 0x39;
-uint8_t byte_396 = 0x39;
-uint8_t byte_397 = 0x39;
-uint8_t byte_398 = 0x39;
-uint8_t byte_399 = 0x39;
-uint8_t byte_400 = 0x40;
 
 static esp_ble_adv_data_t adv_data = {
     .set_scan_rsp = false,
@@ -707,10 +680,11 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
     prepare_write_env->prepare_len = 0;
 }
 int count=0;
+int delay=20;
 // Notification task
 void notification_task(void *param) {
     while (notify_enabled) {
-        uint8_t notify_data[20] = {
+        uint8_t notify_data1[20] = {
             byte_01, byte_02, byte_03, byte_04, byte_05,
             byte_06, byte_07, byte_08, byte_09, byte_10,
             byte_11, byte_12, byte_13, byte_14, byte_15,
@@ -721,9 +695,10 @@ void notification_task(void *param) {
 
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-                                        sizeof(notify_data), notify_data, false);
+                                        sizeof(notify_data1), notify_data1, false);
+        vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
         count=count+1;
-        uint8_t notify_data1[20] = {
+        uint8_t notify_data2[20] = {
             byte_21, byte_22, byte_23, byte_24, byte_25,
             byte_26, byte_27, byte_28, byte_29, byte_30,
             byte_31, byte_32, byte_33, byte_34, byte_35,
@@ -733,9 +708,10 @@ void notification_task(void *param) {
 
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-                                        sizeof(notify_data1), notify_data1, false);
+                                        sizeof(notify_data2), notify_data2, false);
+        vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
         count=count+1;
-        uint8_t notify_data2[20] = {
+        uint8_t notify_data3[20] = {
             byte_41, byte_42, byte_43, byte_44, byte_45,
             byte_46, byte_47, byte_48, byte_49, byte_50,
             byte_51, byte_52, byte_53, byte_54, byte_55,
@@ -745,9 +721,10 @@ void notification_task(void *param) {
 
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-                                        sizeof(notify_data2), notify_data2, false);
-count=count+1;
-        uint8_t notify_data3[20] = {
+                                        sizeof(notify_data3), notify_data3, false);
+        vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
+        count=count+1;
+        uint8_t notify_data4[20] = {
             byte_61, byte_62, byte_63, byte_64, byte_65,
             byte_66, byte_67, byte_68, byte_69, byte_70,
             byte_71, byte_72, byte_73, byte_74, byte_75,
@@ -757,9 +734,10 @@ count=count+1;
 
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-                                        sizeof(notify_data3), notify_data3, false);
+                                        sizeof(notify_data4), notify_data4, false);
+        vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
         count=count+1;
-        uint8_t notify_data4[20] = {
+        uint8_t notify_data5[20] = {
             byte_81, byte_82, byte_83, byte_84, byte_85,
             byte_86, byte_87, byte_88, byte_89, byte_90,
             byte_91, byte_92, byte_93, byte_94, byte_95,
@@ -769,19 +747,8 @@ count=count+1;
 
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-                                        sizeof(notify_data4), notify_data4, false);
-        count=count+1;
-        uint8_t notify_data5[20] = {
-            byte_101, byte_102, byte_103, byte_104, byte_105,
-            byte_106, byte_107, byte_108, byte_109, byte_110,
-            byte_111, byte_112, byte_113, byte_114, byte_115,
-            byte_116, byte_117, byte_118, byte_119, byte_120
-        };
-
-
-            esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
-                                        gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data5), notify_data5, false);
+        vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
         count=count+1;
         uint8_t notify_data6[20] = {
             byte_101, byte_102, byte_103, byte_104, byte_105,
@@ -794,7 +761,9 @@ count=count+1;
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data6), notify_data6, false);
+        vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
         count=count+1;
+
         uint8_t notify_data7[20] = {
             byte_121, byte_122, byte_123, byte_124, byte_125,
             byte_126, byte_127, byte_128, byte_129, byte_130,
@@ -806,7 +775,7 @@ count=count+1;
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data7), notify_data7, false);
-
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data8[20] = {
             byte_141, byte_142, byte_143, byte_144, byte_145,
@@ -819,6 +788,7 @@ count=count+1;
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data8), notify_data8, false);
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data9[20] = {
             byte_161, byte_162, byte_163, byte_164, byte_165,
@@ -831,6 +801,7 @@ count=count+1;
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data9), notify_data9, false);
 
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data10[20] = {
             byte_181, byte_182, byte_183, byte_184, byte_185,
@@ -843,6 +814,8 @@ count=count+1;
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data10), notify_data10, false);
+
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data11[20] = {
             byte_201, byte_202, byte_203, byte_204, byte_205,
@@ -855,6 +828,8 @@ count=count+1;
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data11), notify_data11, false);
+
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data12[20] = {
             byte_221, byte_222, byte_223, byte_224, byte_225,
@@ -867,7 +842,8 @@ count=count+1;
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data12), notify_data12, false);
-    
+
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data13[20] = {
             byte_241, byte_242, byte_243, byte_244, byte_245,
@@ -881,6 +857,7 @@ count=count+1;
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data13), notify_data13, false);
 
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data14[20] = {
             byte_261, byte_262, byte_263, byte_264, byte_265,
@@ -894,6 +871,7 @@ count=count+1;
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data14), notify_data14, false);
 
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data15[20] = {
             byte_281, byte_282, byte_283, byte_284, byte_285,
@@ -907,6 +885,7 @@ count=count+1;
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data15), notify_data15, false);
 
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data16[20] = {
             byte_301, byte_302, byte_303, byte_304, byte_305,
@@ -919,6 +898,8 @@ count=count+1;
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data16), notify_data16, false);
+
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data17[20] = {
             byte_321, byte_322, byte_323, byte_324, byte_325,
@@ -932,6 +913,7 @@ count=count+1;
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data17), notify_data17, false);
 
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data18[20] = {
             byte_341, byte_342, byte_343, byte_344, byte_345,
@@ -944,6 +926,8 @@ count=count+1;
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data18), notify_data18, false);
+
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
         uint8_t notify_data19[20] = {
             byte_361, byte_362, byte_363, byte_364, byte_365,
@@ -956,6 +940,8 @@ count=count+1;
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data19), notify_data19, false);
+
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
 
         uint8_t notify_data20[20] = {
@@ -970,9 +956,8 @@ count=count+1;
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
                                         sizeof(notify_data20), notify_data20, false);
 
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
-        vTaskDelay(pdMS_TO_TICKS(10000)); // Adjust timing as needed
-
 
         printf("Count %d", count);
     }
@@ -1157,40 +1142,36 @@ static void twai_receive_task(void *arg) {
         if (twai_receive(&message, pdMS_TO_TICKS(100)) == ESP_OK) {
             switch (message.identifier) {
                 case 0x8:
-                    byte_01 = message.data[0]; // SOC
+                    byte_02 = message.data[0]; // SOC
                     break;
                 case 0x18F20309: // Handle the first set of parameters
-                    byte_02 = message.data[2]; // Set_Regen
-                    byte_03 = message.data[3]; // DC Current Limit
-                    byte_04 = message.data[5]; // Custom_freq
-                    byte_05 = message.data[6]; // Custom_freq
-                    byte_06 = message.data[7]; // Custom_torque
+                    byte_03 = message.data[2]; // Set_Regen
+                    byte_04 = message.data[3]; // DC Current Limit
+                    byte_05 = message.data[5]; // Custom_freq
+                    byte_06 = message.data[6]; // Custom_freq
+                    byte_07 = message.data[7]; // Custom_torque
                     break;
                 
                 case 0x18F20311: // Handle the second set of parameters
-                    byte_07 = message.data[0]; // Buffer_speed
-                    byte_08 = message.data[1]; // Buffer_speed
-                    byte_09 = message.data[2]; // Base_speed
-                    byte_10 = message.data[3]; // Base_speed
-                    byte_11 = message.data[4]; // Initial_torque
-                    byte_12 = message.data[5]; // Final_torque
+                    byte_08 = message.data[0]; // Buffer_speed
+                    byte_09 = message.data[1]; // Buffer_speed
+                    byte_10 = message.data[2]; // Base_speed
+                    byte_11 = message.data[3]; // Base_speed
+                    byte_12 = message.data[4]; // Initial_torque
+                    byte_13 = message.data[5]; // Final_torque
                     break;
                 
                 case 0x14520902: // Handle the third set of parameters
-                    byte_13 = message.data[0]; // MotorSpeed
-                    byte_14 = message.data[1]; // MotorSpeed
-                    byte_15 = message.data[2]; // BatteryVoltage
-                    byte_16 = message.data[3]; // BatteryCurrent
-                    byte_17 = message.data[4]; // BatteryCurrent
+                    byte_14 = message.data[0]; // MotorSpeed
+                    byte_15 = message.data[1]; // MotorSpeed
+                    byte_16 = message.data[2]; // BatteryVoltage
+                    byte_17 = message.data[3]; // BatteryCurrent
+                    byte_18 = message.data[4]; // BatteryCurrent
                     break;
                 
                 case 0x14520903: // Handle the fourth set of parameters
-                    byte_18 = message.data[5]; // AC_Current
-                    byte_19 = message.data[6]; // AC_Current
-                    break;
-                
-                case 0x14520904: // Handle the fifth set of parameters
-                    byte_20 = message.data[7]; // AC_Voltage
+                    byte_19 = message.data[5]; // AC_Current
+                    byte_20 = message.data[6]; // AC_Current
                     break;
                 
                 default:
@@ -1242,7 +1223,7 @@ void app_main(void)
     // ESP_LOGI("TWAI", "Driver started");
 
     srand(time(NULL)); // Seed the random number generator
-    // xTaskCreate(twai_receive_task, "twai_receive_task", 2048, NULL, 5, NULL);
+    xTaskCreate(twai_receive_task, "twai_receive_task", 2048, NULL, 5, NULL);
     xTaskCreate(notification_task, "notification_task", 2048, NULL, 10, NULL);
     esp_err_t ret;
 
