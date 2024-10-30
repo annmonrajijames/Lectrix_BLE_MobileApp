@@ -1140,7 +1140,7 @@ static void twai_receive_task(void *arg) {
     while (1) {
         if (twai_receive(&message, pdMS_TO_TICKS(100)) == ESP_OK) {
             switch (message.identifier) {
-                case 0x1: // CAN #1
+                case 0x14520902: // CAN #1
                  // byte_01 is to identify the packet number
                     byte_02 = message.data[0];
                     byte_03 = message.data[1];
@@ -1151,7 +1151,7 @@ static void twai_receive_task(void *arg) {
                     byte_08 = message.data[6];
                     byte_09 = message.data[7];
                     break;
-                case 0x2: // CAN #2
+                case 0x14520903: // CAN #2
                     byte_10 = message.data[0];
                     byte_11 = message.data[1];
                     byte_12 = message.data[2];
@@ -1161,7 +1161,7 @@ static void twai_receive_task(void *arg) {
                     byte_16 = message.data[6];
                     byte_17 = message.data[7];
                     break;
-                case 0x3: // CAN #3
+                case 0x14520904: // CAN #3
                     byte_18 = message.data[0];
                     byte_19 = message.data[1];
                     byte_20 = message.data[2];
@@ -1172,7 +1172,7 @@ static void twai_receive_task(void *arg) {
                     byte_25 = message.data[6];
                     byte_26 = message.data[7];
                     break;
-                case 0x4: // CAN #4
+                case 0x18530902: // CAN #4
                     byte_27 = message.data[0];
                     byte_28 = message.data[1];
                     byte_29 = message.data[2];
@@ -1182,7 +1182,7 @@ static void twai_receive_task(void *arg) {
                     byte_33 = message.data[6];
                     byte_34 = message.data[7];
                     break;
-                case 0x5: // CAN #5
+                case 0x18530903: // CAN #5
                     byte_35 = message.data[0];
                     byte_36 = message.data[1];
                     byte_37 = message.data[2];
@@ -1193,7 +1193,7 @@ static void twai_receive_task(void *arg) {
                     byte_42 = message.data[6];
                     byte_43 = message.data[7];
                     break;
-                case 0x6: // CAN #6
+                case 0x19A: // CAN #6
                     byte_44 = message.data[0];
                     byte_45 = message.data[1];
                     byte_46 = message.data[2];
@@ -1203,7 +1203,7 @@ static void twai_receive_task(void *arg) {
                     byte_50 = message.data[6];
                     byte_51 = message.data[7];
                     break;
-                case 0x7: // CAN #7
+                case 0x18F20309: // CAN #7
                     byte_52 = message.data[0];
                     byte_53 = message.data[1];
                     byte_54 = message.data[2];
@@ -1213,7 +1213,7 @@ static void twai_receive_task(void *arg) {
                     byte_58 = message.data[6];
                     byte_59 = message.data[7];
                     break;
-                case 0x8: // CAN #8
+                case 0x18F20311: // CAN #8
                     byte_60 = message.data[0];
                     // byte_61 is to identify the packet number
                     byte_62 = message.data[1];
@@ -1224,7 +1224,7 @@ static void twai_receive_task(void *arg) {
                     byte_67 = message.data[6];
                     byte_68 = message.data[7];
                     break;
-                case 0x9: // CAN #9
+                case 0x18F20312: // CAN #9
                     byte_69 = message.data[0];
                     byte_70 = message.data[1];
                     byte_71 = message.data[2];
@@ -1234,7 +1234,7 @@ static void twai_receive_task(void *arg) {
                     byte_75 = message.data[6];
                     byte_76 = message.data[7];
                     break;
-                case 0xA: // CAN #10
+                case 0x18F20313: // CAN #10
                     byte_77 = message.data[0];
                     byte_78 = message.data[1];
                     byte_79 = message.data[2];
@@ -1245,7 +1245,7 @@ static void twai_receive_task(void *arg) {
                     byte_84 = message.data[6];
                     byte_85 = message.data[7];
                     break;
-                case 0xB: // CAN #11
+                case 0x18F20315: // CAN #11
                     byte_86 = message.data[0];
                     byte_87 = message.data[1];
                     byte_88 = message.data[2];
@@ -1255,7 +1255,7 @@ static void twai_receive_task(void *arg) {
                     byte_92 = message.data[6];
                     byte_93 = message.data[7];
                     break;
-                case 0xC: // CAN #12
+                case 0x18F20316: // CAN #12
                     byte_94 = message.data[0];
                     byte_95 = message.data[1];
                     byte_96 = message.data[2];
@@ -1266,7 +1266,7 @@ static void twai_receive_task(void *arg) {
                  // byte_101 is to identify the packet number
                     byte_102 = message.data[7];
                     break;
-                case 0xD: // CAN #13
+                case 0x18F60101: // CAN #13
                     byte_103 = message.data[0];
                     byte_104 = message.data[1];
                     byte_105 = message.data[2];
@@ -1276,7 +1276,7 @@ static void twai_receive_task(void *arg) {
                     byte_109 = message.data[6];
                     byte_110 = message.data[7];
                     break;
-                case 0xE: // CAN #14
+                case 0x18F20310: // CAN #14
                     byte_111 = message.data[0];
                     byte_112 = message.data[1];
                     byte_113 = message.data[2];
@@ -1286,7 +1286,7 @@ static void twai_receive_task(void *arg) {
                     byte_117 = message.data[6];
                     byte_118 = message.data[7];
                     break;
-                case 0xF: // CAN #15
+                case 0x18F20314: // CAN #15
                     byte_119 = message.data[0];
                     byte_120 = message.data[1];
                  // byte_121 is to identify the packet number
@@ -1297,7 +1297,7 @@ static void twai_receive_task(void *arg) {
                     byte_126 = message.data[6];
                     byte_127 = message.data[7];
                     break;
-                case 0x10: // CAN #16
+                case 0x1: // CAN #16
                     byte_128 = message.data[0];
                     byte_129 = message.data[1];
                     byte_130 = message.data[2];
@@ -1307,7 +1307,7 @@ static void twai_receive_task(void *arg) {
                     byte_134 = message.data[6];
                     byte_135 = message.data[7];
                     break;
-                case 0x11: // CAN #17
+                case 0x2: // CAN #17
                     byte_136 = message.data[0];
                     byte_137 = message.data[1];
                     byte_138 = message.data[2];
@@ -1318,7 +1318,7 @@ static void twai_receive_task(void *arg) {
                     byte_143 = message.data[6];
                     byte_144 = message.data[7];
                     break;
-                case 0x12: // CAN #18
+                case 0x3: // CAN #18
                     byte_145 = message.data[0];
                     byte_146 = message.data[1];
                     byte_147 = message.data[2];
@@ -1328,7 +1328,7 @@ static void twai_receive_task(void *arg) {
                     byte_151 = message.data[6];
                     byte_152 = message.data[7];
                     break;
-                case 0x13: // CAN #19
+                case 0x4: // CAN #19
                     byte_153 = message.data[0];
                     byte_154 = message.data[1];
                     byte_155 = message.data[2];
@@ -1338,7 +1338,7 @@ static void twai_receive_task(void *arg) {
                     byte_159 = message.data[6];
                     byte_160 = message.data[7];
                     break;
-                case 0x14: // CAN #20
+                case 0x5: // CAN #20
                  // byte_161 is to identify the packet number
                     byte_162 = message.data[0];
                     byte_163 = message.data[1];
@@ -1349,7 +1349,7 @@ static void twai_receive_task(void *arg) {
                     byte_168 = message.data[6];
                     byte_169 = message.data[7];
                     break;
-                case 0x15: // CAN #21
+                case 0x6: // CAN #21
                     byte_170 = message.data[0];
                     byte_171 = message.data[1];
                     byte_172 = message.data[2];
@@ -1359,7 +1359,7 @@ static void twai_receive_task(void *arg) {
                     byte_176 = message.data[6];
                     byte_177 = message.data[7];
                     break;
-                case 0x16: // CAN #22
+                case 0x7: // CAN #22
                     byte_178 = message.data[0];
                     byte_179 = message.data[1];
                     byte_180 = message.data[2];
@@ -1370,7 +1370,7 @@ static void twai_receive_task(void *arg) {
                     byte_185 = message.data[6];
                     byte_186 = message.data[7];
                     break;
-                case 0x17: // CAN #23
+                case 0x8: // CAN #23
                     byte_187 = message.data[0];
                     byte_188 = message.data[1];
                     byte_189 = message.data[2];
@@ -1380,7 +1380,7 @@ static void twai_receive_task(void *arg) {
                     byte_193 = message.data[6];
                     byte_194 = message.data[7];
                     break;
-                case 0x18: // CAN #24
+                case 0x9: // CAN #24
                     byte_195 = message.data[0];
                     byte_196 = message.data[1];
                     byte_197 = message.data[2];
@@ -1391,7 +1391,7 @@ static void twai_receive_task(void *arg) {
                     byte_202 = message.data[6];
                     byte_203 = message.data[7];
                     break;
-                case 0x19: // CAN #25
+                case 0xA: // CAN #25
                     byte_204 = message.data[0];
                     byte_205 = message.data[1];
                     byte_206 = message.data[2];
@@ -1401,7 +1401,7 @@ static void twai_receive_task(void *arg) {
                     byte_210 = message.data[6];
                     byte_211 = message.data[7];
                     break;
-                case 0x1A: // CAN #26
+                case 0xC: // CAN #26
                     byte_212 = message.data[0];
                     byte_213 = message.data[1];
                     byte_214 = message.data[2];
@@ -1411,7 +1411,7 @@ static void twai_receive_task(void *arg) {
                     byte_218 = message.data[6];
                     byte_219 = message.data[7];
                     break;
-                case 0x1B: // CAN #27
+                case 0xD: // CAN #27
                     byte_220 = message.data[0];
                  // byte_221 is to identify the packet number
                     byte_222 = message.data[1];
@@ -1422,7 +1422,7 @@ static void twai_receive_task(void *arg) {
                     byte_227 = message.data[6];
                     byte_228 = message.data[7];
                     break;
-                case 0x1C: // CAN #28
+                case 0xE: // CAN #28
                     byte_229 = message.data[0];
                     byte_230 = message.data[1];
                     byte_231 = message.data[2];
@@ -1432,7 +1432,7 @@ static void twai_receive_task(void *arg) {
                     byte_235 = message.data[6];
                     byte_236 = message.data[7];
                     break;
-                case 0x1D: // CAN #29
+                case 0xF: // CAN #29
                     byte_237 = message.data[0];
                     byte_238 = message.data[1];
                     byte_239 = message.data[2];
@@ -1443,7 +1443,7 @@ static void twai_receive_task(void *arg) {
                     byte_244 = message.data[6];
                     byte_245 = message.data[7];
                     break;
-                case 0x1E: // CAN #30
+                case 0x10: // CAN #30
                     byte_246 = message.data[0];
                     byte_247 = message.data[1];
                     byte_248 = message.data[2];
@@ -1454,7 +1454,7 @@ static void twai_receive_task(void *arg) {
                     byte_253 = message.data[7];
                     break;
 
-                case 0x1F: // CAN #31
+                case 0x12: // CAN #31
                     byte_254 = message.data[0];
                     byte_255 = message.data[1];
                     byte_256 = message.data[2];
@@ -1465,7 +1465,7 @@ static void twai_receive_task(void *arg) {
                  // byte_261 is to identify the packet number
                     byte_262 = message.data[7];
                     break;
-                case 0x20: // CAN #32
+                case 0x15: // CAN #32
                     byte_263 = message.data[0];
                     byte_264 = message.data[1];
                     byte_265 = message.data[2];
@@ -1475,7 +1475,7 @@ static void twai_receive_task(void *arg) {
                     byte_269 = message.data[6];
                     byte_270 = message.data[7];
                     break;
-                case 0x21: // CAN #33
+                case 0xBB: // CAN #33
                     byte_271 = message.data[0];
                     byte_272 = message.data[1];
                     byte_273 = message.data[2];
@@ -1485,7 +1485,7 @@ static void twai_receive_task(void *arg) {
                     byte_277 = message.data[6];
                     byte_278 = message.data[7];
                     break;
-                case 0x22: // CAN #34
+                case 0xBE: // CAN #34
                     byte_279 = message.data[0];
                     byte_280 = message.data[1];
                  // byte_281 is to identify the packet number
@@ -1496,7 +1496,7 @@ static void twai_receive_task(void *arg) {
                     byte_286 = message.data[6];
                     byte_287 = message.data[7];
                     break;
-                case 0x23: // CAN #35
+                case 0xC3: // CAN #35
                     byte_288 = message.data[0];
                     byte_289 = message.data[1];
                     byte_290 = message.data[2];
@@ -1506,7 +1506,7 @@ static void twai_receive_task(void *arg) {
                     byte_294 = message.data[6];
                     byte_295 = message.data[7];
                     break;
-                case 0x24: // CAN #36
+                case 0x601: // CAN #36
                     byte_296 = message.data[0];
                     byte_297 = message.data[1];
                     byte_298 = message.data[2];
@@ -1517,7 +1517,7 @@ static void twai_receive_task(void *arg) {
                     byte_303 = message.data[6];
                     byte_304 = message.data[7];
                     break;
-                case 0x25: // CAN #37
+                case 0xB: // CAN #37
                     byte_305 = message.data[0];
                     byte_306 = message.data[1];
                     byte_307 = message.data[2];
@@ -1527,7 +1527,7 @@ static void twai_receive_task(void *arg) {
                     byte_311 = message.data[6];
                     byte_312 = message.data[7];
                     break;
-                case 0x26: // CAN #38
+                case 0x712: // CAN #38
                     byte_313 = message.data[0];
                     byte_314 = message.data[1];
                     byte_315 = message.data[2];
@@ -1537,7 +1537,7 @@ static void twai_receive_task(void *arg) {
                     byte_319 = message.data[6];
                     byte_320 = message.data[7];
                     break;
-                case 0x27: // CAN #39
+                case 0x713: // CAN #39
                  // byte_321 is to identify the packet number
                     byte_322 = message.data[0];
                     byte_323 = message.data[1];
@@ -1548,7 +1548,7 @@ static void twai_receive_task(void *arg) {
                     byte_328 = message.data[6];
                     byte_329 = message.data[7];
                     break;
-                case 0x28: // CAN #40
+                case 0x401: // CAN #40
                     byte_330 = message.data[0];
                     byte_331 = message.data[1];
                     byte_332 = message.data[2];
@@ -1558,7 +1558,7 @@ static void twai_receive_task(void *arg) {
                     byte_336 = message.data[6];
                     byte_337 = message.data[7];
                     break;
-                case 0x29: // CAN #41
+                case 0x402: // CAN #41
                     byte_338 = message.data[0];
                     byte_339 = message.data[1];
                     byte_340 = message.data[2];
@@ -1569,7 +1569,7 @@ static void twai_receive_task(void *arg) {
                     byte_345 = message.data[6];
                     byte_346 = message.data[7];
                     break;
-                case 0x2A: // CAN #42
+                case 0x403: // CAN #42
                     byte_347 = message.data[0];
                     byte_348 = message.data[1];
                     byte_349 = message.data[2];
@@ -1579,7 +1579,7 @@ static void twai_receive_task(void *arg) {
                     byte_353 = message.data[6];
                     byte_354 = message.data[7];
                     break;
-                case 0x2B: // CAN #43
+                case 0x405: // CAN #43
                     byte_355 = message.data[0];
                     byte_356 = message.data[1];
                     byte_357 = message.data[2];
@@ -1590,7 +1590,7 @@ static void twai_receive_task(void *arg) {
                     byte_362 = message.data[6];
                     byte_363 = message.data[7];
                     break;
-                case 0x2C: // CAN #44
+                case 0x400: // CAN #44
                     byte_364 = message.data[0];
                     byte_365 = message.data[1];
                     byte_366 = message.data[2];
@@ -1600,7 +1600,7 @@ static void twai_receive_task(void *arg) {
                     byte_370 = message.data[6];
                     byte_371 = message.data[7];
                     break;
-                case 0x2D: // CAN #45
+                case 0x411: // CAN #45
                     byte_372 = message.data[0];
                     byte_373 = message.data[1];
                     byte_374 = message.data[2];
@@ -1610,7 +1610,7 @@ static void twai_receive_task(void *arg) {
                     byte_378 = message.data[6];
                     byte_379 = message.data[7];
                     break;
-                case 0x2E: // CAN #46
+                case 0x412: // CAN #46
                     byte_380 = message.data[0];
                 // byte_381 is to identify the packet number
                     byte_382 = message.data[1];
@@ -1621,7 +1621,7 @@ static void twai_receive_task(void *arg) {
                     byte_387 = message.data[6];
                     byte_388 = message.data[7];
                     break;
-                case 0x2F: // CAN #47
+                case 0x410: // CAN #47
                     byte_389 = message.data[0];
                     byte_390 = message.data[1];
                     byte_391 = message.data[2];
