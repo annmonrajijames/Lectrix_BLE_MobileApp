@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
@@ -12,7 +12,7 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [receivedData, setReceivedData] = useState('');
+  const [receivedData, setReceivedData] = useState<Array<{ category: number, data: string }>>([]);
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -29,7 +29,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
           if (characteristic?.value) {
             const data = Buffer.from(characteristic.value, 'base64').toString('hex');
-            setReceivedData(data);
+            const category = parseInt(data.substring(0, 2), 16);  // Get the first byte as category
+            setReceivedData(prevData => [...prevData.filter(d => d.category !== category), { category, data }]);
           }
         });
       } catch (error: any) {
@@ -48,7 +49,13 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Data Receiving Page</Text>
-      {receivedData ? <Text>Received Data: {receivedData}</Text> : <Text>No Data Received Yet</Text>}
+      <ScrollView style={styles.dataContainer}>
+        {receivedData.sort((a, b) => a.category - b.category).map((dataItem, index) => (
+          <View key={index} style={styles.dataBox}>
+            <Text>Category {dataItem.category}: {dataItem.data}</Text>
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 };
@@ -61,9 +68,19 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    color: '#0000FF', // Sets the text color to blue
-    fontSize: 20, // Sets the size of the font
-    fontWeight: 'bold', // Makes the font bold
+    color: '#0000FF',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  dataContainer: {
+    width: '100%',
+  },
+  dataBox: {
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: '#f0f0f0',
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
 });
 
