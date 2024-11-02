@@ -1138,7 +1138,8 @@ static void twai_receive_task(void *arg) {
     ESP_LOGI("TWAI Receiver", "Starting TWAI receive task");
     twai_message_t message;
     while (1) {
-        if (twai_receive(&message, pdMS_TO_TICKS(100)) == ESP_OK) {
+        if (twai_receive(&message, pdMS_TO_TICKS(50)) == ESP_OK) {
+            ESP_LOGI("TWAI Receiver", "CAN ID : 0x%08" PRIx32, message.identifier);
             switch (message.identifier) {
                 case 0x14520902: // CAN #1
                  // byte_01 is to identify the packet number
@@ -1639,7 +1640,7 @@ static void twai_receive_task(void *arg) {
         } else {
             ESP_LOGE("TWAI Receiver", "Failed to receive message");
         }
-        vTaskDelay(pdMS_TO_TICKS(100));  // Delay to manage task frequency
+        // vTaskDelay(pdMS_TO_TICKS(100));  // Delay to manage task frequency
     }
 }
 
