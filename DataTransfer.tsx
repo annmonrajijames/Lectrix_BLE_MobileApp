@@ -26,10 +26,11 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
             Alert.alert("Subscription Error", `Error subscribing to characteristic: ${error.message}`);
             return;
           }
-
+  
           if (characteristic?.value) {
             const data = Buffer.from(characteristic.value, 'base64').toString('hex');
-            const category = parseInt(data.substring(0, 2), 16);  // Get the first byte as category
+            const firstByteString = data.substring(0, 2);  // Get the first two characters (one byte)
+            const category = parseInt(firstByteString, 10);  // Parse as decimal
             setReceivedData(prevData => [...prevData.filter(d => d.category !== category), { category, data }]);
           }
         });
@@ -38,13 +39,14 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         Alert.alert("Setup Error", `Error setting up characteristic subscription: ${error.message}`);
       }
     };
-
+  
     setupSubscription();
-
+  
     return () => {
       device.cancelConnection();  // Ensure cleanup on component unmount
     };
-  }, [device]);
+  }, [device]);  
+  
 
   return (
     <View style={styles.container}>
