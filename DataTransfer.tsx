@@ -13,6 +13,7 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
   const [receivedData, setReceivedData] = useState('');
+  const [motorSpeed, setMotorSpeed] = useState<number | null>(null);
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -30,11 +31,23 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
           if (characteristic?.value) {
             const data = Buffer.from(characteristic.value, 'base64').toString('hex');
             setReceivedData(data);
+            decodeData(data);
           }
         });
       } catch (error: any) {
         console.error("Failed to set up subscription:", error);
         Alert.alert("Setup Error", `Error setting up characteristic subscription: ${error.message}`);
+      }
+    };
+
+    const decodeData = (data: string) => {
+      if (data.length >= 6 && data.slice(0, 2) === '01') {  // Check if the first byte is '01'
+        const secondByte = data.slice(2, 4);
+        const thirdByte = data.slice(4, 6);
+        const concatenated = `${thirdByte}${secondByte}`;
+        const decimalValue = parseInt(concatenated, 16);
+        const calculatedSpeed = decimalValue * 0.01606;
+        setMotorSpeed(calculatedSpeed);
       }
     };
 
@@ -48,7 +61,9 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Data Receiving Page</Text>
-      {receivedData ? <Text>Received Data: {receivedData}</Text> : <Text>No Data Received Yet</Text>}
+      {receivedData && <Text>Received Data: {receivedData}</Text>}
+      {motorSpeed !== null && <Text>Motor Speed: {motorSpeed.toFixed(2)} rpm</Text>}
+      {!receivedData && <Text>No Data Received Yet</Text>}
     </View>
   );
 };
