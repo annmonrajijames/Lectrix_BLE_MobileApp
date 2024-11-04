@@ -12,7 +12,6 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [receivedData, setReceivedData] = useState('');
   const [motorSpeed, setMotorSpeed] = useState<number | null>(null);
 
   const serviceUUID = '00FF';
@@ -30,7 +29,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
           if (characteristic?.value) {
             const data = Buffer.from(characteristic.value, 'base64').toString('hex');
-            setReceivedData(data);
             decodeData(data);
           }
         });
@@ -46,7 +44,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         const thirdByte = data.slice(4, 6);
         const concatenated = `${thirdByte}${secondByte}`;
         const decimalValue = parseInt(concatenated, 16);
-        const calculatedSpeed = decimalValue * 0.01606;
+        const calculatedSpeed = decimalValue * 0.01606; // Convert the speed value appropriately if needed
         setMotorSpeed(calculatedSpeed);
       }
     };
@@ -60,10 +58,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Data Receiving Page</Text>
-      {receivedData && <Text>Received Data: {receivedData}</Text>}
-      {motorSpeed !== null && <Text>Motor Speed: {motorSpeed.toFixed(2)} rpm</Text>}
-      {!receivedData && <Text>No Data Received Yet</Text>}
+      {motorSpeed !== null && <Text style={styles.speedText}>Motor Speed: {motorSpeed.toFixed(2)} km/h</Text>}
+      {motorSpeed === null && <Text>No Data Received Yet</Text>}
     </View>
   );
 };
@@ -75,7 +71,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  title: {
+  speedText: {
     color: '#0000FF', // Sets the text color to blue
     fontSize: 20, // Sets the size of the font
     fontWeight: 'bold', // Makes the font bold
