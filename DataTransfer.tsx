@@ -109,22 +109,22 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
-      {cellVol02 !== null && <Text style={styles.cellVolText}>Cell Voltage 02: {cellVol02.toFixed(4)} V</Text>}
-      {cellVol03 !== null && <Text style={styles.cellVolText}>Cell Voltage 03: {cellVol03.toFixed(4)} V</Text>}
-      {cellVol04 !== null && <Text style={styles.cellVolText}>Cell Voltage 04: {cellVol04.toFixed(4)} V</Text>}
-      {cellVol05 !== null && <Text style={styles.cellVolText}>Cell Voltage 05: {cellVol05.toFixed(4)} V</Text>}
-      {cellVol06 !== null && <Text style={styles.cellVolText}>Cell Voltage 06: {cellVol06.toFixed(4)} V</Text>}
-      {cellVol07 !== null && <Text style={styles.cellVolText}>Cell Voltage 07: {cellVol07.toFixed(4)} V</Text>}
-      {cellVol08 !== null && <Text style={styles.cellVolText}>Cell Voltage 08: {cellVol08.toFixed(4)} V</Text>}
-      {cellVol09 !== null && <Text style={styles.cellVolText}>Cell Voltage 09: {cellVol09.toFixed(4)} V</Text>}
-      {cellVol10 !== null && <Text style={styles.cellVolText}>Cell Voltage 10: {cellVol10.toFixed(4)} V</Text>}
-      {cellVol11 !== null && <Text style={styles.cellVolText}>Cell Voltage 11: {cellVol11.toFixed(4)} V</Text>}
-      {cellVol12 !== null && <Text style={styles.cellVolText}>Cell Voltage 12: {cellVol12.toFixed(4)} V</Text>}
-      {cellVol13 !== null && <Text style={styles.cellVolText}>Cell Voltage 13: {cellVol13.toFixed(4)} V</Text>}
-      {cellVol14 !== null && <Text style={styles.cellVolText}>Cell Voltage 14: {cellVol14.toFixed(4)} V</Text>}
-      {cellVol15 !== null && <Text style={styles.cellVolText}>Cell Voltage 15: {cellVol15.toFixed(4)} V</Text>}
-      {cellVol16 !== null && <Text style={styles.cellVolText}>Cell Voltage 16: {cellVol16.toFixed(4)} V</Text>}
+      {cellVol01 !== null && <Text style={styles.parameterText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
+      {cellVol02 !== null && <Text style={styles.parameterText}>Cell Voltage 02: {cellVol02.toFixed(4)} V</Text>}
+      {cellVol03 !== null && <Text style={styles.parameterText}>Cell Voltage 03: {cellVol03.toFixed(4)} V</Text>}
+      {cellVol04 !== null && <Text style={styles.parameterText}>Cell Voltage 04: {cellVol04.toFixed(4)} V</Text>}
+      {cellVol05 !== null && <Text style={styles.parameterText}>Cell Voltage 05: {cellVol05.toFixed(4)} V</Text>}
+      {cellVol06 !== null && <Text style={styles.parameterText}>Cell Voltage 06: {cellVol06.toFixed(4)} V</Text>}
+      {cellVol07 !== null && <Text style={styles.parameterText}>Cell Voltage 07: {cellVol07.toFixed(4)} V</Text>}
+      {cellVol08 !== null && <Text style={styles.parameterText}>Cell Voltage 08: {cellVol08.toFixed(4)} V</Text>}
+      {cellVol09 !== null && <Text style={styles.parameterText}>Cell Voltage 09: {cellVol09.toFixed(4)} V</Text>}
+      {cellVol10 !== null && <Text style={styles.parameterText}>Cell Voltage 10: {cellVol10.toFixed(4)} V</Text>}
+      {cellVol11 !== null && <Text style={styles.parameterText}>Cell Voltage 11: {cellVol11.toFixed(4)} V</Text>}
+      {cellVol12 !== null && <Text style={styles.parameterText}>Cell Voltage 12: {cellVol12.toFixed(4)} V</Text>}
+      {cellVol13 !== null && <Text style={styles.parameterText}>Cell Voltage 13: {cellVol13.toFixed(4)} V</Text>}
+      {cellVol14 !== null && <Text style={styles.parameterText}>Cell Voltage 14: {cellVol14.toFixed(4)} V</Text>}
+      {cellVol15 !== null && <Text style={styles.parameterText}>Cell Voltage 15: {cellVol15.toFixed(4)} V</Text>}
+      {cellVol16 !== null && <Text style={styles.parameterText}>Cell Voltage 16: {cellVol16.toFixed(4)} V</Text>}
       {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && 
        cellVol05 === null && cellVol06 === null && cellVol07 === null && cellVol08 === null && 
        cellVol09 === null && cellVol10 === null && cellVol11 === null && cellVol12 === null && 
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  cellVolText: {
+  parameterText: {
     color: '#FFA500', // Orange color for cell voltage text
     fontSize: 20,
     fontWeight: 'bold',
