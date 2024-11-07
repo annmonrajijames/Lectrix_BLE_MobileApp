@@ -24,6 +24,10 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [cellVol10, setCellVol10] = useState<number | null>(null);
   const [cellVol11, setCellVol11] = useState<number | null>(null);
   const [cellVol12, setCellVol12] = useState<number | null>(null);
+  const [cellVol13, setCellVol13] = useState<number | null>(null);
+  const [cellVol14, setCellVol14] = useState<number | null>(null);
+  const [cellVol15, setCellVol15] = useState<number | null>(null);
+  const [cellVol16, setCellVol16] = useState<number | null>(null);
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -80,6 +84,10 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const cellVoltage10 = eight_bytes_decode('08', 0.0001, 6, 7)(data);
     const cellVoltage11 = eight_bytes_decode('08', 0.0001, 8, 9)(data);
     const cellVoltage12 = eight_bytes_decode('08', 0.0001, 10, 11)(data);
+    const cellVoltage13 = eight_bytes_decode('08', 0.0001, 12, 13)(data);
+    const cellVoltage14 = eight_bytes_decode('08', 0.0001, 14, 15)(data);
+    const cellVoltage15 = eight_bytes_decode('08', 0.0001, 16, 17)(data);
+    const cellVoltage16 = eight_bytes_decode('08', 0.0001, 18, 19)(data);
 
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
@@ -93,6 +101,10 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (cellVoltage10 !== null) setCellVol10(cellVoltage10);
     if (cellVoltage11 !== null) setCellVol11(cellVoltage11);
     if (cellVoltage12 !== null) setCellVol12(cellVoltage12);
+    if (cellVoltage13 !== null) setCellVol13(cellVoltage13);
+    if (cellVoltage14 !== null) setCellVol14(cellVoltage14);
+    if (cellVoltage15 !== null) setCellVol15(cellVoltage15);
+    if (cellVoltage16 !== null) setCellVol16(cellVoltage16);
   };
 
   return (
@@ -109,9 +121,14 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       {cellVol10 !== null && <Text style={styles.cellVolText}>Cell Voltage 10: {cellVol10.toFixed(4)} V</Text>}
       {cellVol11 !== null && <Text style={styles.cellVolText}>Cell Voltage 11: {cellVol11.toFixed(4)} V</Text>}
       {cellVol12 !== null && <Text style={styles.cellVolText}>Cell Voltage 12: {cellVol12.toFixed(4)} V</Text>}
+      {cellVol13 !== null && <Text style={styles.cellVolText}>Cell Voltage 13: {cellVol13.toFixed(4)} V</Text>}
+      {cellVol14 !== null && <Text style={styles.cellVolText}>Cell Voltage 14: {cellVol14.toFixed(4)} V</Text>}
+      {cellVol15 !== null && <Text style={styles.cellVolText}>Cell Voltage 15: {cellVol15.toFixed(4)} V</Text>}
+      {cellVol16 !== null && <Text style={styles.cellVolText}>Cell Voltage 16: {cellVol16.toFixed(4)} V</Text>}
       {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && 
        cellVol05 === null && cellVol06 === null && cellVol07 === null && cellVol08 === null && 
        cellVol09 === null && cellVol10 === null && cellVol11 === null && cellVol12 === null && 
+       cellVol13 === null && cellVol14 === null && cellVol15 === null && cellVol16 === null && 
  <Text>No Data Received Yet</Text>}
 
     </View>
