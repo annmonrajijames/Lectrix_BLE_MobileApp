@@ -1640,7 +1640,6 @@ static void twai_receive_task(void *arg) {
         } else {
             ESP_LOGE("TWAI Receiver", "Failed to receive message");
         }
-        // vTaskDelay(pdMS_TO_TICKS(100));  // Delay to manage task frequency
     }
 }
 
