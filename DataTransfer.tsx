@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, Alert } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
@@ -72,17 +72,23 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      {motorSpeed !== null && <Text style={styles.speedText}>Motor Speed: {motorSpeed.toFixed(2)} km/h</Text>}
-      {batteryVoltage !== null && <Text style={styles.voltageText}>Battery Voltage: {batteryVoltage} V</Text>}
-      {batteryCurrent !== null && <Text style={styles.currentText}>Battery Current: {batteryCurrent} A</Text>}
-      {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
-      {motorSpeed === null && batteryVoltage === null && batteryCurrent === null && cellVol01 === null && <Text>No Data Received Yet</Text>}
-    </View>
+    <ScrollView style={styles.scrollView}>
+      <View style={styles.container}>
+        {motorSpeed !== null && <Text style={styles.speedText}>Motor Speed: {motorSpeed.toFixed(2)} km/h</Text>}
+        {batteryVoltage !== null && <Text style={styles.voltageText}>Battery Voltage: {batteryVoltage} V</Text>}
+        {batteryCurrent !== null && <Text style={styles.currentText}>Battery Current: {batteryCurrent} A</Text>}
+        {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
+        {motorSpeed === null && batteryVoltage === null && batteryCurrent === null && cellVol01 === null && <Text>No Data Received Yet</Text>}
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#fff', // Optional: change background color
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -105,7 +111,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   cellVolText: {
-    color: '#FFA500', // Orange color for cell voltage text
+    color: '#FFA500',
     fontSize: 20,
     fontWeight: 'bold',
   },
