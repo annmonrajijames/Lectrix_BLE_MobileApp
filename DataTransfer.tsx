@@ -14,7 +14,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
   const [cellVol01, setCellVol01] = useState<number | null>(null);
   const [cellVol02, setCellVol02] = useState<number | null>(null);
-  const [cellVol03, setCellVol03] = useState<number | null>(null); 
+  const [cellVol03, setCellVol03] = useState<number | null>(null);
   const [cellVol04, setCellVol04] = useState<number | null>(null); 
   const [cellVol05, setCellVol05] = useState<number | null>(null);
   const [cellVol06, setCellVol06] = useState<number | null>(null);
@@ -38,7 +38,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         await device.monitorCharacteristicForService(serviceUUID, characteristicUUID, (error, characteristic) => {
           if (error) {
             console.error("Subscription error:", error);
-            Alert.alert("Subscription Error", `Error subscribing to characteristic: ${error.message}`);
+            // Proper handling of 'unknown' type error using type assertion
+            Alert.alert("Subscription Error", `Error subscribing to characteristic: ${(error as Error).message}`);
             return;
           }
 
@@ -47,8 +48,9 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
             decodeData(data);
           }
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to set up subscription:", error);
+        // Proper handling of catch block error using type assertion
         Alert.alert("Setup Error", `Error setting up characteristic subscription: ${error.message}`);
       }
     };
@@ -60,8 +62,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     };
   }, [device]);
 
-  const eight_bytes_decode = (firstByteCheck, multiplier, ...positions) => {
-    return (data) => {
+  const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
+    return (data: string) => {
       if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
         const bytes = positions.map(pos => data.substring(2 * pos, 2 * pos + 2)).join('');
         const decimalValue = parseInt(bytes, 16);
@@ -71,7 +73,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     }
   }
 
-  const decodeData = (data) => {
+  const decodeData = (data: string) => {
     const cellVoltage01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
     const cellVoltage02 = eight_bytes_decode('07', 0.0001, 9, 10)(data);
     const cellVoltage03 = eight_bytes_decode('07', 0.0001, 11, 12)(data);
@@ -151,7 +153,7 @@ const styles = StyleSheet.create({
     color: '#FFA500',
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10, // Added spacing between text elements
+    marginBottom: 10,
   },
 });
 
