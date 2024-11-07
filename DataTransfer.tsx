@@ -15,7 +15,10 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [motorSpeed, setMotorSpeed] = useState<number | null>(null);
   const [batteryVoltage, setBatteryVoltage] = useState<number | null>(null);
   const [batteryCurrent, setBatteryCurrent] = useState<number | null>(null);
-  const [cellVol01, setCellVol01] = useState<number | null>(null); // State for Cell Voltage 01
+  const [cellVol01, setCellVol01] = useState<number | null>(null);
+  const [cellVol02, setCellVol02] = useState<number | null>(null);
+  const [cellVol03, setCellVol03] = useState<number | null>(null);
+  const [cellVol04, setCellVol04] = useState<number | null>(null);
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -64,11 +67,17 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const voltage = eight_bytes_decode('01', 1, 3)(data);
     const current = eight_bytes_decode('01', 1, 5, 4)(data);
     const cellVoltage01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
+    const cellVoltage02 = eight_bytes_decode('07', 0.0001, 9, 10)(data);
+    const cellVoltage03 = eight_bytes_decode('07', 0.0001, 11, 12)(data);
+    const cellVoltage04 = eight_bytes_decode('07', 0.0001, 13, 14)(data);
 
     if (speed !== null) setMotorSpeed(speed);
     if (voltage !== null) setBatteryVoltage(voltage);
     if (current !== null) setBatteryCurrent(current);
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
+    if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
+    if (cellVoltage03 !== null) setCellVol03(cellVoltage03);
+    if (cellVoltage04 !== null) setCellVol04(cellVoltage04);
   };
 
   return (
@@ -77,7 +86,10 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       {batteryVoltage !== null && <Text style={styles.voltageText}>Battery Voltage: {batteryVoltage} V</Text>}
       {batteryCurrent !== null && <Text style={styles.currentText}>Battery Current: {batteryCurrent} A</Text>}
       {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
-      {motorSpeed === null && batteryVoltage === null && batteryCurrent === null && cellVol01 === null && <Text>No Data Received Yet</Text>}
+      {cellVol02 !== null && <Text style={styles.cellVolText}>Cell Voltage 02: {cellVol02.toFixed(4)} V</Text>}
+      {cellVol03 !== null && <Text style={styles.cellVolText}>Cell Voltage 03: {cellVol03.toFixed(4)} V</Text>}
+      {cellVol04 !== null && <Text style={styles.cellVolText}>Cell Voltage 04: {cellVol04.toFixed(4)} V</Text>}
+      {motorSpeed === null && batteryVoltage === null && batteryCurrent === null && cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && <Text>No Data Received Yet</Text>}
     </View>
   );
 };
@@ -100,7 +112,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   currentText: {
-    color: '#00FF00',
+    color: '#00FF00', // Use green color for current text
     fontSize: 20,
     fontWeight: 'bold',
   },
