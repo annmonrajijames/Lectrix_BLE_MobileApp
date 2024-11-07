@@ -15,6 +15,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [motorSpeed, setMotorSpeed] = useState<number | null>(null);
   const [batteryVoltage, setBatteryVoltage] = useState<number | null>(null);
   const [batteryCurrent, setBatteryCurrent] = useState<number | null>(null);
+  const [cellVol01, setCellVol01] = useState<number | null>(null); // State for Cell Voltage 01
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -59,13 +60,15 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   }
 
   const decodeData = (data) => {
-    const speed = eight_bytes_decode('01', 0.01606, 2, 1)(data);  // Reversed order for little-endian
-    const voltage = eight_bytes_decode('01', 1, 3)(data); // Single byte
-    const current = eight_bytes_decode('01', 1, 5, 4)(data); // Reversed order for little-endian
+    const speed = eight_bytes_decode('01', 0.01606, 2, 1)(data);
+    const voltage = eight_bytes_decode('01', 1, 3)(data);
+    const current = eight_bytes_decode('01', 1, 5, 4)(data);
+    const cellVoltage01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
 
     if (speed !== null) setMotorSpeed(speed);
     if (voltage !== null) setBatteryVoltage(voltage);
     if (current !== null) setBatteryCurrent(current);
+    if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
   };
 
   return (
@@ -73,7 +76,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       {motorSpeed !== null && <Text style={styles.speedText}>Motor Speed: {motorSpeed.toFixed(2)} km/h</Text>}
       {batteryVoltage !== null && <Text style={styles.voltageText}>Battery Voltage: {batteryVoltage} V</Text>}
       {batteryCurrent !== null && <Text style={styles.currentText}>Battery Current: {batteryCurrent} A</Text>}
-      {motorSpeed === null && batteryVoltage === null && batteryCurrent === null && <Text>No Data Received Yet</Text>}
+      {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
+      {motorSpeed === null && batteryVoltage === null && batteryCurrent === null && cellVol01 === null && <Text>No Data Received Yet</Text>}
     </View>
   );
 };
@@ -96,7 +100,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   currentText: {
-    color: '#00FF00', // Use green color for current text
+    color: '#00FF00',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  cellVolText: {
+    color: '#FFA500', // Orange color for cell voltage text
     fontSize: 20,
     fontWeight: 'bold',
   },
