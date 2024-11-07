@@ -12,9 +12,6 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [motorSpeed, setMotorSpeed] = useState<number | null>(null);
-  const [batteryVoltage, setBatteryVoltage] = useState<number | null>(null);
-  const [batteryCurrent, setBatteryCurrent] = useState<number | null>(null);
   const [cellVol01, setCellVol01] = useState<number | null>(null);
   const [cellVol02, setCellVol02] = useState<number | null>(null);
   const [cellVol03, setCellVol03] = useState<number | null>(null);
@@ -71,9 +68,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const cellVoltage03 = eight_bytes_decode('07', 0.0001, 11, 12)(data);
     const cellVoltage04 = eight_bytes_decode('07', 0.0001, 13, 14)(data);
 
-    if (speed !== null) setMotorSpeed(speed);
-    if (voltage !== null) setBatteryVoltage(voltage);
-    if (current !== null) setBatteryCurrent(current);
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
     if (cellVoltage03 !== null) setCellVol03(cellVoltage03);
@@ -82,14 +76,12 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      {motorSpeed !== null && <Text style={styles.speedText}>Motor Speed: {motorSpeed.toFixed(2)} km/h</Text>}
-      {batteryVoltage !== null && <Text style={styles.voltageText}>Battery Voltage: {batteryVoltage} V</Text>}
-      {batteryCurrent !== null && <Text style={styles.currentText}>Battery Current: {batteryCurrent} A</Text>}
+
       {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
       {cellVol02 !== null && <Text style={styles.cellVolText}>Cell Voltage 02: {cellVol02.toFixed(4)} V</Text>}
       {cellVol03 !== null && <Text style={styles.cellVolText}>Cell Voltage 03: {cellVol03.toFixed(4)} V</Text>}
       {cellVol04 !== null && <Text style={styles.cellVolText}>Cell Voltage 04: {cellVol04.toFixed(4)} V</Text>}
-      {motorSpeed === null && batteryVoltage === null && batteryCurrent === null && cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && <Text>No Data Received Yet</Text>}
+      {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && <Text>No Data Received Yet</Text>}
     </View>
   );
 };
