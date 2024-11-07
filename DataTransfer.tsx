@@ -12,10 +12,8 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [motorSpeed, setMotorSpeed] = useState<number | null>(null);
-  const [batteryVoltage, setBatteryVoltage] = useState<number | null>(null);
-  const [batteryCurrent, setBatteryCurrent] = useState<number | null>(null);
-  const [cellVol01, setCellVol01] = useState<number | null>(null); // State for Cell Voltage 01
+  const [cellVol01, setCellVol01] = useState<number | null>(null);
+  const [cellVol02, setCellVol02] = useState<number | null>(null);
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -60,25 +58,19 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   }
 
   const decodeData = (data) => {
-    const speed = eight_bytes_decode('01', 0.01606, 2, 1)(data);
-    const voltage = eight_bytes_decode('01', 1, 3)(data);
-    const current = eight_bytes_decode('01', 1, 5, 4)(data);
     const cellVoltage01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
+    const cellVoltage02 = eight_bytes_decode('07', 0.0001, 9, 10)(data);
 
-    if (speed !== null) setMotorSpeed(speed);
-    if (voltage !== null) setBatteryVoltage(voltage);
-    if (current !== null) setBatteryCurrent(current);
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
+    if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
   };
 
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
-        {motorSpeed !== null && <Text style={styles.speedText}>Motor Speed: {motorSpeed.toFixed(2)} km/h</Text>}
-        {batteryVoltage !== null && <Text style={styles.voltageText}>Battery Voltage: {batteryVoltage} V</Text>}
-        {batteryCurrent !== null && <Text style={styles.currentText}>Battery Current: {batteryCurrent} A</Text>}
         {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
-        {motorSpeed === null && batteryVoltage === null && batteryCurrent === null && cellVol01 === null && <Text>No Data Received Yet</Text>}
+        {cellVol02 !== null && <Text style={styles.cellVolText}>Cell Voltage 02: {cellVol02.toFixed(4)} V</Text>}
+        {cellVol01 === null && cellVol02 === null && <Text>No Data Received Yet</Text>}
       </View>
     </ScrollView>
   );
@@ -87,7 +79,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: '#fff', // Optional: change background color
+    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
@@ -95,25 +87,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  speedText: {
-    color: '#0000FF',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  voltageText: {
-    color: '#FF0000',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  currentText: {
-    color: '#00FF00',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
   cellVolText: {
     color: '#FFA500',
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 10, // Added spacing between text elements
   },
 });
 
