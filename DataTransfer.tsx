@@ -36,6 +36,11 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [MinVoltId, setMinVoltId] = useState<number | null>(null);
 
   const [PackVol, setPackVol] = useState<number | null>(null);
+
+  const [CycleCount, setCycleCount] = useState<number | null>(null);
+  const [MaxTemp, setMaxTemp] = useState<number | null>(null);
+  const [MinTemp, setMinTemp] = useState<number | null>(null);
+  const [CellVolMinMaxDev, setCellVolMinMaxDev] = useState<number | null>(null);
   
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -86,10 +91,12 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const cellVoltage02 = eight_bytes_decode('07', 0.0001, 9, 10)(data);
     const cellVoltage03 = eight_bytes_decode('07', 0.0001, 11, 12)(data);
     const cellVoltage04 = eight_bytes_decode('07', 0.0001, 11, 12)(data); 
+
     const cellVoltage05 = eight_bytes_decode('10', 0.0001, 6, 7)(data);
     const cellVoltage06 = eight_bytes_decode('10', 0.0001, 8, 9)(data);
     const cellVoltage07 = eight_bytes_decode('10', 0.0001, 10, 11)(data);
     const cellVoltage08 = eight_bytes_decode('10', 0.0001, 12, 13)(data);
+
     const cellVoltage09 = eight_bytes_decode('08', 0.0001, 4, 5)(data);
     const cellVoltage10 = eight_bytes_decode('08', 0.0001, 6, 7)(data);
     const cellVoltage11 = eight_bytes_decode('08', 0.0001, 8, 9)(data);
@@ -106,6 +113,11 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const MinVoltId = eight_bytes_decode('09', 1, 8)(data);
 
     const PackVol = eight_bytes_decode('09', 0.001, 13, 14, 15, 16)(data);
+
+    const CycleCount = eight_bytes_decode('07', 0.001, 15, 16)(data);
+    const MaxTemp = eight_bytes_decode('07', 1, 17)(data);
+    const MinTemp = eight_bytes_decode('07', 1, 18)(data);
+    const CellVolMinMaxDev = eight_bytes_decode('08', 1 ,2, 3)(data);
 
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
@@ -131,6 +143,11 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (MinVoltId !== null) setMinVoltId(MinVoltId);
 
     if (PackVol !== null) setPackVol(PackVol);
+
+    if (CycleCount !== null) setCycleCount(CycleCount);
+    if (MaxTemp !== null) setMaxTemp(MaxTemp);
+    if (MinTemp !== null) setMinTemp(MinTemp);
+    if (CellVolMinMaxDev !== null) setCellVolMinMaxDev(CellVolMinMaxDev);
   };
 
   return (
@@ -161,12 +178,18 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
         {PackVol !== null && <Text style={styles.parameterText}>PackVol: {PackVol.toFixed(4)} V</Text>}
 
+        {CycleCount !== null && <Text style={styles.parameterText}>CycleCount: {CycleCount.toFixed(4)} V</Text>}
+        {MaxTemp !== null && <Text style={styles.parameterText}>MaxTemp: {MaxTemp.toFixed(4)} V</Text>}
+        {MinTemp !== null && <Text style={styles.parameterText}>MinTemp: {MinTemp.toFixed(4)}</Text>}
+        {CellVolMinMaxDev !== null && <Text style={styles.parameterText}>CellVolMinMaxDev: {CellVolMinMaxDev.toFixed(4)}</Text>}
+
         {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && 
        cellVol05 === null && cellVol06 === null && cellVol07 === null && cellVol08 === null && 
        cellVol09 === null && cellVol10 === null && cellVol11 === null && cellVol12 === null && 
        cellVol13 === null && cellVol14 === null && cellVol15 === null && cellVol16 === null && 
        MaxCellVol === null && MinCellVol === null && AvgCellVol === null && MaxVoltId === null && 
-       cellVol01 === null && PackVol === null && 
+       cellVol01 === null && PackVol === null && CycleCount === null && MaxTemp === null && 
+       MinTemp === null && CellVolMinMaxDev === null && 
  <Text>No Data Received Yet</Text>}
       </View>
     </ScrollView>
