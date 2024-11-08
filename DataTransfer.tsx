@@ -35,6 +35,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [MaxVoltId, setMaxVoltId] = useState<number | null>(null);
   const [MinVoltId, setMinVoltId] = useState<number | null>(null);
 
+  const [PackVol, setPackVol] = useState<number | null>(null);
+  
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
 
@@ -103,6 +105,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const MaxVoltId = eight_bytes_decode('09', 1, 7)(data);
     const MinVoltId = eight_bytes_decode('09', 1, 8)(data);
 
+    const PackVol = eight_bytes_decode('09', 0.001, 13, 14, 15, 16)(data);
+
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
     if (cellVoltage03 !== null) setCellVol03(cellVoltage03);
@@ -125,6 +129,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (AvgCellVol !== null) setAvgCellVol(AvgCellVol);
     if (MaxVoltId !== null) setMaxVoltId(MaxVoltId);
     if (MinVoltId !== null) setMinVoltId(MinVoltId);
+
+    if (PackVol !== null) setPackVol(PackVol);
   };
 
   return (
@@ -150,14 +156,17 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {MaxCellVol !== null && <Text style={styles.parameterText}>MaxCellVol: {MaxCellVol.toFixed(4)} V</Text>}
         {MinCellVol !== null && <Text style={styles.parameterText}>MinCellVol: {MinCellVol.toFixed(4)} V</Text>}
         {AvgCellVol !== null && <Text style={styles.parameterText}>AvgCellVol: {AvgCellVol.toFixed(4)} V</Text>}
-        {MaxVoltId !== null && <Text style={styles.parameterText}>MaxVoltId: {MaxVoltId.toFixed(4)} V</Text>}
-        {MinVoltId !== null && <Text style={styles.parameterText}>MinVoltId: {MinVoltId.toFixed(4)} V</Text>}
+        {MaxVoltId !== null && <Text style={styles.parameterText}>MaxVoltId: {MaxVoltId.toFixed(4)}</Text>}
+        {MinVoltId !== null && <Text style={styles.parameterText}>MinVoltId: {MinVoltId.toFixed(4)}</Text>}
+
+        {PackVol !== null && <Text style={styles.parameterText}>PackVol: {PackVol.toFixed(4)} V</Text>}
+
         {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && 
        cellVol05 === null && cellVol06 === null && cellVol07 === null && cellVol08 === null && 
        cellVol09 === null && cellVol10 === null && cellVol11 === null && cellVol12 === null && 
        cellVol13 === null && cellVol14 === null && cellVol15 === null && cellVol16 === null && 
        MaxCellVol === null && MinCellVol === null && AvgCellVol === null && MaxVoltId === null && 
-       cellVol01 === null && 
+       cellVol01 === null && PackVol === null && 
  <Text>No Data Received Yet</Text>}
       </View>
     </ScrollView>
