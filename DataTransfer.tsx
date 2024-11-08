@@ -41,6 +41,11 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [MaxTemp, setMaxTemp] = useState<number | null>(null);
   const [MinTemp, setMinTemp] = useState<number | null>(null);
   const [CellVolMinMaxDev, setCellVolMinMaxDev] = useState<number | null>(null);
+
+  const [SOC, setSOC] = useState<number | null>(null);
+  const [SOCAh, setSOCAh] = useState<number | null>(null);
+  const [SOH, setSOH] = useState<number | null>(null);
+  const [BmsStatus, setBmsStatus] = useState<number | null>(null);
   
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -119,6 +124,11 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const MinTemp = eight_bytes_decode('07', 1, 18)(data);
     const CellVolMinMaxDev = eight_bytes_decode('08', 1 ,2, 3)(data);
 
+    const SOC = eight_bytes_decode('09', 1, 17)(data);
+    const SOCAh = eight_bytes_decode('10', 0.001, 1, 2, 3, 4)(data);
+    const SOH = eight_bytes_decode('09', 1, 18)(data);
+    const BmsStatus = eight_bytes_decode('10', 1 , 5)(data);
+
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
     if (cellVoltage03 !== null) setCellVol03(cellVoltage03);
@@ -148,6 +158,12 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (MaxTemp !== null) setMaxTemp(MaxTemp);
     if (MinTemp !== null) setMinTemp(MinTemp);
     if (CellVolMinMaxDev !== null) setCellVolMinMaxDev(CellVolMinMaxDev);
+
+    if (SOC !== null) setSOC(SOC);
+    if (SOCAh !== null) setSOCAh(SOCAh);
+    if (SOH !== null) setSOH(SOH);
+    if (BmsStatus !== null) setBmsStatus(BmsStatus);
+    
   };
 
   return (
@@ -179,18 +195,24 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {PackVol !== null && <Text style={styles.parameterText}>PackVol: {PackVol.toFixed(4)} V</Text>}
 
         {CycleCount !== null && <Text style={styles.parameterText}>CycleCount: {CycleCount.toFixed(4)} V</Text>}
-        {MaxTemp !== null && <Text style={styles.parameterText}>MaxTemp: {MaxTemp.toFixed(4)} V</Text>}
-        {MinTemp !== null && <Text style={styles.parameterText}>MinTemp: {MinTemp.toFixed(4)}</Text>}
-        {CellVolMinMaxDev !== null && <Text style={styles.parameterText}>CellVolMinMaxDev: {CellVolMinMaxDev.toFixed(4)}</Text>}
+        {MaxTemp !== null && <Text style={styles.parameterText}>MaxTemp: {MaxTemp.toFixed(4)} C</Text>}
+        {MinTemp !== null && <Text style={styles.parameterText}>MinTemp: {MinTemp.toFixed(4)} C</Text>}
+        {CellVolMinMaxDev !== null && <Text style={styles.parameterText}>CellVolMinMaxDev: {CellVolMinMaxDev.toFixed(4)} V</Text>}
 
-        {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && 
+        {SOC !== null && <Text style={styles.parameterText}>SOC: {SOC.toFixed(4)} %</Text>}
+        {SOCAh !== null && <Text style={styles.parameterText}>SOCAh: {SOCAh.toFixed(4)} AH</Text>}
+        {SOH !== null && <Text style={styles.parameterText}>SOH: {SOH.toFixed(4)} %</Text>}
+        {BmsStatus !== null && <Text style={styles.parameterText}>BmsStatus: {BmsStatus.toFixed(4)} </Text>}
+
+        {/* {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && 
        cellVol05 === null && cellVol06 === null && cellVol07 === null && cellVol08 === null && 
        cellVol09 === null && cellVol10 === null && cellVol11 === null && cellVol12 === null && 
        cellVol13 === null && cellVol14 === null && cellVol15 === null && cellVol16 === null && 
        MaxCellVol === null && MinCellVol === null && AvgCellVol === null && MaxVoltId === null && 
-       cellVol01 === null && PackVol === null && CycleCount === null && MaxTemp === null && 
+       PackVol === null && CycleCount === null && MaxTemp === null && 
+       MinTemp === null && CellVolMinMaxDev === null && MinTemp === null && CellVolMinMaxDev === null && 
        MinTemp === null && CellVolMinMaxDev === null && 
- <Text>No Data Received Yet</Text>}
+ <Text>No Data Received Yet</Text>} */}
       </View>
     </ScrollView>
   );
