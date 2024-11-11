@@ -129,6 +129,30 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const SOH = eight_bytes_decode('09', 1, 18)(data);
     const BmsStatus = eight_bytes_decode('10', 1 , 5)(data);
 
+    // Srijanani part
+    const LedStatus = eight_bytes_decode('11', 1 , 1)(data);
+    const ActiveCellBalStatus = eight_bytes_decode('10', 1 , 17, 18, 19)(data);
+    const BMS_Serial_No_MUX = eight_bytes_decode('16', 1 , 4)(data);
+    const BMS_Serial_No__1_7 = eight_bytes_decode('16', 1 , 5, 6, 7, 8, 9, 10)(data);
+    const LatchProtection = eight_bytes_decode('11', 1 , 11)(data);
+    const LatchType = eight_bytes_decode('11', 1 , 12)(data);
+    const ChargerType = eight_bytes_decode('11', 1 , 13)(data);
+    const PcbTemp = eight_bytes_decode('11', 1 , 14)(data);
+    const AfeTemp = eight_bytes_decode('11', 1 , 15)(data);
+    const CellChemType = eight_bytes_decode('11', 1 , 16)(data);
+    const Chg_Accumulative_Ah = eight_bytes_decode('12', 0.001 , 8, 9, 10, 11)(data);
+    const Dchg_Accumulative_Ah = eight_bytes_decode('12', 0.001 , 12, 13, 14, 15)(data);
+    const RefVol = eight_bytes_decode('12', 0.001 , 16, 17)(data);
+    const _3v3Vol = eight_bytes_decode('12', 0.001 , 18, 19)(data);
+    const _5vVol = eight_bytes_decode('13', 0.001 , 1, 2)(data);
+    const _12vVol = eight_bytes_decode('14', 0.01 , 10, 11, 12, 13)(data);
+    const Usable_Capacity_Ah = eight_bytes_decode('14', 0.001 , 14, 15, 16, 17)(data);
+    const ConfigVer = eight_bytes_decode('14', 1 , 2, 3, 4)(data);
+    const InternalFWVer = eight_bytes_decode('14', 1 , 5, 6, 7)(data);
+    const InternalFWSubVer = eight_bytes_decode('14', 1 , 8, 9)(data);
+    const BHB_66049 = eight_bytes_decode('14', 1 , 3, 4, 5)(data);
+    const BtStatus_NC0PSM1CC2CV3Finish4 = eight_bytes_decode('14', 1 , 3, 4, 5)(data);
+
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
     if (cellVoltage03 !== null) setCellVol03(cellVoltage03);

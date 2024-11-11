@@ -51,7 +51,7 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 #define GATTS_DESCR_UUID_TEST_B     0x2222
 #define GATTS_NUM_HANDLE_TEST_B     4
 
-#define TEST_DEVICE_NAME            "ESP_GATTS_DEMO" // CHANGE ESP32 hardware name here(name shown while scanning in mobile app), example change ESP_GATTS_DEMO to AnnmonRajiJames
+#define TEST_DEVICE_NAME            "LECTRIX-Srijanani" // CHANGE ESP32 hardware name here(name shown while scanning in mobile app), example change LECTRIX-Annmon to AnnmonRajiJames
 #define TEST_MANUFACTURER_DATA_LEN  17
 
 #define GATTS_DEMO_CHAR_VAL_LEN_MAX 0x40
@@ -348,20 +348,21 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 #endif
         esp_ble_gatts_create_service(gatts_if, &gl_profile_tab[PROFILE_A_APP_ID].service_id, GATTS_NUM_HANDLE_TEST_A);
         break;
-    case ESP_GATTS_READ_EVT: {
-        ESP_LOGI(GATTS_TAG, "GATT_READ_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d", param->read.conn_id, param->read.trans_id, param->read.handle);
-        esp_gatt_rsp_t rsp;
-        memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
-        rsp.attr_value.handle = param->read.handle;
-        rsp.attr_value.len = 4;
-        rsp.attr_value.value[0] = 0xde; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
-        rsp.attr_value.value[1] = 0xed; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
-        rsp.attr_value.value[2] = 0xbe; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
-        rsp.attr_value.value[3] = 0xef; // CHANGE here, if you want to change this hexadecimal data that will be received by mobile app from this ESP32 hardware device
-        esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
-                                    ESP_GATT_OK, &rsp);
-        break;
-    }
+case ESP_GATTS_READ_EVT: {
+    ESP_LOGI(GATTS_TAG, "GATT_READ_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d", param->read.conn_id, param->read.trans_id, param->read.handle);
+    esp_gatt_rsp_t rsp;
+    memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
+    rsp.attr_value.handle = param->read.handle;
+    rsp.attr_value.len = 4;
+    // Generate random hexadecimal data for each byte
+    rsp.attr_value.value[0] = rand() % 256; // Random byte between 0x00 and 0xFF
+    rsp.attr_value.value[1] = rand() % 256; // Random byte between 0x00 and 0xFF
+    rsp.attr_value.value[2] = rand() % 256; // Random byte between 0x00 and 0xFF
+    rsp.attr_value.value[3] = rand() % 256; // Random byte between 0x00 and 0xFF
+    esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
+                                ESP_GATT_OK, &rsp);
+    break;
+}
     case ESP_GATTS_WRITE_EVT: {
         ESP_LOGI(GATTS_TAG, "GATT_WRITE_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d", param->write.conn_id, param->write.trans_id, param->write.handle);
         if (!param->write.is_prep){
