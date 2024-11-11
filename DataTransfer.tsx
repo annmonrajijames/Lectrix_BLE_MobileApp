@@ -38,8 +38,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [PackVol, setPackVol] = useState<number | null>(null);
 
   const [CycleCount, setCycleCount] = useState<number | null>(null);
-  const [MaxTemp, setMaxTemp] = useState<number | null>(null);
-  const [MinTemp, setMinTemp] = useState<number | null>(null);
+
   const [CellVolMinMaxDev, setCellVolMinMaxDev] = useState<number | null>(null);
 
   const [SOC, setSOC] = useState<number | null>(null);
@@ -71,6 +70,18 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [BtStatus_NC0PSM1CC2CV3Finish4, setBtStatus_NC0PSM1CC2CV3Finish4] = useState<number | null>(null);
   const [currentVal, setcurrentVal] = useState<number | null>(null);
 
+  const [MaxTemp, setMaxTemp] = useState<number | null>(null);
+  const [MinTemp, setMinTemp] = useState<number | null>(null);
+  const [FetTemp, setFetTemp] = useState<number | null>(null);
+  const [Temp1, setTemp1] = useState<number | null>(null);
+  const [Temp2, setTemp2] = useState<number | null>(null);
+  const [Temp3, setTemp3] = useState<number | null>(null);
+  const [Temp4, setTemp4] = useState<number | null>(null);
+  const [Temp5, setTemp5] = useState<number | null>(null);
+  const [Temp6, setTemp6] = useState<number | null>(null);
+  const [Temp7, setTemp7] = useState<number | null>(null);
+  const [Temp8, setTemp8] = useState<number | null>(null);
+  
   
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -166,8 +177,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const PackVol = eight_bytes_decode('09', 0.001, 13, 14, 15, 16)(data);
 
     const CycleCount = eight_bytes_decode('07', 0.001, 15, 16)(data);
-    const MaxTemp = eight_bytes_decode('07', 1, 17)(data);
-    const MinTemp = eight_bytes_decode('07', 1, 18)(data);
     const CellVolMinMaxDev = eight_bytes_decode('08', 1 ,2, 3)(data);
 
     const SOC = eight_bytes_decode('09', 1, 17)(data);
@@ -200,6 +209,18 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const BtStatus_NC0PSM1CC2CV3Finish4 = eight_bytes_decode('14', 1 , 3, 4, 5)(data);
 
     const currentVal = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data); // Range of this parameter, also incluse negative values, so separate function
+    const MaxTemp = signed_eight_bytes_decode('07', 1, 17)(data);
+    const MinTemp = signed_eight_bytes_decode('07', 1, 18)(data);
+    const FetTemp = signed_eight_bytes_decode('09', 1, 19)(data);
+    const Temp1 = signed_eight_bytes_decode('11', 1, 3)(data);
+    const Temp2 = signed_eight_bytes_decode('11', 1, 4)(data);
+    const Temp3 = signed_eight_bytes_decode('11', 1, 5)(data);
+    const Temp4 = signed_eight_bytes_decode('11', 1, 6)(data);
+    const Temp5 = signed_eight_bytes_decode('11', 1, 7)(data);
+    const Temp6 = signed_eight_bytes_decode('11', 1, 8)(data);
+    const Temp7 = signed_eight_bytes_decode('11', 1, 9)(data);
+    const Temp8 = signed_eight_bytes_decode('11', 1, 10)(data);
+
 
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
@@ -259,7 +280,18 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (BtStatus_NC0PSM1CC2CV3Finish4 !== null) setBtStatus_NC0PSM1CC2CV3Finish4(BtStatus_NC0PSM1CC2CV3Finish4);
 
     if (currentVal !== null) setcurrentVal(currentVal);
-    
+    if (MaxTemp !== null) setMaxTemp(MaxTemp);
+    if (MinTemp !== null) setMinTemp(MinTemp);
+    if (FetTemp !== null) setFetTemp(FetTemp);
+    if (Temp1 !== null) setTemp1(Temp1);
+    if (Temp2 !== null) setTemp2(Temp2);
+    if (Temp3 !== null) setTemp3(Temp3);
+    if (Temp4 !== null) setTemp4(Temp4);
+    if (Temp5 !== null) setTemp5(Temp5);
+    if (Temp6 !== null) setTemp6(Temp6);
+    if (Temp7 !== null) setTemp7(Temp7);
+    if (Temp8 !== null) setTemp8(Temp8);
+
   };
 
   return (
@@ -322,6 +354,18 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {BHB_66049 !== null && <Text style={styles.parameterText}>BHB 66049: {BHB_66049.toFixed(4)}</Text>}
         {BtStatus_NC0PSM1CC2CV3Finish4 !== null && <Text style={styles.parameterText}>BtStatus NC0PSM1CC2CV3Finish4: {BtStatus_NC0PSM1CC2CV3Finish4.toFixed(4)}</Text>}
         {currentVal !== null && <Text style={styles.parameterText}>currentVal: {currentVal.toFixed(4)}</Text>}
+        {MaxTemp !== null && <Text style={styles.parameterText}>MaxTemp: {MaxTemp.toFixed(4)}</Text>}
+        {MinTemp !== null && <Text style={styles.parameterText}>MinTemp: {MinTemp.toFixed(4)}</Text>}
+        {FetTemp !== null && <Text style={styles.parameterText}>FetTemp: {FetTemp.toFixed(4)}</Text>}
+        {Temp1 !== null && <Text style={styles.parameterText}>Temp1: {Temp1.toFixed(4)}</Text>}
+        {Temp2 !== null && <Text style={styles.parameterText}>Temp2: {Temp2.toFixed(4)}</Text>}
+        {Temp3 !== null && <Text style={styles.parameterText}>Temp3: {Temp3.toFixed(4)}</Text>}
+        {Temp4 !== null && <Text style={styles.parameterText}>Temp4: {Temp4.toFixed(4)}</Text>}
+        {Temp5 !== null && <Text style={styles.parameterText}>Temp5: {Temp5.toFixed(4)}</Text>}
+        {Temp6 !== null && <Text style={styles.parameterText}>Temp6: {Temp6.toFixed(4)}</Text>}
+        {Temp7 !== null && <Text style={styles.parameterText}>Temp7: {Temp7.toFixed(4)}</Text>}
+        {Temp8 !== null && <Text style={styles.parameterText}>Temp8: {Temp8.toFixed(4)}</Text>}
+
 
         {/* {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && 
        cellVol05 === null && cellVol06 === null && cellVol07 === null && cellVol08 === null && 
