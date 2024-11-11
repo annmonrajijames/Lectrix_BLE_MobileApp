@@ -62,6 +62,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [_3v3Vol, set_3v3Vol] = useState<number | null>(null);
   const [_5vVol, set_5vVol] = useState<number | null>(null);
   const [_12vVol, set_12vVol] = useState<number | null>(null);
+  const [Actual_SoC, setActual_SoC] = useState<number | null>(null);
   const [Usable_Capacity_Ah, setUsable_Capacity_Ah] = useState<number | null>(null);
   const [ConfigVer, setConfigVer] = useState<number | null>(null);
   const [InternalFWVer, setInternalFWVer] = useState<number | null>(null);
@@ -201,12 +202,12 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const _3v3Vol = eight_bytes_decode('12', 0.001 , 18, 19)(data);
     const _5vVol = eight_bytes_decode('13', 0.001 , 1, 2)(data);
     const _12vVol = eight_bytes_decode('14', 0.01 , 10, 11, 12, 13)(data);
+    const Actual_SoC = eight_bytes_decode('14', 0.01 , 10, 11, 12, 13)(data);
     const Usable_Capacity_Ah = eight_bytes_decode('14', 0.001 , 14, 15, 16, 17)(data);
     const ConfigVer = eight_bytes_decode('14', 1 , 2, 3, 4)(data);
     const InternalFWVer = eight_bytes_decode('14', 1 , 5, 6, 7)(data);
     const InternalFWSubVer = eight_bytes_decode('14', 1 , 8, 9)(data);
     const BHB_66049 = eight_bytes_decode('14', 1 , 3, 4, 5)(data);
-    const BtStatus_NC0PSM1CC2CV3Finish4 = eight_bytes_decode('14', 1 , 3, 4, 5)(data);
 
     const currentVal = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data); // Range of this parameter, also incluse negative values, so separate function
     const MaxTemp = signed_eight_bytes_decode('07', 1, 17)(data);
@@ -220,6 +221,17 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const Temp6 = signed_eight_bytes_decode('11', 1, 8)(data);
     const Temp7 = signed_eight_bytes_decode('11', 1, 9)(data);
     const Temp8 = signed_eight_bytes_decode('11', 1, 10)(data);
+
+    const HwVer = eight_bytes_decode('06', 1, 10, 11, 12)(data);
+    const FwVer = eight_bytes_decode('06', 1, 13, 14, 15)(data);
+    const FWSubVer = eight_bytes_decode('06', 1, 16, 17)(data);
+
+    const BtStatus_NC0PSM1CC2CV3Finish4 = eight_bytes_decode('17', 1 , 9)(data);
+    const Bt_liveMsg1Temp = eight_bytes_decode('17', 1 , 10)(data);
+    const Bt_liveMsg_soc = eight_bytes_decode('17', 1 , 11)(data);
+    const BMS_status = eight_bytes_decode('17', 1 , 12)(data);
+    const Demand_voltage = eight_bytes_decode('17', 0.01 , 13, 14)(data);
+    const Demand_Current = eight_bytes_decode('17', 0.01 , 15, 16)(data);
 
 
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
@@ -272,6 +284,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (_3v3Vol !== null) set_3v3Vol(_3v3Vol);
     if (_5vVol !== null) set_5vVol(_5vVol);
     if (_12vVol !== null) set_12vVol(_12vVol);
+    if (Actual_SoC !== null) setActual_SoC(Actual_SoC);
     if (Usable_Capacity_Ah !== null) setUsable_Capacity_Ah(Usable_Capacity_Ah);
     if (ConfigVer !== null) setConfigVer(ConfigVer);
     if (InternalFWVer !== null) setInternalFWVer(InternalFWVer);
@@ -347,6 +360,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {_3v3Vol !== null && <Text style={styles.parameterText}>3.3V Vol: {_3v3Vol.toFixed(4)} V</Text>}
         {_5vVol !== null && <Text style={styles.parameterText}>5V Vol: {_5vVol.toFixed(4)} V</Text>}
         {_12vVol !== null && <Text style={styles.parameterText}>12V Vol: {_12vVol.toFixed(4)} V</Text>}
+        {Actual_SoC !== null && <Text style={styles.parameterText}>Actual_SoC: {Actual_SoC.toFixed(4)} AH</Text>}
         {Usable_Capacity_Ah !== null && <Text style={styles.parameterText}>Usable Capacity Ah: {Usable_Capacity_Ah.toFixed(4)} AH</Text>}
         {ConfigVer !== null && <Text style={styles.parameterText}>ConfigVer: {ConfigVer.toFixed(4)}</Text>}
         {InternalFWVer !== null && <Text style={styles.parameterText}>InternalFWVer: {InternalFWVer.toFixed(4)}</Text>}
