@@ -69,6 +69,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [InternalFWSubVer, setInternalFWSubVer] = useState<number | null>(null);
   const [BHB_66049, setBHB_66049] = useState<number | null>(null);
   const [BtStatus_NC0PSM1CC2CV3Finish4, setBtStatus_NC0PSM1CC2CV3Finish4] = useState<number | null>(null);
+  const [currentVal, setcurrentVal] = useState<number | null>(null);
+
   
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -108,6 +110,27 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
         const bytes = positions.map(pos => data.substring(2 * pos, 2 * pos + 2)).join('');
         const decimalValue = parseInt(bytes, 16);
+        return decimalValue * multiplier;
+      }
+      return null;
+    }
+  }
+  
+  const signed_eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
+    return (data: string) => {
+      if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
+        const bytes = positions.map(pos => data.substring(2 * pos, 2 * pos + 2)).join('');
+        let decimalValue = parseInt(bytes, 16);
+
+        // Adjust for two's complement if the value is a negative number
+        const byteLength = positions.length;
+        const maxByteValue = Math.pow(2, 8 * byteLength); // Max value for byte length
+        const signBit = Math.pow(2, 8 * byteLength - 1); // Value of the sign bit
+
+        if (decimalValue >= signBit) {
+          decimalValue -= maxByteValue;
+        }
+
         return decimalValue * multiplier;
       }
       return null;
@@ -176,6 +199,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const BHB_66049 = eight_bytes_decode('14', 1 , 3, 4, 5)(data);
     const BtStatus_NC0PSM1CC2CV3Finish4 = eight_bytes_decode('14', 1 , 3, 4, 5)(data);
 
+    const currentVal = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data); // Range of this parameter, also incluse negative values, so separate function
+
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
     if (cellVoltage03 !== null) setCellVol03(cellVoltage03);
@@ -232,6 +257,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (InternalFWSubVer !== null) setInternalFWSubVer(InternalFWSubVer);
     if (BHB_66049 !== null) setBHB_66049(BHB_66049);
     if (BtStatus_NC0PSM1CC2CV3Finish4 !== null) setBtStatus_NC0PSM1CC2CV3Finish4(BtStatus_NC0PSM1CC2CV3Finish4);
+
+    if (currentVal !== null) setcurrentVal(currentVal);
     
   };
 
@@ -294,6 +321,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {InternalFWSubVer !== null && <Text style={styles.parameterText}>InternalFWSubVer: {InternalFWSubVer.toFixed(4)}</Text>}
         {BHB_66049 !== null && <Text style={styles.parameterText}>BHB 66049: {BHB_66049.toFixed(4)}</Text>}
         {BtStatus_NC0PSM1CC2CV3Finish4 !== null && <Text style={styles.parameterText}>BtStatus NC0PSM1CC2CV3Finish4: {BtStatus_NC0PSM1CC2CV3Finish4.toFixed(4)}</Text>}
+        {currentVal !== null && <Text style={styles.parameterText}>currentVal: {currentVal.toFixed(4)}</Text>}
 
         {/* {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && 
        cellVol05 === null && cellVol06 === null && cellVol07 === null && cellVol08 === null && 
