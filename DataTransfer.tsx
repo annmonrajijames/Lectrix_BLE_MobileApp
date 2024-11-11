@@ -46,6 +46,29 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [SOCAh, setSOCAh] = useState<number | null>(null);
   const [SOH, setSOH] = useState<number | null>(null);
   const [BmsStatus, setBmsStatus] = useState<number | null>(null);
+
+  const [LedStatus, setLedStatus] = useState<number | null>(null);
+  const [ActiveCellBalStatus, setActiveCellBalStatus] = useState<number | null>(null);
+  const [BMS_Serial_No_MUX, setBMS_Serial_No_MUX] = useState<number | null>(null);
+  const [BMS_Serial_No__1_7, setBMS_Serial_No__1_7] = useState<number | null>(null);
+  const [LatchProtection, setLatchProtection] = useState<number | null>(null);
+  const [LatchType, setLatchType] = useState<number | null>(null);
+  const [ChargerType, setChargerType] = useState<number | null>(null);
+  const [PcbTemp, setPcbTemp] = useState<number | null>(null);
+  const [AfeTemp, setAfeTemp] = useState<number | null>(null);
+  const [CellChemType, setCellChemType] = useState<number | null>(null);
+  const [Chg_Accumulative_Ah, setChg_Accumulative_Ah] = useState<number | null>(null);
+  const [Dchg_Accumulative_Ah, setDchg_Accumulative_Ah] = useState<number | null>(null);
+  const [RefVol, setRefVol] = useState<number | null>(null);
+  const [_3v3Vol, set_3v3Vol] = useState<number | null>(null);
+  const [_5vVol, set_5vVol] = useState<number | null>(null);
+  const [_12vVol, set_12vVol] = useState<number | null>(null);
+  const [Usable_Capacity_Ah, setUsable_Capacity_Ah] = useState<number | null>(null);
+  const [ConfigVer, setConfigVer] = useState<number | null>(null);
+  const [InternalFWVer, setInternalFWVer] = useState<number | null>(null);
+  const [InternalFWSubVer, setInternalFWSubVer] = useState<number | null>(null);
+  const [BHB_66049, setBHB_66049] = useState<number | null>(null);
+  const [BtStatus_NC0PSM1CC2CV3Finish4, setBtStatus_NC0PSM1CC2CV3Finish4] = useState<number | null>(null);
   
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -187,6 +210,28 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (SOCAh !== null) setSOCAh(SOCAh);
     if (SOH !== null) setSOH(SOH);
     if (BmsStatus !== null) setBmsStatus(BmsStatus);
+    if (LedStatus !== null) setLedStatus(LedStatus);
+    if (ActiveCellBalStatus !== null) setActiveCellBalStatus(ActiveCellBalStatus);
+    if (BMS_Serial_No_MUX !== null) setBMS_Serial_No_MUX(BMS_Serial_No_MUX);
+    if (BMS_Serial_No__1_7 !== null) setBMS_Serial_No__1_7(BMS_Serial_No__1_7);
+    if (LatchProtection !== null) setLatchProtection(LatchProtection);
+    if (LatchType !== null) setLatchType(LatchType);
+    if (ChargerType !== null) setChargerType(ChargerType);
+    if (PcbTemp !== null) setPcbTemp(PcbTemp);
+    if (AfeTemp !== null) setAfeTemp(AfeTemp);
+    if (CellChemType !== null) setCellChemType(CellChemType);
+    if (Chg_Accumulative_Ah !== null) setChg_Accumulative_Ah(Chg_Accumulative_Ah);
+    if (Dchg_Accumulative_Ah !== null) setDchg_Accumulative_Ah(Dchg_Accumulative_Ah);
+    if (RefVol !== null) setRefVol(RefVol);
+    if (_3v3Vol !== null) set_3v3Vol(_3v3Vol);
+    if (_5vVol !== null) set_5vVol(_5vVol);
+    if (_12vVol !== null) set_12vVol(_12vVol);
+    if (Usable_Capacity_Ah !== null) setUsable_Capacity_Ah(Usable_Capacity_Ah);
+    if (ConfigVer !== null) setConfigVer(ConfigVer);
+    if (InternalFWVer !== null) setInternalFWVer(InternalFWVer);
+    if (InternalFWSubVer !== null) setInternalFWSubVer(InternalFWSubVer);
+    if (BHB_66049 !== null) setBHB_66049(BHB_66049);
+    if (BtStatus_NC0PSM1CC2CV3Finish4 !== null) setBtStatus_NC0PSM1CC2CV3Finish4(BtStatus_NC0PSM1CC2CV3Finish4);
     
   };
 
@@ -227,6 +272,28 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {SOCAh !== null && <Text style={styles.parameterText}>SOCAh: {SOCAh.toFixed(4)} AH</Text>}
         {SOH !== null && <Text style={styles.parameterText}>SOH: {SOH.toFixed(4)} %</Text>}
         {BmsStatus !== null && <Text style={styles.parameterText}>BmsStatus: {BmsStatus.toFixed(4)} </Text>}
+        {LedStatus !== null && <Text style={styles.parameterText}>LedStatus: {LedStatus.toFixed(4)}</Text>}
+        {ActiveCellBalStatus !== null && <Text style={styles.parameterText}>ActiveCellBalStatus: {ActiveCellBalStatus.toFixed(4)}</Text>}
+        {BMS_Serial_No_MUX !== null && <Text style={styles.parameterText}>BMS Serial No MUX: {BMS_Serial_No_MUX.toFixed(4)}</Text>}
+        {BMS_Serial_No__1_7 !== null && <Text style={styles.parameterText}>BMS Serial No 1-7: {BMS_Serial_No__1_7.toFixed(4)}</Text>}
+        {LatchProtection !== null && <Text style={styles.parameterText}>LatchProtection: {LatchProtection.toFixed(4)}</Text>}
+        {LatchType !== null && <Text style={styles.parameterText}>LatchType: {LatchType.toFixed(4)}</Text>}
+        {ChargerType !== null && <Text style={styles.parameterText}>ChargerType: {ChargerType.toFixed(4)}</Text>}
+        {PcbTemp !== null && <Text style={styles.parameterText}>PcbTemp: {PcbTemp.toFixed(4)} °C</Text>}
+        {AfeTemp !== null && <Text style={styles.parameterText}>AfeTemp: {AfeTemp.toFixed(4)} °C</Text>}
+        {CellChemType !== null && <Text style={styles.parameterText}>CellChemType: {CellChemType.toFixed(4)}</Text>}
+        {Chg_Accumulative_Ah !== null && <Text style={styles.parameterText}>Chg Accumulative Ah: {Chg_Accumulative_Ah.toFixed(4)} AH</Text>}
+        {Dchg_Accumulative_Ah !== null && <Text style={styles.parameterText}>Dchg Accumulative Ah: {Dchg_Accumulative_Ah.toFixed(4)} AH</Text>}
+        {RefVol !== null && <Text style={styles.parameterText}>RefVol: {RefVol.toFixed(4)} V</Text>}
+        {_3v3Vol !== null && <Text style={styles.parameterText}>3.3V Vol: {_3v3Vol.toFixed(4)} V</Text>}
+        {_5vVol !== null && <Text style={styles.parameterText}>5V Vol: {_5vVol.toFixed(4)} V</Text>}
+        {_12vVol !== null && <Text style={styles.parameterText}>12V Vol: {_12vVol.toFixed(4)} V</Text>}
+        {Usable_Capacity_Ah !== null && <Text style={styles.parameterText}>Usable Capacity Ah: {Usable_Capacity_Ah.toFixed(4)} AH</Text>}
+        {ConfigVer !== null && <Text style={styles.parameterText}>ConfigVer: {ConfigVer.toFixed(4)}</Text>}
+        {InternalFWVer !== null && <Text style={styles.parameterText}>InternalFWVer: {InternalFWVer.toFixed(4)}</Text>}
+        {InternalFWSubVer !== null && <Text style={styles.parameterText}>InternalFWSubVer: {InternalFWSubVer.toFixed(4)}</Text>}
+        {BHB_66049 !== null && <Text style={styles.parameterText}>BHB 66049: {BHB_66049.toFixed(4)}</Text>}
+        {BtStatus_NC0PSM1CC2CV3Finish4 !== null && <Text style={styles.parameterText}>BtStatus NC0PSM1CC2CV3Finish4: {BtStatus_NC0PSM1CC2CV3Finish4.toFixed(4)}</Text>}
 
         {/* {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && 
        cellVol05 === null && cellVol06 === null && cellVol07 === null && cellVol08 === null && 
