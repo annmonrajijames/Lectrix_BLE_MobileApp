@@ -68,7 +68,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [InternalFWVer, setInternalFWVer] = useState<number | null>(null);
   const [InternalFWSubVer, setInternalFWSubVer] = useState<number | null>(null);
   const [BHB_66049, setBHB_66049] = useState<number | null>(null);
-  const [BtStatus_NC0PSM1CC2CV3Finish4, setBtStatus_NC0PSM1CC2CV3Finish4] = useState<number | null>(null);
   const [currentVal, setcurrentVal] = useState<number | null>(null);
 
   const [MaxTemp, setMaxTemp] = useState<number | null>(null);
@@ -227,13 +226,28 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const FWSubVer = eight_bytes_decode('06', 1, 16, 17)(data);
 
     const BtStatus_NC0PSM1CC2CV3Finish4 = eight_bytes_decode('17', 1 , 9)(data);
-    const Bt_liveMsg1Temp = eight_bytes_decode('17', 1 , 10)(data);
+    const Bt_liveMsg1Temp = signed_eight_bytes_decode('17', 1 , 10)(data);
     const Bt_liveMsg_soc = eight_bytes_decode('17', 1 , 11)(data);
     const BMS_status = eight_bytes_decode('17', 1 , 12)(data);
     const Demand_voltage = eight_bytes_decode('17', 0.01 , 13, 14)(data);
     const Demand_Current = eight_bytes_decode('17', 0.01 , 15, 16)(data);
 
+    const MaxChgVoltgae = eight_bytes_decode('18', 0.01, 14, 15)(data);
+    const MaxChgCurrent = eight_bytes_decode('18', 0.01, 16, 17)(data);
+    const ActualChgVoltage = eight_bytes_decode('18', 0.01,18, 19)(data);
+    const ActualChgCurrent = signed_eight_bytes_decode('19', 0.01, 1, 2)(data);
 
+    const Charging_end_cutoff_Curr = eight_bytes_decode('17', 0.01, 17, 18)(data);
+
+    const CHB_258 = eight_bytes_decode('20', 1, 8, 9)(data);
+
+    const ChgrNC0PSM1CC2CV3Finsh4 = eight_bytes_decode('19', 1, 11)(data);
+    const chgr_msg_temp = eight_bytes_decode('19', 1, 12)(data);
+    const chgStatus_chg_idle = eight_bytes_decode('19', 1, 14)(data);
+    const chgrLiveMsgChgVolt = eight_bytes_decode('19', 0.01, 15, 16)(data);
+    const chgrLiveMsgChgCurrent = eight_bytes_decode('19', 0.01, 17, 18)(data);
+
+        
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
     if (cellVoltage03 !== null) setCellVol03(cellVoltage03);
@@ -290,8 +304,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (InternalFWVer !== null) setInternalFWVer(InternalFWVer);
     if (InternalFWSubVer !== null) setInternalFWSubVer(InternalFWSubVer);
     if (BHB_66049 !== null) setBHB_66049(BHB_66049);
-    if (BtStatus_NC0PSM1CC2CV3Finish4 !== null) setBtStatus_NC0PSM1CC2CV3Finish4(BtStatus_NC0PSM1CC2CV3Finish4);
-
     if (currentVal !== null) setcurrentVal(currentVal);
     if (MaxTemp !== null) setMaxTemp(MaxTemp);
     if (MinTemp !== null) setMinTemp(MinTemp);
@@ -366,7 +378,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {InternalFWVer !== null && <Text style={styles.parameterText}>InternalFWVer: {InternalFWVer.toFixed(4)}</Text>}
         {InternalFWSubVer !== null && <Text style={styles.parameterText}>InternalFWSubVer: {InternalFWSubVer.toFixed(4)}</Text>}
         {BHB_66049 !== null && <Text style={styles.parameterText}>BHB 66049: {BHB_66049.toFixed(4)}</Text>}
-        {BtStatus_NC0PSM1CC2CV3Finish4 !== null && <Text style={styles.parameterText}>BtStatus NC0PSM1CC2CV3Finish4: {BtStatus_NC0PSM1CC2CV3Finish4.toFixed(4)}</Text>}
         {currentVal !== null && <Text style={styles.parameterText}>currentVal: {currentVal.toFixed(4)}</Text>}
         {MaxTemp !== null && <Text style={styles.parameterText}>MaxTemp: {MaxTemp.toFixed(4)}</Text>}
         {MinTemp !== null && <Text style={styles.parameterText}>MinTemp: {MinTemp.toFixed(4)}</Text>}
