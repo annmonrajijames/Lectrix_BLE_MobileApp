@@ -12,8 +12,8 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [ignitionStatus, setIgnitionStatus] = useState<string | null>(null);
-  const [loadDetection, setLoadDetection] = useState<string | null>(null);
+  const [IgnitionStatus, setIgnitionStatus] = useState<string | null>(null);
+  const [LoadDetection, setLoadDetection] = useState<string | null>(null);
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -58,19 +58,19 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   }
 
   const decodeData = (data: string) => {
-    const ignition = bit_decode(11, 18, 0)(data);
-    const load = bit_decode(11, 18, 6)(data);
+    const IgnitionStatus = bit_decode(11, 18, 0)(data);
+    const LoadDetection = bit_decode(11, 18, 6)(data);
 
-    if (ignition !== null) setIgnitionStatus(ignition);
-    if (load !== null) setLoadDetection(load);
+    if (IgnitionStatus !== null) setIgnitionStatus(IgnitionStatus);
+    if (LoadDetection !== null) setLoadDetection(LoadDetection);
   };
 
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
-        {ignitionStatus !== null && <Text style={styles.statusText}>Ignition Status: {ignitionStatus}</Text>}
-        {loadDetection !== null && <Text style={styles.statusText}>Load Detection: {loadDetection}</Text>}
-        {ignitionStatus === null && loadDetection === null && <Text>No Data Received Yet</Text>}
+        {IgnitionStatus !== null && <Text style={styles.statusText}>IgnitionStatus: {IgnitionStatus}</Text>}
+        {LoadDetection !== null && <Text style={styles.statusText}>LoadDetection: {LoadDetection}</Text>}
+        {IgnitionStatus === null && LoadDetection === null && <Text>No Data Received Yet</Text>}
       </View>
     </ScrollView>
   );
