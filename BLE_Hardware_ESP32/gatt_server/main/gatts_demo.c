@@ -1559,7 +1559,7 @@ static void twai_receive_task(void *arg) {
                     byte_336 = message.data[6];
                     byte_337 = message.data[7];
                     break;
-                case 0x402: // CAN #41
+                case 0x405: // CAN #41
                     byte_338 = message.data[0];
                     byte_339 = message.data[1];
                     byte_340 = message.data[2];
@@ -1580,7 +1580,7 @@ static void twai_receive_task(void *arg) {
                     byte_353 = message.data[6];
                     byte_354 = message.data[7];
                     break;
-                case 0x405: // CAN #43
+                case 0x402: // CAN #43
                     byte_355 = message.data[0];
                     byte_356 = message.data[1];
                     byte_357 = message.data[2];
