@@ -82,6 +82,27 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [Temp7, setTemp7] = useState<number | null>(null);
   const [Temp8, setTemp8] = useState<number | null>(null);
   
+  const [HwVer, setHwVer] = useState<number | null>(null);
+  const [FwVer, setFwVer] = useState<number | null>(null);
+  const [FWSubVer, setFWSubVer] = useState<number | null>(null);
+  const [BtStatus_NC0PSM1CC2CV3Finish4, setBtStatus_NC0PSM1CC2CV3Finish4] = useState<number | null>(null);
+  const [Bt_liveMsg1Temp, setBt_liveMsg1Temp] = useState<number | null>(null);
+  const [Bt_liveMsg_soc, setBt_liveMsg_soc] = useState<number | null>(null);
+  const [BMS_status, setBMS_status] = useState<number | null>(null);
+  const [Demand_voltage, setDemand_voltage] = useState<number | null>(null);
+  const [Demand_Current, setDemand_Current] = useState<number | null>(null);
+  const [MaxChgVoltgae, setMaxChgVoltgae] = useState<number | null>(null);
+  const [MaxChgCurrent, setMaxChgCurrent] = useState<number | null>(null);
+  const [ActualChgVoltage, setActualChgVoltage] = useState<number | null>(null);
+  const [ActualChgCurrent, setActualChgCurrent] = useState<number | null>(null);
+  const [Charging_end_cutoff_Curr, setCharging_end_cutoff_Curr] = useState<number | null>(null);
+  const [CHB_258, setCHB_258] = useState<number | null>(null);
+  const [ChgrNC0PSM1CC2CV3Finsh4, setChgrNC0PSM1CC2CV3Finsh4] = useState<number | null>(null);
+  const [chgr_msg_temp, setchgr_msg_temp] = useState<number | null>(null);
+  const [chgStatus_chg_idle, setchgStatus_chg_idle] = useState<number | null>(null);
+  const [chgrLiveMsgChgVolt, setchgrLiveMsgChgVolt] = useState<number | null>(null);
+  const [chgrLiveMsgChgCurrent, setchgrLiveMsgChgCurrent] = useState<number | null>(null);
+
   
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -246,7 +267,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const chgStatus_chg_idle = eight_bytes_decode('19', 1, 14)(data);
     const chgrLiveMsgChgVolt = eight_bytes_decode('19', 0.01, 15, 16)(data);
     const chgrLiveMsgChgCurrent = eight_bytes_decode('19', 0.01, 17, 18)(data);
-
         
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
@@ -316,6 +336,27 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (Temp6 !== null) setTemp6(Temp6);
     if (Temp7 !== null) setTemp7(Temp7);
     if (Temp8 !== null) setTemp8(Temp8);
+
+    if (HwVer !== null) setHwVer(HwVer);
+    if (FwVer !== null) setFwVer(FwVer);
+    if (FWSubVer !== null) setFWSubVer(FWSubVer);
+    if (BtStatus_NC0PSM1CC2CV3Finish4 !== null) setBtStatus_NC0PSM1CC2CV3Finish4(BtStatus_NC0PSM1CC2CV3Finish4);
+    if (Bt_liveMsg1Temp !== null) setBt_liveMsg1Temp(Bt_liveMsg1Temp);
+    if (Bt_liveMsg_soc !== null) setBt_liveMsg_soc(Bt_liveMsg_soc);
+    if (BMS_status !== null) setBMS_status(BMS_status);
+    if (Demand_voltage !== null) setDemand_voltage(Demand_voltage);
+    if (Demand_Current !== null) setDemand_Current(Demand_Current);
+    if (MaxChgVoltgae !== null) setMaxChgVoltgae(MaxChgVoltgae);
+    if (MaxChgCurrent !== null) setMaxChgCurrent(MaxChgCurrent);
+    if (ActualChgVoltage !== null) setActualChgVoltage(ActualChgVoltage);
+    if (ActualChgCurrent !== null) setActualChgCurrent(ActualChgCurrent);
+    if (Charging_end_cutoff_Curr !== null) setCharging_end_cutoff_Curr(Charging_end_cutoff_Curr);
+    if (CHB_258 !== null) setCHB_258(CHB_258);
+    if (ChgrNC0PSM1CC2CV3Finsh4 !== null) setChgrNC0PSM1CC2CV3Finsh4(ChgrNC0PSM1CC2CV3Finsh4);
+    if (chgr_msg_temp !== null) setchgr_msg_temp(chgr_msg_temp);
+    if (chgStatus_chg_idle !== null) setchgStatus_chg_idle(chgStatus_chg_idle);
+    if (chgrLiveMsgChgVolt !== null) setchgrLiveMsgChgVolt(chgrLiveMsgChgVolt);
+    if (chgrLiveMsgChgCurrent !== null) setchgrLiveMsgChgCurrent(chgrLiveMsgChgCurrent);
 
   };
 
@@ -390,6 +431,28 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {Temp6 !== null && <Text style={styles.parameterText}>Temp6: {Temp6.toFixed(4)}</Text>}
         {Temp7 !== null && <Text style={styles.parameterText}>Temp7: {Temp7.toFixed(4)}</Text>}
         {Temp8 !== null && <Text style={styles.parameterText}>Temp8: {Temp8.toFixed(4)}</Text>}
+
+        {HwVer !== null && <Text style={styles.parameterText}>HwVer: {HwVer.toFixed(2)}</Text>}
+{FwVer !== null && <Text style={styles.parameterText}>FwVer: {FwVer.toFixed(2)}</Text>}
+{FWSubVer !== null && <Text style={styles.parameterText}>FWSubVer: {FWSubVer.toFixed(2)}</Text>}
+{BtStatus_NC0PSM1CC2CV3Finish4 !== null && <Text style={styles.parameterText}>BtStatus_NC0PSM1CC2CV3Finish4: {BtStatus_NC0PSM1CC2CV3Finish4}</Text>}
+{Bt_liveMsg1Temp !== null && <Text style={styles.parameterText}>Bt_liveMsg1Temp: {Bt_liveMsg1Temp.toFixed(1)} °C</Text>}
+{Bt_liveMsg_soc !== null && <Text style={styles.parameterText}>Bt_liveMsg_soc: {Bt_liveMsg_soc.toFixed(2)}%</Text>}
+{BMS_status !== null && <Text style={styles.parameterText}>BMS_status: {BMS_status}</Text>}
+{Demand_voltage !== null && <Text style={styles.parameterText}>Demand_voltage: {Demand_voltage.toFixed(2)} V</Text>}
+{Demand_Current !== null && <Text style={styles.parameterText}>Demand_Current: {Demand_Current.toFixed(2)} A</Text>}
+{MaxChgVoltgae !== null && <Text style={styles.parameterText}>MaxChgVoltgae: {MaxChgVoltgae.toFixed(2)} V</Text>}
+{MaxChgCurrent !== null && <Text style={styles.parameterText}>MaxChgCurrent: {MaxChgCurrent.toFixed(2)} A</Text>}
+{ActualChgVoltage !== null && <Text style={styles.parameterText}>ActualChgVoltage: {ActualChgVoltage.toFixed(2)} V</Text>}
+{ActualChgCurrent !== null && <Text style={styles.parameterText}>ActualChgCurrent: {ActualChgCurrent.toFixed(2)} A</Text>}
+{Charging_end_cutoff_Curr !== null && <Text style={styles.parameterText}>Charging_end_cutoff_Curr: {Charging_end_cutoff_Curr.toFixed(2)} A</Text>}
+{CHB_258 !== null && <Text style={styles.parameterText}>CHB_258: {CHB_258}</Text>}
+{ChgrNC0PSM1CC2CV3Finsh4 !== null && <Text style={styles.parameterText}>ChgrNC0PSM1CC2CV3Finsh4: {ChgrNC0PSM1CC2CV3Finsh4}</Text>}
+{chgr_msg_temp !== null && <Text style={styles.parameterText}>chgr_msg_temp: {chgr_msg_temp.toFixed(1)} °C</Text>}
+{chgStatus_chg_idle !== null && <Text style={styles.parameterText}>chgStatus_chg_idle: {chgStatus_chg_idle}</Text>}
+{chgrLiveMsgChgVolt !== null && <Text style={styles.parameterText}>chgrLiveMsgChgVolt: {chgrLiveMsgChgVolt.toFixed(2)} V</Text>}
+{chgrLiveMsgChgCurrent !== null && <Text style={styles.parameterText}>chgrLiveMsgChgCurrent: {chgrLiveMsgChgCurrent.toFixed(2)} A</Text>}
+
 
 
         {/* {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null && 
