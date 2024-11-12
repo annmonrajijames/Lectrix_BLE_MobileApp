@@ -103,6 +103,19 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [chgrLiveMsgChgVolt, setchgrLiveMsgChgVolt] = useState<number | null>(null);
   const [chgrLiveMsgChgCurrent, setchgrLiveMsgChgCurrent] = useState<number | null>(null);
 
+  const [MotorSpeed, setMotorSpeed] = useState<number | null>(null);
+  const [BatteryVoltage, setBatteryVoltage] = useState<number | null>(null);
+  const [BatteryCurrent, setBatteryCurrent] = useState<number | null>(null);
+  const [AC_Current, setAC_Current] = useState<number | null>(null);
+  const [AC_Voltage, setAC_Voltage] = useState<number | null>(null);
+  const [Throttle, setThrottle] = useState<number | null>(null);
+  const [MCU_Temperature, setMCU_Temperature] = useState<number | null>(null);
+  const [Motor_Temperature, setMotor_Temperature] = useState<number | null>(null);
+  const [MCU_Fault_Code, setMCU_Fault_Code] = useState<number | null>(null);
+  const [MCU_ID, setMCU_ID] = useState<number | null>(null);
+  const [Cluster_heartbeat, setCluster_heartbeat] = useState<number | null>(null);
+  const [Odo_Cluster, setOdo_Cluster] = useState<number | null>(null);
+  const [Battery_charge_logic, setBattery_charge_logic] = useState<number | null>(null);
   
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -267,7 +280,22 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const chgStatus_chg_idle = eight_bytes_decode('19', 1, 14)(data);
     const chgrLiveMsgChgVolt = eight_bytes_decode('19', 0.01, 15, 16)(data);
     const chgrLiveMsgChgCurrent = eight_bytes_decode('19', 0.01, 17, 18)(data);
-        
+
+    const MotorSpeed = eight_bytes_decode('01',1,2,1)(data);
+    const BatteryVoltage = eight_bytes_decode('01',1,3)(data);
+    const BatteryCurrent = eight_bytes_decode('01',1,5,4)(data); 
+    const AC_Current = eight_bytes_decode('01',1,14,15)(data);
+    const AC_Voltage = eight_bytes_decode('02',1,5,4)(data);
+    const Throttle = eight_bytes_decode('02',1,6)(data);    
+    const MCU_Temperature = eight_bytes_decode('02',1,15,14)(data);  
+    const Motor_Temperature = eight_bytes_decode('02',1,16)(data);
+    const MCU_Fault_Code = eight_bytes_decode('02',1,17)(data);
+    const MCU_ID = eight_bytes_decode('02',1,19,18)(data); 
+    const Cluster_heartbeat = eight_bytes_decode('05',1,5)(data);
+    const Odo_Cluster = eight_bytes_decode('05',1,15,14,13)(data);
+    const Battery_charge_logic = eight_bytes_decode('05',1,16)(data);
+    
+    
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
     if (cellVoltage03 !== null) setCellVol03(cellVoltage03);
@@ -358,6 +386,20 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (chgrLiveMsgChgVolt !== null) setchgrLiveMsgChgVolt(chgrLiveMsgChgVolt);
     if (chgrLiveMsgChgCurrent !== null) setchgrLiveMsgChgCurrent(chgrLiveMsgChgCurrent);
 
+    if (MotorSpeed !== null) setMotorSpeed(MotorSpeed);
+    if (BatteryVoltage !== null) setBatteryVoltage(BatteryVoltage);
+    if (BatteryCurrent !== null) setBatteryCurrent(BatteryCurrent);
+    if (AC_Current !== null) setAC_Current(AC_Current);
+    if (AC_Voltage !== null) setAC_Voltage(AC_Voltage);
+    if (Throttle !== null) setThrottle(Throttle);
+    if (MCU_Temperature !== null) setMCU_Temperature(MCU_Temperature);
+    if (Motor_Temperature !== null) setMotor_Temperature(Motor_Temperature);
+    if (MCU_Fault_Code !== null) setMCU_Fault_Code(MCU_Fault_Code);
+    if (MCU_ID !== null) setMCU_ID(MCU_ID);
+    if (Cluster_heartbeat !== null) setCluster_heartbeat(Cluster_heartbeat);
+    if (Odo_Cluster !== null) setOdo_Cluster(Odo_Cluster);
+    if (Battery_charge_logic !== null) setBattery_charge_logic(Battery_charge_logic);
+
   };
 
   return (
@@ -433,25 +475,40 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {Temp8 !== null && <Text style={styles.parameterText}>Temp8: {Temp8.toFixed(4)}</Text>}
 
         {HwVer !== null && <Text style={styles.parameterText}>HwVer: {HwVer.toFixed(2)}</Text>}
-{FwVer !== null && <Text style={styles.parameterText}>FwVer: {FwVer.toFixed(2)}</Text>}
-{FWSubVer !== null && <Text style={styles.parameterText}>FWSubVer: {FWSubVer.toFixed(2)}</Text>}
-{BtStatus_NC0PSM1CC2CV3Finish4 !== null && <Text style={styles.parameterText}>BtStatus_NC0PSM1CC2CV3Finish4: {BtStatus_NC0PSM1CC2CV3Finish4}</Text>}
-{Bt_liveMsg1Temp !== null && <Text style={styles.parameterText}>Bt_liveMsg1Temp: {Bt_liveMsg1Temp.toFixed(1)} °C</Text>}
-{Bt_liveMsg_soc !== null && <Text style={styles.parameterText}>Bt_liveMsg_soc: {Bt_liveMsg_soc.toFixed(2)}%</Text>}
-{BMS_status !== null && <Text style={styles.parameterText}>BMS_status: {BMS_status}</Text>}
-{Demand_voltage !== null && <Text style={styles.parameterText}>Demand_voltage: {Demand_voltage.toFixed(2)} V</Text>}
-{Demand_Current !== null && <Text style={styles.parameterText}>Demand_Current: {Demand_Current.toFixed(2)} A</Text>}
-{MaxChgVoltgae !== null && <Text style={styles.parameterText}>MaxChgVoltgae: {MaxChgVoltgae.toFixed(2)} V</Text>}
-{MaxChgCurrent !== null && <Text style={styles.parameterText}>MaxChgCurrent: {MaxChgCurrent.toFixed(2)} A</Text>}
-{ActualChgVoltage !== null && <Text style={styles.parameterText}>ActualChgVoltage: {ActualChgVoltage.toFixed(2)} V</Text>}
-{ActualChgCurrent !== null && <Text style={styles.parameterText}>ActualChgCurrent: {ActualChgCurrent.toFixed(2)} A</Text>}
-{Charging_end_cutoff_Curr !== null && <Text style={styles.parameterText}>Charging_end_cutoff_Curr: {Charging_end_cutoff_Curr.toFixed(2)} A</Text>}
-{CHB_258 !== null && <Text style={styles.parameterText}>CHB_258: {CHB_258}</Text>}
-{ChgrNC0PSM1CC2CV3Finsh4 !== null && <Text style={styles.parameterText}>ChgrNC0PSM1CC2CV3Finsh4: {ChgrNC0PSM1CC2CV3Finsh4}</Text>}
-{chgr_msg_temp !== null && <Text style={styles.parameterText}>chgr_msg_temp: {chgr_msg_temp.toFixed(1)} °C</Text>}
-{chgStatus_chg_idle !== null && <Text style={styles.parameterText}>chgStatus_chg_idle: {chgStatus_chg_idle}</Text>}
-{chgrLiveMsgChgVolt !== null && <Text style={styles.parameterText}>chgrLiveMsgChgVolt: {chgrLiveMsgChgVolt.toFixed(2)} V</Text>}
-{chgrLiveMsgChgCurrent !== null && <Text style={styles.parameterText}>chgrLiveMsgChgCurrent: {chgrLiveMsgChgCurrent.toFixed(2)} A</Text>}
+        {FwVer !== null && <Text style={styles.parameterText}>FwVer: {FwVer.toFixed(2)}</Text>}
+        {FWSubVer !== null && <Text style={styles.parameterText}>FWSubVer: {FWSubVer.toFixed(2)}</Text>}
+        {BtStatus_NC0PSM1CC2CV3Finish4 !== null && <Text style={styles.parameterText}>BtStatus_NC0PSM1CC2CV3Finish4: {BtStatus_NC0PSM1CC2CV3Finish4}</Text>}
+        {Bt_liveMsg1Temp !== null && <Text style={styles.parameterText}>Bt_liveMsg1Temp: {Bt_liveMsg1Temp.toFixed(1)} °C</Text>}
+        {Bt_liveMsg_soc !== null && <Text style={styles.parameterText}>Bt_liveMsg_soc: {Bt_liveMsg_soc.toFixed(2)}%</Text>}
+        {BMS_status !== null && <Text style={styles.parameterText}>BMS_status: {BMS_status}</Text>}
+        {Demand_voltage !== null && <Text style={styles.parameterText}>Demand_voltage: {Demand_voltage.toFixed(2)} V</Text>}
+        {Demand_Current !== null && <Text style={styles.parameterText}>Demand_Current: {Demand_Current.toFixed(2)} A</Text>}
+        {MaxChgVoltgae !== null && <Text style={styles.parameterText}>MaxChgVoltgae: {MaxChgVoltgae.toFixed(2)} V</Text>}
+        {MaxChgCurrent !== null && <Text style={styles.parameterText}>MaxChgCurrent: {MaxChgCurrent.toFixed(2)} A</Text>}
+        {ActualChgVoltage !== null && <Text style={styles.parameterText}>ActualChgVoltage: {ActualChgVoltage.toFixed(2)} V</Text>}
+        {ActualChgCurrent !== null && <Text style={styles.parameterText}>ActualChgCurrent: {ActualChgCurrent.toFixed(2)} A</Text>}
+        {Charging_end_cutoff_Curr !== null && <Text style={styles.parameterText}>Charging_end_cutoff_Curr: {Charging_end_cutoff_Curr.toFixed(2)} A</Text>}
+        {CHB_258 !== null && <Text style={styles.parameterText}>CHB_258: {CHB_258}</Text>}
+        {ChgrNC0PSM1CC2CV3Finsh4 !== null && <Text style={styles.parameterText}>ChgrNC0PSM1CC2CV3Finsh4: {ChgrNC0PSM1CC2CV3Finsh4}</Text>}
+        {chgr_msg_temp !== null && <Text style={styles.parameterText}>chgr_msg_temp: {chgr_msg_temp.toFixed(1)} °C</Text>}
+        {chgStatus_chg_idle !== null && <Text style={styles.parameterText}>chgStatus_chg_idle: {chgStatus_chg_idle}</Text>}
+        {chgrLiveMsgChgVolt !== null && <Text style={styles.parameterText}>chgrLiveMsgChgVolt: {chgrLiveMsgChgVolt.toFixed(2)} V</Text>}
+        {chgrLiveMsgChgCurrent !== null && <Text style={styles.parameterText}>chgrLiveMsgChgCurrent: {chgrLiveMsgChgCurrent.toFixed(2)} A</Text>}
+
+        {MotorSpeed !== null && <Text style={styles.parameterText}>MotorSpeed: {MotorSpeed.toFixed(2)} RPM</Text>}
+        {BatteryVoltage !== null && <Text style={styles.parameterText}>BatteryVoltage: {BatteryVoltage.toFixed(2)} V</Text>}
+        {BatteryCurrent !== null && <Text style={styles.parameterText}>BatteryCurrent: {BatteryCurrent.toFixed(2)} A</Text>}
+        {AC_Current !== null && <Text style={styles.parameterText}>AC_Current: {AC_Current.toFixed(2)} A</Text>}
+        {AC_Voltage !== null && <Text style={styles.parameterText}>AC_Voltage: {AC_Voltage.toFixed(2)} V</Text>}
+        {Throttle !== null && <Text style={styles.parameterText}>Throttle: {Throttle.toFixed(2)}%</Text>}
+        {MCU_Temperature !== null && <Text style={styles.parameterText}>MCU_Temperature: {MCU_Temperature.toFixed(1)}°C</Text>}
+        {Motor_Temperature !== null && <Text style={styles.parameterText}>Motor_Temperature: {Motor_Temperature.toFixed(1)}°C</Text>}
+        {MCU_Fault_Code !== null && <Text style={styles.parameterText}>MCU_Fault_Code: {MCU_Fault_Code}</Text>}
+        {MCU_ID !== null && <Text style={styles.parameterText}>MCU ID: {MCU_ID}</Text>}
+        {Cluster_heartbeat !== null && <Text style={styles.parameterText}>Cluster_heartbeat: {Cluster_heartbeat}</Text>}
+        {Odo_Cluster !== null && <Text style={styles.parameterText}>Odo_Cluster: {Odo_Cluster} km</Text>}
+        {Battery_charge_logic !== null && <Text style={styles.parameterText}>Battery_charge_logic: {Battery_charge_logic}</Text>}
+
 
 
 
