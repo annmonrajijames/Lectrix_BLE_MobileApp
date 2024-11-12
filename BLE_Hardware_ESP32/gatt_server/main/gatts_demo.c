@@ -1158,8 +1158,8 @@ static void twai_receive_task(void *arg) {
                     byte_12 = message.data[2];
                     byte_13 = message.data[3];
                     byte_14 = message.data[4];
-                    byte_15 = message.data[5];
-                    byte_16 = message.data[6];
+                    byte_15 = message.data[5]; // AC_Current
+                    byte_16 = message.data[6]; // AC_Current
                     byte_17 = message.data[7];
                     break;
                 case 0x14520904: // CAN #3
@@ -1184,15 +1184,15 @@ static void twai_receive_task(void *arg) {
                     byte_34 = message.data[7];
                     break;
                 case 0x18530903: // CAN #5
-                    byte_35 = message.data[0];
-                    byte_36 = message.data[1];
-                    byte_37 = message.data[2];
-                    byte_38 = message.data[3];
-                    byte_39 = message.data[4];
-                    byte_40 = message.data[7];
+                    byte_35 = message.data[0]; // MCU_Temperature
+                    byte_36 = message.data[1]; // MCU_Temperature
+                    byte_37 = message.data[2]; // Motor_Temperature
+                    byte_38 = message.data[3]; // MCU_Fault_Code
+                    byte_39 = message.data[4]; // MCU_ID
+                    byte_40 = message.data[5]; // MCU_ID
                     // byte_41 is to identify the packet number
-                    byte_42 = message.data[5]; // AC_Current, because new packet begins so it will be cut
-                    byte_43 = message.data[6]; // AC_Current
+                    byte_42 = message.data[6]; 
+                    byte_43 = message.data[7]; 
                     break;
                 case 0x19A: // CAN #6
                     byte_44 = message.data[0];
