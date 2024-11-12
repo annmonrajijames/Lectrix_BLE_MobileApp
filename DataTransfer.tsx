@@ -68,7 +68,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [InternalFWVer, setInternalFWVer] = useState<number | null>(null);
   const [InternalFWSubVer, setInternalFWSubVer] = useState<number | null>(null);
   const [BHB_66049, setBHB_66049] = useState<number | null>(null);
-  const [currentVal, setcurrentVal] = useState<number | null>(null);
+  const [PackCurr, setPackCurr] = useState<number | null>(null);
 
   const [MaxTemp, setMaxTemp] = useState<number | null>(null);
   const [MinTemp, setMinTemp] = useState<number | null>(null);
@@ -229,7 +229,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const InternalFWSubVer = eight_bytes_decode('14', 1 , 8, 9)(data);
     const BHB_66049 = eight_bytes_decode('14', 1 , 3, 4, 5)(data);
 
-    const currentVal = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data); // Range of this parameter, also incluse negative values, so separate function
+    const PackCurr = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data); // Range of this parameter, also incluse negative values, so separate function
     const MaxTemp = signed_eight_bytes_decode('07', 1, 17)(data);
     const MinTemp = signed_eight_bytes_decode('07', 1, 18)(data);
     const FetTemp = signed_eight_bytes_decode('09', 1, 19)(data);
@@ -324,7 +324,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (InternalFWVer !== null) setInternalFWVer(InternalFWVer);
     if (InternalFWSubVer !== null) setInternalFWSubVer(InternalFWSubVer);
     if (BHB_66049 !== null) setBHB_66049(BHB_66049);
-    if (currentVal !== null) setcurrentVal(currentVal);
+    if (PackCurr !== null) setPackCurr(PackCurr);
     if (MaxTemp !== null) setMaxTemp(MaxTemp);
     if (MinTemp !== null) setMinTemp(MinTemp);
     if (FetTemp !== null) setFetTemp(FetTemp);
@@ -419,7 +419,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {InternalFWVer !== null && <Text style={styles.parameterText}>InternalFWVer: {InternalFWVer.toFixed(4)}</Text>}
         {InternalFWSubVer !== null && <Text style={styles.parameterText}>InternalFWSubVer: {InternalFWSubVer.toFixed(4)}</Text>}
         {BHB_66049 !== null && <Text style={styles.parameterText}>BHB 66049: {BHB_66049.toFixed(4)}</Text>}
-        {currentVal !== null && <Text style={styles.parameterText}>currentVal: {currentVal.toFixed(4)}</Text>}
+        {PackCurr !== null && <Text style={styles.parameterText}>PackCurr: {PackCurr.toFixed(4)}</Text>}
         {MaxTemp !== null && <Text style={styles.parameterText}>MaxTemp: {MaxTemp.toFixed(4)}</Text>}
         {MinTemp !== null && <Text style={styles.parameterText}>MinTemp: {MinTemp.toFixed(4)}</Text>}
         {FetTemp !== null && <Text style={styles.parameterText}>FetTemp: {FetTemp.toFixed(4)}</Text>}
