@@ -12,7 +12,8 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [cellVol01, setCellVol01] = useState<number | null>(null);
+  const [ignitionStatus, setIgnitionStatus] = useState<string | null>(null);
+  const [loadDetection, setLoadDetection] = useState<string | null>(null);
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -23,7 +24,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         await device.monitorCharacteristicForService(serviceUUID, characteristicUUID, (error, characteristic) => {
           if (error) {
             console.error("Subscription error:", error);
-            // Proper handling of 'unknown' type error using type assertion
             Alert.alert("Subscription Error", `Error subscribing to characteristic: ${(error as Error).message}`);
             return;
           }
@@ -35,7 +35,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         });
       } catch (error: any) {
         console.error("Failed to set up subscription:", error);
-        // Proper handling of catch block error using type assertion
         Alert.alert("Setup Error", `Error setting up characteristic subscription: ${error.message}`);
       }
     };
@@ -47,29 +46,31 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     };
   }, [device]);
 
-  const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
+  const bit_decode = (firstByteCheck: number, bytePosition: number, bitPosition: number) => {
     return (data: string) => {
-      if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
-        const bytes = positions.map(pos => data.substring(2 * pos, 2 * pos + 2)).join('');
-        const decimalValue = parseInt(bytes, 16);
-        return decimalValue * multiplier;
+      if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) === firstByteCheck.toString()) {
+        const byte = data.substring(2 * bytePosition, 2 * bytePosition + 2);
+        const bits = parseInt(byte, 16).toString(2).padStart(8, '0');
+        return bits[7 - bitPosition] === '1' ? "ON" : "OFF";
       }
       return null;
     }
   }
 
   const decodeData = (data: string) => {
-    const cellVoltage01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
+    const ignition = bit_decode(11, 18, 0)(data);
+    const load = bit_decode(11, 18, 6)(data);
 
-    if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
+    if (ignition !== null) setIgnitionStatus(ignition);
+    if (load !== null) setLoadDetection(load);
   };
 
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
-        {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
-        {cellVol01 === null &&
- <Text>No Data Received Yet</Text>}
+        {ignitionStatus !== null && <Text style={styles.statusText}>Ignition Status: {ignitionStatus}</Text>}
+        {loadDetection !== null && <Text style={styles.statusText}>Load Detection: {loadDetection}</Text>}
+        {ignitionStatus === null && loadDetection === null && <Text>No Data Received Yet</Text>}
       </View>
     </ScrollView>
   );
@@ -86,9 +87,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  cellVolText: {
-    color: '#FFA500',
-    fontSize: 20,
+  statusText: {
+    color: '#000',
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
   },
