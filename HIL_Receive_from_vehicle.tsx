@@ -5,12 +5,12 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
  
 type RootStackParamList = {
-  DataDirection: { device: Device };
+  HIL_Receive_from_vehicle: { device: Device };
 };
  
-type DataDirectionProps = NativeStackScreenProps<RootStackParamList, 'DataDirection'>;
+type HIL_Receive_from_vehicleProps = NativeStackScreenProps<RootStackParamList, 'HIL_Receive_from_vehicle'>;
  
-const DataDirection: React.FC<DataDirectionProps> = ({ route }) => {
+const HIL_Receive_from_vehicle: React.FC<HIL_Receive_from_vehicleProps> = ({ route }) => {
   const { device } = route.params;
   const [cellVol01, setCellVol01] = useState<number | null>(null);
   const [cellVol02, setCellVol02] = useState<number | null>(null);
@@ -895,4 +895,4 @@ const styles = StyleSheet.create({
   },
 });
  
-export default DataDirection;
+export default HIL_Receive_from_vehicle;

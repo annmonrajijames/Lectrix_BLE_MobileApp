@@ -3,7 +3,7 @@ import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert, Plat
 import { BleManager, Device } from 'react-native-ble-plx';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
-import DataDirection from './DataDirection';
+import HIL_Receive_from_vehicle from './HIL_Receive_from_vehicle';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
 import AppToVCUFeatures from './App_to_VCU_features'; // Make sure this import is correct
 import CurrentLimit from './CurrentLimit';
@@ -11,7 +11,7 @@ import CurrentLimit from './CurrentLimit';
 type RootStackParamList = {
   Home: undefined;
   DataTransfer: { device: Device };
-  DataDirection: { device: Device };
+  HIL_Receive_from_vehicle: { device: Device };
   AppToVCUFeatures: { device: Device };
   CurrentLimit: {device: Device};
 };
@@ -65,7 +65,7 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
         return device.discoverAllServicesAndCharacteristics();
       })
       .then(device => {
-        navigation.navigate('DataDirection', { device });
+        navigation.navigate('HIL_Receive_from_vehicle', { device });
       })
       .catch((error: any) => {
         console.error("Connection failed", error);
@@ -114,7 +114,7 @@ const App: React.FC = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Scan BLE Devices' }} />
-        <Stack.Screen name="DataDirection" component={DataDirection} options={{ title: 'Data Direction' }} />
+        <Stack.Screen name="HIL_Receive_from_vehicle" component={HIL_Receive_from_vehicle} options={{ title: 'HIL_Receive_from_vehicle' }} />
         <Stack.Screen name="AppToVCUFeatures" component={AppToVCUFeatures} options={{ title: 'App to VCU Features' }} />
         <Stack.Screen name="CurrentLimit" component={CurrentLimit} options={{ title: 'Current Limit' }} />
       </Stack.Navigator>
