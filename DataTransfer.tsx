@@ -197,7 +197,23 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [Geo_fencebuzzer, setGeo_fencebuzzer] = useState<string | null>(null);
   const [Holiday_mode, setHoliday_mode] = useState<string | null>(null);
   const [Service_request, setService_request] = useState<string | null>(null);
+
+  const [ChargeSOP, setChargeSOP] = useState<number | null>(null);
+  const [DchgSOP, setDchgSOP] = useState<number | null>(null);
+  const [Drive_Error_Flag, setDrive_Error_Flag] = useState<number | null>(null);
+  const [Set_Regen, setSet_Regen] = useState<number | null>(null);
+  const [DCcurrentlimit, setDCcurrentlimit] = useState<number | null>(null);
+  const [Custom_freq, setCustom_freq] = useState<number | null>(null);
+  const [Custom_torque, setCustom_torque] = useState<number | null>(null);
+  const [Buffer_speed, setBuffer_speed] = useState<number | null>(null);
+  const [Base_speed, setBase_speed] = useState<number | null>(null);
+  const [Initial_torque, setInitial_torque] = useState<number | null>(null);
+  const [Final_torque, setFinal_torque] = useState<number | null>(null);
+  const [Cluster_odo, setCluster_odo] = useState<number | null>(null);
+
   const [mode, setMode] = useState<string | null>(null);
+
+
  
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -712,10 +728,24 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (Geo_fencebuzzer !== null) setGeo_fencebuzzer(Geo_fencebuzzer);
     if (Holiday_mode !== null) setHoliday_mode(Holiday_mode);
     if (Service_request !== null) setService_request(Service_request);
+
+    if (ChargeSOP !== null) setChargeSOP(ChargeSOP);
+    if (DchgSOP !== null) setDchgSOP(DchgSOP);
+    if (Drive_Error_Flag !== null) setDrive_Error_Flag(Drive_Error_Flag);
+    if (Set_Regen !== null) setSet_Regen(Set_Regen);
+    if (DCcurrentlimit !== null) setDCcurrentlimit(DCcurrentlimit);
+    if (Custom_freq !== null) setCustom_freq(Custom_freq);
+    if (Custom_torque !== null) setCustom_torque(Custom_torque);
+    if (Buffer_speed !== null) setBuffer_speed(Buffer_speed);
+    if (Base_speed !== null) setBase_speed(Base_speed);
+    if (Initial_torque !== null) setInitial_torque(Initial_torque);
+    if (Final_torque !== null) setFinal_torque(Final_torque);
+    if (Cluster_odo !== null) setCluster_odo(Cluster_odo);
+
     if (mode !== newMode) {  // Only update if different
       setMode(newMode);
     }
- 
+
   };
  
  
@@ -908,6 +938,19 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {Holiday_mode !== null && <Text style={styles.parameterText}>Holiday_mode: {Holiday_mode}</Text>}
         {Service_request !== null && <Text style={styles.parameterText}>Service_request: {Service_request}</Text>}
         {mode !== null ? <Text style={styles.parameterText}>Mode: {mode}</Text> : <Text>No Mode Data Received</Text>}
+        {ChargeSOP !== null && <Text style={styles.parameterText}>ChargeSOP: {ChargeSOP.toFixed(4)}</Text>}
+        {DchgSOP !== null && <Text style={styles.parameterText}>DchgSOP: {DchgSOP.toFixed(4)}</Text>}
+        {Drive_Error_Flag !== null && <Text style={styles.parameterText}>Drive Error Flag: {Drive_Error_Flag.toFixed(4)}</Text>}
+        {Set_Regen !== null && <Text style={styles.parameterText}>Set Regen: {Set_Regen.toFixed(4)}</Text>}
+        {DCcurrentlimit !== null && <Text style={styles.parameterText}>DC Current Limit: {DCcurrentlimit.toFixed(4)} A</Text>}
+        {Custom_freq !== null && <Text style={styles.parameterText}>Custom Frequency: {Custom_freq.toFixed(4)} Hz</Text>}
+        {Custom_torque !== null && <Text style={styles.parameterText}>Custom Torque: {Custom_torque.toFixed(4)} Nm</Text>}
+        {Buffer_speed !== null && <Text style={styles.parameterText}>Buffer Speed: {Buffer_speed.toFixed(4)} RPM</Text>}
+        {Base_speed !== null && <Text style={styles.parameterText}>Base Speed: {Base_speed.toFixed(4)} RPM</Text>}
+        {Initial_torque !== null && <Text style={styles.parameterText}>Initial Torque: {Initial_torque.toFixed(4)} Nm</Text>}
+        {Final_torque !== null && <Text style={styles.parameterText}>Final Torque: {Final_torque.toFixed(4)} Nm</Text>}
+        {Cluster_odo !== null && <Text style={styles.parameterText}>Cluster Odometer: {Cluster_odo.toFixed(4)} km</Text>}
+
  
         {/* {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null &&
        cellVol05 === null && cellVol06 === null && cellVol07 === null && cellVol08 === null &&
