@@ -64,7 +64,7 @@ static uint8_t adv_service_uuid128[32] = {
 };
 
 // Define variables for each byte to be sent
-uint8_t byte_01=0x1;    // Unchanged
+uint8_t byte_01=0x1;    // Packet Address
 uint8_t byte_02=0x0;
 uint8_t byte_03=0x0;
 uint8_t byte_04=0x0;
@@ -84,7 +84,7 @@ uint8_t byte_17=0x0;
 uint8_t byte_18=0x0;
 uint8_t byte_19=0x0;
 uint8_t byte_20=0x0;
-uint8_t byte_21=0x2;    // Unchanged
+uint8_t byte_21=0x2;    // Packet Address
 uint8_t byte_22=0x0;
 uint8_t byte_23=0x0;
 uint8_t byte_24=0x0;
@@ -104,7 +104,7 @@ uint8_t byte_37=0x0;
 uint8_t byte_38=0x0;
 uint8_t byte_39=0x0;
 uint8_t byte_40=0x0;
-uint8_t byte_41=0x3;    // Unchanged
+uint8_t byte_41=0x3;    // Packet Address
 uint8_t byte_42=0x0;
 uint8_t byte_43=0x0;
 uint8_t byte_44=0x0;
@@ -124,7 +124,7 @@ uint8_t byte_57=0x0;
 uint8_t byte_58=0x0;
 uint8_t byte_59=0x0;
 uint8_t byte_60=0x0;
-uint8_t byte_61=0x4;    // Unchanged
+uint8_t byte_61=0x4;    // Packet Address
 uint8_t byte_62=0x0;
 uint8_t byte_63=0x0;
 uint8_t byte_64=0x0;
@@ -144,7 +144,7 @@ uint8_t byte_77=0x0;
 uint8_t byte_78=0x0;
 uint8_t byte_79=0x0;
 uint8_t byte_80=0x0;
-uint8_t byte_81=0x5;    // Unchanged
+uint8_t byte_81=0x5;    // Packet Address
 uint8_t byte_82=0x0;
 uint8_t byte_83=0x0;
 uint8_t byte_84=0x0;
@@ -164,7 +164,7 @@ uint8_t byte_97=0x0;
 uint8_t byte_98=0x0;
 uint8_t byte_99=0x0;
 uint8_t byte_100=0x0;
-uint8_t byte_101=0x6;    // Unchanged
+uint8_t byte_101=0x6;    // Packet Address
 uint8_t byte_102=0x0;
 uint8_t byte_103=0x0;
 uint8_t byte_104=0x0;
@@ -184,7 +184,7 @@ uint8_t byte_117=0x0;
 uint8_t byte_118=0x0;
 uint8_t byte_119=0x0;
 uint8_t byte_120=0x0;
-uint8_t byte_121=0x7;    // Unchanged
+uint8_t byte_121=0x7;    // Packet Address
 uint8_t byte_122=0x0;
 uint8_t byte_123=0x0;
 uint8_t byte_124=0x0;
@@ -204,7 +204,7 @@ uint8_t byte_137=0x0;
 uint8_t byte_138=0x0;
 uint8_t byte_139=0x0;
 uint8_t byte_140=0x0;
-uint8_t byte_141=0x8;    // Unchanged
+uint8_t byte_141=0x8;    // Packet Address
 uint8_t byte_142=0x0;
 uint8_t byte_143=0x0;
 uint8_t byte_144=0x0;
@@ -224,7 +224,7 @@ uint8_t byte_157=0x0;
 uint8_t byte_158=0x0;
 uint8_t byte_159=0x0;
 uint8_t byte_160=0x0;
-uint8_t byte_161=0x9;    // Unchanged
+uint8_t byte_161=0x9;    // Packet Address
 uint8_t byte_162=0x0;
 uint8_t byte_163=0x0;
 uint8_t byte_164=0x0;
@@ -244,7 +244,7 @@ uint8_t byte_177=0x0;
 uint8_t byte_178=0x0;
 uint8_t byte_179=0x0;
 uint8_t byte_180=0x0;
-uint8_t byte_181=0x10;   // Unchanged
+uint8_t byte_181=0x10;   // Packet Address
 uint8_t byte_182=0x0;
 uint8_t byte_183=0x0;
 uint8_t byte_184=0x0;
@@ -264,7 +264,7 @@ uint8_t byte_197=0x0;
 uint8_t byte_198=0x0;
 uint8_t byte_199=0x0;
 uint8_t byte_200=0x0;
-uint8_t byte_201=0x11;   // Unchanged
+uint8_t byte_201=0x11;   // Packet Address
 uint8_t byte_202=0x0;
 uint8_t byte_203=0x0;
 uint8_t byte_204=0x0;
@@ -284,7 +284,7 @@ uint8_t byte_217=0x0;
 uint8_t byte_218=0x0;
 uint8_t byte_219=0x0;
 uint8_t byte_220=0x0;
-uint8_t byte_221=0x12;   // Unchanged
+uint8_t byte_221=0x12;   // Packet Address
 uint8_t byte_222=0x0;
 uint8_t byte_223=0x0;
 uint8_t byte_224=0x0;
@@ -304,7 +304,7 @@ uint8_t byte_237=0x0;
 uint8_t byte_238=0x0;
 uint8_t byte_239=0x0;
 uint8_t byte_240=0x0;
-uint8_t byte_241=0x13;   // Unchanged
+uint8_t byte_241=0x13;   // Packet Address
 uint8_t byte_242=0x0;
 uint8_t byte_243=0x0;
 uint8_t byte_244=0x0;
@@ -324,7 +324,7 @@ uint8_t byte_257=0x0;
 uint8_t byte_258=0x0;
 uint8_t byte_259=0x0;
 uint8_t byte_260=0x0;
-uint8_t byte_261=0x14;   // Unchanged
+uint8_t byte_261=0x14;   // Packet Address
 uint8_t byte_262=0x0;
 uint8_t byte_263=0x0;
 uint8_t byte_264=0x0;
@@ -344,7 +344,7 @@ uint8_t byte_277=0x0;
 uint8_t byte_278=0x0;
 uint8_t byte_279=0x0;
 uint8_t byte_280=0x0;
-uint8_t byte_281=0x15;   // Unchanged
+uint8_t byte_281=0x15;   // Packet Address
 uint8_t byte_282=0x0;
 uint8_t byte_283=0x0;
 uint8_t byte_284=0x0;
@@ -364,7 +364,7 @@ uint8_t byte_297=0x0;
 uint8_t byte_298=0x0;
 uint8_t byte_299=0x0;
 uint8_t byte_300=0x0;
-uint8_t byte_301=0x16;   // Unchanged
+uint8_t byte_301=0x16;   // Packet Address
 uint8_t byte_302=0x0;
 uint8_t byte_303=0x0;
 uint8_t byte_304=0x0;
@@ -384,7 +384,7 @@ uint8_t byte_317=0x0;
 uint8_t byte_318=0x0;
 uint8_t byte_319=0x0;
 uint8_t byte_320=0x0;
-uint8_t byte_321=0x17;   // Unchanged
+uint8_t byte_321=0x17;   // Packet Address
 uint8_t byte_322=0x0;
 uint8_t byte_323=0x0;
 uint8_t byte_324=0x0;
@@ -404,7 +404,7 @@ uint8_t byte_337=0x0;
 uint8_t byte_338=0x0;
 uint8_t byte_339=0x0;
 uint8_t byte_340=0x0;
-uint8_t byte_341=0x18;   // Unchanged
+uint8_t byte_341=0x18;   // Packet Address
 uint8_t byte_342=0x0;
 uint8_t byte_343=0x0;
 uint8_t byte_344=0x0;
@@ -424,7 +424,7 @@ uint8_t byte_357=0x0;
 uint8_t byte_358=0x0;
 uint8_t byte_359=0x0;
 uint8_t byte_360=0x0;
-uint8_t byte_361=0x19;   // Unchanged
+uint8_t byte_361=0x19;   // Packet Address
 uint8_t byte_362=0x0;
 uint8_t byte_363=0x0;
 uint8_t byte_364=0x0;
@@ -444,7 +444,7 @@ uint8_t byte_377=0x0;
 uint8_t byte_378=0x0;
 uint8_t byte_379=0x0;
 uint8_t byte_380=0x0;
-uint8_t byte_381=0x20;   // Unchanged
+uint8_t byte_381=0x20;   // Packet Address
 uint8_t byte_382=0x0;
 uint8_t byte_383=0x0;
 uint8_t byte_384=0x0;
@@ -1142,7 +1142,7 @@ static void twai_receive_task(void *arg) {
             ESP_LOGI("TWAI Receiver", "CAN ID : 0x%08" PRIx32, message.identifier);
             switch (message.identifier) {
                 case 0x14520902: // CAN #1
-                 // byte_01 is to identify the packet number
+                 // byte_01=0x1; is to identify the packet number
                     byte_02 = message.data[0];
                     byte_03 = message.data[1];
                     byte_04 = message.data[2];
@@ -1166,7 +1166,7 @@ static void twai_receive_task(void *arg) {
                     byte_18 = message.data[0];
                     byte_19 = message.data[1];
                     byte_20 = message.data[2];
-                    // byte_21 is to identify the packet number
+                 // byte_21=0x2; is to identify the packet number
                     byte_22 = message.data[3];
                     byte_23 = message.data[4];
                     byte_24 = message.data[5];
@@ -1190,7 +1190,7 @@ static void twai_receive_task(void *arg) {
                     byte_38 = message.data[3]; // MCU_Fault_Code
                     byte_39 = message.data[4]; // MCU_ID
                     byte_40 = message.data[5]; // MCU_ID
-                    // byte_41 is to identify the packet number
+                 // byte_41=0x3; is to identify the packet number
                     byte_42 = message.data[6]; 
                     byte_43 = message.data[7]; 
                     break;
@@ -1216,7 +1216,7 @@ static void twai_receive_task(void *arg) {
                     break;
                 case 0x18F20311: // CAN #8
                     byte_60 = message.data[4]; // Initial Torque
-                    // byte_61 is to identify the packet number
+                 // byte_61=0x4; is to identify the packet number
                     byte_62 = message.data[5]; // Final Torque
                     byte_63 = message.data[0]; // Buffer Speed
                     byte_64 = message.data[1]; // Buffer Speed
@@ -1240,7 +1240,7 @@ static void twai_receive_task(void *arg) {
                     byte_78 = message.data[1];
                     byte_79 = message.data[2];
                     byte_80 = message.data[3];
-                 // byte_81 is to identify the packet number
+                 // byte_81=0x5; is to identify the packet number
                     byte_82 = message.data[4];                  
                     byte_83 = message.data[5];
                     byte_84 = message.data[6];
@@ -1264,7 +1264,7 @@ static void twai_receive_task(void *arg) {
                     byte_98 = message.data[4];
                     byte_99 = message.data[5];
                     byte_100 = message.data[6];
-                 // byte_101 is to identify the packet number
+                 // byte_101=0x6; is to identify the packet number
                     byte_102 = message.data[7];
                     break;
                 case 0x18F60101: // CAN #13
@@ -1290,7 +1290,7 @@ static void twai_receive_task(void *arg) {
                 case 0x18F20314: // CAN #15
                     byte_119 = message.data[0];
                     byte_120 = message.data[1];
-                 // byte_121 is to identify the packet number
+                 // byte_121=0x7; is to identify the packet number
                     byte_122 = message.data[2];
                     byte_123 = message.data[3];
                     byte_124 = message.data[4];
@@ -1314,7 +1314,7 @@ static void twai_receive_task(void *arg) {
                     byte_138 = message.data[2];
                     byte_139 = message.data[3];
                     byte_140 = message.data[4];
-                 // byte_141 is to identify the packet number
+                 // byte_141=0x8; is to identify the packet number
                     byte_142 = message.data[5];
                     byte_143 = message.data[6];
                     byte_144 = message.data[7];
@@ -1340,7 +1340,7 @@ static void twai_receive_task(void *arg) {
                     byte_160 = message.data[7];
                     break;
                 case 0x5: // CAN #20
-                 // byte_161 is to identify the packet number
+                 // byte_161=0x9; is to identify the packet number
                     byte_162 = message.data[0];
                     byte_163 = message.data[1];
                     byte_164 = message.data[2];
@@ -1364,7 +1364,7 @@ static void twai_receive_task(void *arg) {
                     byte_178 = message.data[0]; // SOC
                     byte_179 = message.data[5]; // SOH
                     byte_180 = message.data[6]; // FetTemp
-                 // byte_181 is to identify the packet number
+                 // byte_181=0x10; is to identify the packet number
                     byte_182 = message.data[1]; // SOCAh
                     byte_183 = message.data[2]; // SOCAh
                     byte_184 = message.data[3]; // SOCAh
@@ -1388,7 +1388,7 @@ static void twai_receive_task(void *arg) {
                     byte_198 = message.data[4];
                     byte_199 = message.data[5];
                     byte_200 = message.data[6];
-                 // byte_201 is to identify the packet number
+                 // byte_201=0x11; is to identify the packet number
                     byte_202 = message.data[3];
                     byte_203 = message.data[7];
                     break;
@@ -1414,7 +1414,7 @@ static void twai_receive_task(void *arg) {
                     break;
                 case 0x18F20310: // CAN #27
                     byte_220 = message.data[0];
-                 // byte_221 is to identify the packet number
+                 // byte_221=0x12; is to identify the packet number
                     byte_222 = message.data[1];
                     byte_223 = message.data[2];
                     byte_224 = message.data[3];
@@ -1438,7 +1438,7 @@ static void twai_receive_task(void *arg) {
                     byte_238 = message.data[1];
                     byte_239 = message.data[2];
                     byte_240 = message.data[3];
-                 // byte_241 is to identify the packet number
+                 // byte_241=0x13; is to identify the packet number
                     byte_242 = message.data[4];
                     byte_243 = message.data[5];
                     byte_244 = message.data[6];
@@ -1463,7 +1463,7 @@ static void twai_receive_task(void *arg) {
                     byte_258 = message.data[4];
                     byte_259 = message.data[5];
                     byte_260 = message.data[6];
-                 // byte_261 is to identify the packet number
+                 // byte_261=0x14; is to identify the packet number
                     byte_262 = message.data[7];
                     break;
                 case 0x15: // CAN #32
@@ -1489,7 +1489,7 @@ static void twai_receive_task(void *arg) {
                 case 0xBE: // CAN #34
                     byte_279 = message.data[0];
                     byte_280 = message.data[1];
-                 // byte_281 is to identify the packet number
+                 // byte_281=0x15; is to identify the packet number
                     byte_282 = message.data[2];
                     byte_283 = message.data[3];
                     byte_284 = message.data[4];
@@ -1513,7 +1513,7 @@ static void twai_receive_task(void *arg) {
                     byte_298 = message.data[2];
                     byte_299 = message.data[3];
                     byte_300 = message.data[4];
-                 // byte_301 is to identify the packet number
+                 // byte_301=0x16; is to identify the packet number
                     byte_302 = message.data[5];
                     byte_303 = message.data[6];
                     byte_304 = message.data[7];
@@ -1539,7 +1539,7 @@ static void twai_receive_task(void *arg) {
                     byte_320 = message.data[7];
                     break;
                 case 0x713: // CAN #39
-                 // byte_321 is to identify the packet number
+                 // byte_321=0x17; is to identify the packet number
                     byte_322 = message.data[0];
                     byte_323 = message.data[1];
                     byte_324 = message.data[2];
@@ -1563,7 +1563,7 @@ static void twai_receive_task(void *arg) {
                     byte_338 = message.data[0];
                     byte_339 = message.data[1];
                     byte_340 = message.data[2];
-                 // byte_341 is to identify the packet number
+                 // byte_341=0x18; is to identify the packet number
                     byte_342 = message.data[3];
                     byte_343 = message.data[4];
                     byte_344 = message.data[5];
@@ -1587,7 +1587,7 @@ static void twai_receive_task(void *arg) {
                     byte_358 = message.data[3];
                     byte_359 = message.data[4];
                     byte_360 = message.data[5];
-                 // byte_361 is to identify the packet number
+                 // byte_361=0x19; is to identify the packet number
                     byte_362 = message.data[6];
                     byte_363 = message.data[7];
                     break;
@@ -1613,7 +1613,7 @@ static void twai_receive_task(void *arg) {
                     break;
                 case 0x412: // CAN #46
                     byte_380 = message.data[0];
-                 // byte_381 is to identify the packet number
+                 // byte_381=0x20 is to identify the packet number
                     byte_382 = message.data[1];
                     byte_383 = message.data[2];
                     byte_384 = message.data[3];
