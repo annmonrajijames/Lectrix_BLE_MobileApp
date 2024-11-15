@@ -132,7 +132,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [BattLowSocWarn, setBattLowSocWarn] = useState<string | null>(null);
   const [ChgOverCurrProt, setChgOverCurrProt] = useState<string | null>(null);
   const [DchgOverCurrProt, setDchgOverCurrProt] = useState<string | null>(null);
-  const [CellUnerVolWarn, setCellUnerVolWarn] = useState<string | null>(null);
+  const [CellUnderVolWarn, setCellUnderVolWarn] = useState<string | null>(null);
   const [CellOverVolWarn, setCellOverVolWarn] = useState<string | null>(null);
   const [FetTempProt, setFetTempProt] = useState<string | null>(null);
   const [ResSocProt, setResSocProt] = useState<string | null>(null);
@@ -273,6 +273,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     }
   }
   const decodeData = (data: string) => {
+
+    // Annmon Part-1
     const cellVoltage01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
     const cellVoltage02 = eight_bytes_decode('07', 0.0001, 9, 10)(data);
     const cellVoltage03 = eight_bytes_decode('07', 0.0001, 11, 12)(data);
@@ -316,8 +318,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const LatchProtection = eight_bytes_decode('11', 1 , 11)(data);
     const LatchType = eight_bytes_decode('11', 1 , 12)(data);
     const ChargerType = eight_bytes_decode('11', 1 , 13)(data);
-    const PcbTemp = eight_bytes_decode('11', 1 , 14)(data);
-    const AfeTemp = eight_bytes_decode('11', 1 , 15)(data);
+    const PcbTemp = signed_eight_bytes_decode('11', 1 , 14)(data);
+    const AfeTemp = signed_eight_bytes_decode('11', 1 , 15)(data);
     const CellChemType = eight_bytes_decode('11', 1 , 16)(data);
     const Chg_Accumulative_Ah = eight_bytes_decode('12', 0.001 , 8, 9, 10, 11)(data);
     const Dchg_Accumulative_Ah = eight_bytes_decode('12', 0.001 , 12, 13, 14, 15)(data);
@@ -332,6 +334,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const InternalFWSubVer = eight_bytes_decode('14', 1 , 8, 9)(data);
     const BHB_66049 = eight_bytes_decode('14', 1 , 3, 4, 5)(data);
  
+    // Annmon Part-2
     const PackCurr = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data); // Range of this parameter, also incluse negative values, so separate function
     const MaxTemp = signed_eight_bytes_decode('07', 1, 17)(data);
     const MinTemp = signed_eight_bytes_decode('07', 1, 18)(data);
@@ -370,7 +373,26 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const chgStatus_chg_idle = eight_bytes_decode('19', 1, 14)(data);
     const chgrLiveMsgChgVolt = eight_bytes_decode('19', 0.01, 15, 16)(data);
     const chgrLiveMsgChgCurrent = eight_bytes_decode('19', 0.01, 17, 18)(data);
- 
+
+    const ChargeSOP = eight_bytes_decode('13', 1, 5, 6, 7, 8)(data);
+    const DchgSOP = eight_bytes_decode('13', 1, 9, 10, 11, 12)(data);
+
+    const Drive_Error_Flag = eight_bytes_decode('02', 1, 11)(data);
+
+    const Set_Regen = eight_bytes_decode('03', 1, 13)(data);
+    const DCcurrentlimit = eight_bytes_decode('03', 1, 14)(data);
+
+    const Custom_freq = eight_bytes_decode('03', 1, 17, 16)(data);
+    const Custom_torque = eight_bytes_decode('03', 1, 18)(data);
+
+    const Buffer_speed = eight_bytes_decode('03', 1, 3, 2)(data);
+    const Base_speed = eight_bytes_decode('04', 1, 5, 4)(data);
+    const Initial_torque = eight_bytes_decode('04', 1, 19)(data);
+    const Final_torque = eight_bytes_decode('04', 1, 1)(data);
+
+    const Cluster_odo = eight_bytes_decode('05', 1, 15, 14, 13)(data);
+
+    // Sanjith Gowda did from below here
     const MotorSpeed = eight_bytes_decode('01',1,2,1)(data);
     const BatteryVoltage = eight_bytes_decode('01',1,3)(data);
     const BatteryCurrent = eight_bytes_decode('01',1,5,4)(data);
@@ -383,7 +405,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const MCU_ID = eight_bytes_decode('02',1,19,18)(data);
     const Cluster_heartbeat = eight_bytes_decode('05',1,5)(data);
     const Odo_Cluster = eight_bytes_decode('05',1,15,14,13)(data);
- 
+
+    // bit parameters starts here (Adarsh M C did from below here)
     const IgnitionStatus = bit_decode(11, 18, 0)(data);
     const LoadDetection = bit_decode(11, 18, 6)(data);
  
@@ -405,7 +428,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const BattLowSocWarn = bit_decode(10, 15, 1)(data);
     const ChgOverCurrProt = bit_decode(10, 15, 2)(data);
     const DchgOverCurrProt = bit_decode(10, 15, 3)(data);
-    const CellUnerVolWarn = bit_decode(10, 15, 4)(data);
+    const CellUnderVolWarn = bit_decode(10, 15, 4)(data);
     const CellOverVolWarn = bit_decode(10, 15, 5)(data);
     const FetTempProt = bit_decode(10, 15, 6)(data);
     const ResSocProt = bit_decode(10, 15, 7)(data);
@@ -601,7 +624,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (BattLowSocWarn !== null) setBattLowSocWarn(BattLowSocWarn);
     if (ChgOverCurrProt !== null) setChgOverCurrProt(ChgOverCurrProt);
     if (DchgOverCurrProt !== null) setDchgOverCurrProt(DchgOverCurrProt);
-    if (CellUnerVolWarn !== null) setCellUnerVolWarn(CellUnerVolWarn);
+    if (CellUnderVolWarn !== null) setCellUnderVolWarn(CellUnderVolWarn);
     if (CellOverVolWarn !== null) setCellOverVolWarn(CellOverVolWarn);
     if (FetTempProt !== null) setFetTempProt(FetTempProt);
     if (ResSocProt !== null) setResSocProt(ResSocProt);
@@ -793,7 +816,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {BattLowSocWarn !== null && <Text style={styles.parameterText}>Battery Low SOC Warning: {BattLowSocWarn}</Text>}
         {ChgOverCurrProt !== null && <Text style={styles.parameterText}>BattLowSocWarn: {ChgOverCurrProt}</Text>}
         {DchgOverCurrProt !== null && <Text style={styles.parameterText}>DchgOverCurrProt: {DchgOverCurrProt}</Text>}
-        {CellUnerVolWarn !== null && <Text style={styles.parameterText}>CellUnerVolWarn: {CellUnerVolWarn}</Text>}
+        {CellUnderVolWarn !== null && <Text style={styles.parameterText}>CellUnderVolWarn: {CellUnderVolWarn}</Text>}
         {CellOverVolWarn !== null && <Text style={styles.parameterText}>CellOverVolWarn: {CellOverVolWarn}</Text>}
         {FetTempProt !== null && <Text style={styles.parameterText}>FetTempProt: {FetTempProt}</Text>}
         {ResSocProt !== null && <Text style={styles.parameterText}>ResSocProt: {ResSocProt}</Text>}
