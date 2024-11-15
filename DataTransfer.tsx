@@ -197,6 +197,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [Geo_fencebuzzer, setGeo_fencebuzzer] = useState<string | null>(null);
   const [Holiday_mode, setHoliday_mode] = useState<string | null>(null);
   const [Service_request, setService_request] = useState<string | null>(null);
+  const [mode, setMode] = useState<string | null>(null);
  
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -230,6 +231,18 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       device.cancelConnection();  // Ensure cleanup on component unmount
     };
   }, [device]);
+
+  const three_bit_decode = (firstByteCheck: number, bytePosition: number, bit1: number, bit2: number, bit3: number) => {
+    return (data: string) => {
+      if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) === firstByteCheck.toString().padStart(2, '0')) {
+        const byte = data.substring(2 * bytePosition, 2 * bytePosition + 2);
+        const bits = parseInt(byte, 16).toString(2).padStart(8, '0');
+        const resultBits = bits[7 - bit1] + bits[7 - bit2] + bits[7 - bit3];
+        return parseInt(resultBits, 2);  // Convert to decimal to simplify switch-case logic
+      }
+      return null;
+    }
+  }
  
   const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
     return (data: string) => {
@@ -391,6 +404,16 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const Final_torque = eight_bytes_decode('04', 1, 1)(data);
 
     const Cluster_odo = eight_bytes_decode('05', 1, 15, 14, 13)(data);
+
+    const modeValue = three_bit_decode(2, 7, 2, 1, 0)(data);
+    const newMode = (() => {
+      switch (modeValue) {
+        case 0b100: return "Eco Mode";
+        case 0b010: return "Normal Mode";
+        case 0b110: return "Fast Mode";
+        default: return null;
+      }
+    })();
 
     // Sanjith Gowda did from below here
     const MotorSpeed = eight_bytes_decode('01',1,2,1)(data);
@@ -689,6 +712,9 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (Geo_fencebuzzer !== null) setGeo_fencebuzzer(Geo_fencebuzzer);
     if (Holiday_mode !== null) setHoliday_mode(Holiday_mode);
     if (Service_request !== null) setService_request(Service_request);
+    if (mode !== newMode) {  // Only update if different
+      setMode(newMode);
+    }
  
   };
  
@@ -881,9 +907,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {Geo_fencebuzzer !== null && <Text style={styles.parameterText}>Geo_fencebuzzer: {Geo_fencebuzzer}</Text>}
         {Holiday_mode !== null && <Text style={styles.parameterText}>Holiday_mode: {Holiday_mode}</Text>}
         {Service_request !== null && <Text style={styles.parameterText}>Service_request: {Service_request}</Text>}
- 
- 
- 
+        {mode !== null ? <Text style={styles.parameterText}>Mode: {mode}</Text> : <Text>No Mode Data Received</Text>}
  
         {/* {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null &&
        cellVol05 === null && cellVol06 === null && cellVol07 === null && cellVol08 === null &&
