@@ -12,8 +12,7 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [IgnitionStatus, setIgnitionStatus] = useState<string | null>(null);
-  const [LoadDetection, setLoadDetection] = useState<string | null>(null);
+  const [mode, setMode] = useState<string | null>(null);
 
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -46,31 +45,39 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     };
   }, [device]);
 
-  const bit_decode = (firstByteCheck: number, bytePosition: number, bitPosition: number) => {
+  const three_bit_decode = (firstByteCheck: number, bytePosition: number, bit1: number, bit2: number, bit3: number) => {
     return (data: string) => {
-      if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) === firstByteCheck.toString()) {
+      if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) === firstByteCheck.toString().padStart(2, '0')) {
         const byte = data.substring(2 * bytePosition, 2 * bytePosition + 2);
         const bits = parseInt(byte, 16).toString(2).padStart(8, '0');
-        return bits[7 - bitPosition] === '1' ? "ON" : "OFF";
+        const resultBits = bits[7 - bit1] + bits[7 - bit2] + bits[7 - bit3];
+        return parseInt(resultBits, 2);  // Convert to decimal to simplify switch-case logic
       }
       return null;
     }
   }
 
   const decodeData = (data: string) => {
-    const IgnitionStatus = bit_decode(11, 18, 0)(data);
-    const LoadDetection = bit_decode(11, 18, 6)(data);
-
-    if (IgnitionStatus !== null) setIgnitionStatus(IgnitionStatus);
-    if (LoadDetection !== null) setLoadDetection(LoadDetection);
+    const modeValue = three_bit_decode(2, 7, 2, 1, 0)(data);
+    switch (modeValue) {
+      case 0b100: // Binary literal for '100'
+        setMode("Eco Mode");
+        break;
+      case 0b010: // Binary literal for '010'
+        setMode("Normal Mode");
+        break;
+      case 0b110: // Binary literal for '110'
+        setMode("Fast Mode");
+        break;
+      default:
+        setMode(null);
+    }
   };
 
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
-        {IgnitionStatus !== null && <Text style={styles.statusText}>IgnitionStatus: {IgnitionStatus}</Text>}
-        {LoadDetection !== null && <Text style={styles.statusText}>LoadDetection: {LoadDetection}</Text>}
-        {IgnitionStatus === null && LoadDetection === null && <Text>No Data Received Yet</Text>}
+        {mode !== null ? <Text style={styles.modeText}>Mode: {mode}</Text> : <Text>No Mode Data Received</Text>}
       </View>
     </ScrollView>
   );
@@ -87,7 +94,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  statusText: {
+  modeText: {
     color: '#000',
     fontSize: 18,
     fontWeight: 'bold',
