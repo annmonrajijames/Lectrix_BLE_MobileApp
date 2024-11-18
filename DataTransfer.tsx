@@ -293,7 +293,10 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   }
   const bit_decode = (firstByteCheck: number, bytePosition: number, bitPosition: number) => {
     return (data: string) => {
-      if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) === firstByteCheck.toString()) {
+      // Convert firstByteCheck to a two-digit hexadecimal string
+      const formattedFirstByteCheck = firstByteCheck.toString(16).padStart(2, '0');
+  
+      if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) === formattedFirstByteCheck) {
         const byte = data.substring(2 * bytePosition, 2 * bytePosition + 2);
         const bits = parseInt(byte, 16).toString(2).padStart(8, '0');
         return bits[7 - bitPosition] === '1' ? "ON" : "OFF";
@@ -301,6 +304,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       return null;
     }
   }
+  
   const decodeData = (data: string) => {
 
     // Annmon Part-1
