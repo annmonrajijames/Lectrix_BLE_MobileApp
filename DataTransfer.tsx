@@ -198,6 +198,12 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [Holiday_mode, setHoliday_mode] = useState<string | null>(null);
   const [Service_request, setService_request] = useState<string | null>(null);
 
+  const [Low_Mode_REQUEST, setLow_Mode_REQUEST] = useState<string | null>(null);
+  const [Medium_Mode_REQUEST, setMedium_Mode_REQUEST] = useState<string | null>(null);
+  const [User_defind_mode_High_REQUEST, setUser_defind_mode_High_REQUEST] = useState<string | null>(null);
+  const [Limp_mode_REQUEST, setLimp_mode_REQUEST] = useState<string | null>(null);
+
+
   const [ChargeSOP, setChargeSOP] = useState<number | null>(null);
   const [DchgSOP, setDchgSOP] = useState<number | null>(null);
   const [Drive_Error_Flag, setDrive_Error_Flag] = useState<number | null>(null);
@@ -547,6 +553,11 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const Holiday_mode = bit_decode(6, 2, 3)(data);
     const Service_request = bit_decode(6, 2, 4)(data);
    
+    // Annmon part 3
+    const Low_Mode_REQUEST = bit_decode(3, 11, 4)(data);
+    const Medium_Mode_REQUEST = bit_decode(3, 11, 5)(data);
+    const User_defind_mode_High_REQUEST = bit_decode(3, 11, 6)(data);
+    const Limp_mode_REQUEST = bit_decode(3, 11, 7)(data);
    
     if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
@@ -733,6 +744,11 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (Holiday_mode !== null) setHoliday_mode(Holiday_mode);
     if (Service_request !== null) setService_request(Service_request);
 
+    if (Low_Mode_REQUEST !== null) setLow_Mode_REQUEST(Low_Mode_REQUEST);
+    if (Medium_Mode_REQUEST !== null) setMedium_Mode_REQUEST(Medium_Mode_REQUEST);
+    if (User_defind_mode_High_REQUEST !== null) setUser_defind_mode_High_REQUEST(User_defind_mode_High_REQUEST);
+    if (Limp_mode_REQUEST !== null) setLimp_mode_REQUEST(Limp_mode_REQUEST);
+
     if (ChargeSOP !== null) setChargeSOP(ChargeSOP);
     if (DchgSOP !== null) setDchgSOP(DchgSOP);
     if (Drive_Error_Flag !== null) setDrive_Error_Flag(Drive_Error_Flag);
@@ -751,9 +767,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     }
 
   };
- 
- 
- 
+  
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
@@ -954,6 +968,10 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {Initial_torque !== null && <Text style={styles.parameterText}>Initial Torque: {Initial_torque.toFixed(4)} Nm</Text>}
         {Final_torque !== null && <Text style={styles.parameterText}>Final Torque: {Final_torque.toFixed(4)} Nm</Text>}
         {Cluster_odo !== null && <Text style={styles.parameterText}>Cluster Odometer: {Cluster_odo.toFixed(4)} km</Text>}
+        {Low_Mode_REQUEST !== null && <Text style={styles.parameterText}>Low_Mode_REQUEST: {Low_Mode_REQUEST}</Text>}
+        {Medium_Mode_REQUEST !== null && <Text style={styles.parameterText}>Medium_Mode_REQUEST: {Medium_Mode_REQUEST}</Text>}
+        {User_defind_mode_High_REQUEST !== null && <Text style={styles.parameterText}>User_defind_mode_High_REQUEST: {User_defind_mode_High_REQUEST}</Text>}
+        {Limp_mode_REQUEST !== null && <Text style={styles.parameterText}>Limp_mode_REQUEST: {Limp_mode_REQUEST}</Text>}     
 
  
         {/* {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null &&
