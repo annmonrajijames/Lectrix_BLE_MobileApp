@@ -297,12 +297,10 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       return null;
     }
   }
-  const bit_decode = (firstByteCheck: number, bytePosition: number, bitPosition: number) => {
+
+  const bit_decode = (firstByteCheck: string, bytePosition: number, bitPosition: number) => {
     return (data: string) => {
-      // Convert firstByteCheck to a two-digit hexadecimal string
-      const formattedFirstByteCheck = firstByteCheck.toString(16).padStart(2, '0');
-  
-      if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) === formattedFirstByteCheck) {
+      if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) === firstByteCheck) {
         const byte = data.substring(2 * bytePosition, 2 * bytePosition + 2);
         const bits = parseInt(byte, 16).toString(2).padStart(8, '0');
         return bits[7 - bitPosition] === '1' ? "ON" : "OFF";
@@ -456,108 +454,108 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const Odo_Cluster = eight_bytes_decode('05',1,15,14,13)(data);
 
     // bit parameters starts here (Adarsh M C did from below here)
-    const IgnitionStatus = bit_decode(11, 18, 0)(data);
-    const LoadDetection = bit_decode(11, 18, 6)(data);
+    const IgnitionStatus = bit_decode('11', 18, 0)(data);
+    const LoadDetection = bit_decode('11', 18, 6)(data);
  
     //18F20310
-    const Keystatus = bit_decode(11, 19, 0)(data);
+    const Keystatus = bit_decode('11', 19, 0)(data);
    
     // 18F20314
-    const keyevents = bit_decode(6, 18, 1)(data);
+    const keyevents = bit_decode('06', 18, 1)(data);
     // 0x9
-    const CellUnderVolProt = bit_decode(10, 14, 0)(data);
-    const CellOverVolProt = bit_decode(10, 14, 1)(data);
-    const PackUnderVolProt = bit_decode(10, 14, 2)(data);
-    const PackOverVolProt = bit_decode(10, 14, 3)(data);
-    const ChgUnderTempProt = bit_decode(10, 14, 4)(data);
-    const ChgOverTempProt = bit_decode(10, 14, 5)(data);
-    const DchgUnderTempProt = bit_decode(10, 14, 6)(data);
-    const DchgOverTempProt = bit_decode(10, 14, 7)(data);
-    const CellOverDevProt = bit_decode(10, 15, 0)(data);
-    const BattLowSocWarn = bit_decode(10, 15, 1)(data);
-    const ChgOverCurrProt = bit_decode(10, 15, 2)(data);
-    const DchgOverCurrProt = bit_decode(10, 15, 3)(data);
-    const CellUnderVolWarn = bit_decode(10, 15, 4)(data);
-    const CellOverVolWarn = bit_decode(10, 15, 5)(data);
-    const FetTempProt = bit_decode(10, 15, 6)(data);
-    const ResSocProt = bit_decode(10, 15, 7)(data);
-    const FetFailure = bit_decode(10, 16, 0)(data);
-    const TempSenseFault = bit_decode(10, 16, 1)(data);
-    const PackUnderVolWarn = bit_decode(10, 16, 2)(data);
-    const PackOverVolWarn = bit_decode(10, 16, 3)(data);
-    const ChgUnderTempWarn = bit_decode(10, 16, 4)(data);
-    const ChgOverTempWarn = bit_decode(10, 16, 5)(data);
-    const DchgUnderTempWarn = bit_decode(10, 16, 6)(data);
-    const DchgOverTempWarn = bit_decode(10, 16, 7)(data);
-    const PreChgFetStatus = bit_decode(11, 2, 0)(data);
-    const ChgFetStatus = bit_decode(11, 2, 1)(data);
-    const DchgFetStatus = bit_decode(11, 2, 2)(data);
-    const ResStatus = bit_decode(11, 2, 3)(data);
-    const ShortCktProt = bit_decode(11, 2, 7)(data);
-    const DschgPeakProt = bit_decode(11, 2, 6)(data);
-    const ChgAuth = bit_decode(11, 2, 4)(data);
-    const ChgPeakProt = bit_decode(11, 2, 5)(data);
+    const CellUnderVolProt = bit_decode('10', 14, 0)(data);
+    const CellOverVolProt = bit_decode('10', 14, 1)(data);
+    const PackUnderVolProt = bit_decode('10', 14, 2)(data);
+    const PackOverVolProt = bit_decode('10', 14, 3)(data);
+    const ChgUnderTempProt = bit_decode('10', 14, 4)(data);
+    const ChgOverTempProt = bit_decode('10', 14, 5)(data);
+    const DchgUnderTempProt = bit_decode('10', 14, 6)(data);
+    const DchgOverTempProt = bit_decode('10', 14, 7)(data);
+    const CellOverDevProt = bit_decode('10', 15, 0)(data);
+    const BattLowSocWarn = bit_decode('10', 15, 1)(data);
+    const ChgOverCurrProt = bit_decode('10', 15, 2)(data);
+    const DchgOverCurrProt = bit_decode('10', 15, 3)(data);
+    const CellUnderVolWarn = bit_decode('10', 15, 4)(data);
+    const CellOverVolWarn = bit_decode('10', 15, 5)(data);
+    const FetTempProt = bit_decode('10', 15, 6)(data);
+    const ResSocProt = bit_decode('10', 15, 7)(data);
+    const FetFailure = bit_decode('10', 16, 0)(data);
+    const TempSenseFault = bit_decode('10', 16, 1)(data);
+    const PackUnderVolWarn = bit_decode('10', 16, 2)(data);
+    const PackOverVolWarn = bit_decode('10', 16, 3)(data);
+    const ChgUnderTempWarn = bit_decode('10', 16, 4)(data);
+    const ChgOverTempWarn = bit_decode('10', 16, 5)(data);
+    const DchgUnderTempWarn = bit_decode('10', 16, 6)(data);
+    const DchgOverTempWarn = bit_decode('10', 16, 7)(data);
+    const PreChgFetStatus = bit_decode('11', 2, 0)(data);
+    const ChgFetStatus = bit_decode('11', 2, 1)(data);
+    const DchgFetStatus = bit_decode('11', 2, 2)(data);
+    const ResStatus = bit_decode('11', 2, 3)(data);
+    const ShortCktProt = bit_decode('11', 2, 7)(data);
+    const DschgPeakProt = bit_decode('11', 2, 6)(data);
+    const ChgAuth = bit_decode('11', 2, 4)(data);
+    const ChgPeakProt = bit_decode('11', 2, 5)(data);
    
     // 0xC
-    const DI1 = bit_decode(11, 18, 1)(data);
-    const DI2 = bit_decode(11, 18, 2)(data);
-    const DO1 = bit_decode(11, 18, 3)(data);
-    const DO2 = bit_decode(11, 18, 4)(data);
-    const ChargerDetection = bit_decode(11, 18, 5)(data);
-    const CanCommDetection = bit_decode(11, 18, 7)(data);
-    const CellBalFeatureStatus = bit_decode(11, 16, 0)(data);
-    const ImmoChg = bit_decode(11, 16, 1)(data);
-    const ImmoDchg = bit_decode(11, 16, 2)(data);
-    const BuzzerStatus = bit_decode(11, 16, 3)(data);
+    const DI1 = bit_decode('11', 18, 1)(data);
+    const DI2 = bit_decode('11', 18, 2)(data);
+    const DO1 = bit_decode('11', 18, 3)(data);
+    const DO2 = bit_decode('11', 18, 4)(data);
+    const ChargerDetection = bit_decode('11', 18, 5)(data);
+    const CanCommDetection = bit_decode('11', 18, 7)(data);
+    const CellBalFeatureStatus = bit_decode('11', 16, 0)(data);
+    const ImmoChg = bit_decode('11', 16, 1)(data);
+    const ImmoDchg = bit_decode('11', 16, 2)(data);
+    const BuzzerStatus = bit_decode('11', 16, 3)(data);
    
     // 18530902
-    const Side_Stand_Ack = bit_decode(2, 7, 3)(data);
-    const Direction_Ack = bit_decode(2, 7, 4)(data);
-    const Ride_Ack = bit_decode(2, 7, 5)(data);
-    const Hill_hold_Ack = bit_decode(2, 7, 6)(data);
-    const Wakeup_Ack = bit_decode(2, 7, 7)(data);
-    const DriveError_Motor_hall = bit_decode(2, 8, 0)(data);
-    const Motor_Stalling = bit_decode(2, 8, 1)(data);
-    const Motor_Phase_loss = bit_decode(2, 8, 2)(data);
-    const Controller_Over_Temeprature = bit_decode(2, 8, 3)(data);
-    const Motor_Over_Temeprature = bit_decode(2, 8, 4)(data);
-    const Throttle_Error = bit_decode(2, 8, 5)(data);
-    const MOSFET_Protection = bit_decode(2, 8, 6)(data);
-    const DriveStatus_Regenerative_Braking = bit_decode(2, 9, 0)(data);
-    const ModeR_Pulse = bit_decode(2, 9, 1)(data);
-    const ModeL_Pulse = bit_decode(2, 9, 2)(data);
-    const Brake_Pulse = bit_decode(2, 9, 3)(data);
-    const Park_Pulse = bit_decode(2, 9, 4)(data);
-    const Reverse_Pulse = bit_decode(2, 9, 5)(data);
-    const SideStand_Pulse = bit_decode(2, 9, 6)(data);
-    const ForwardParking_Mode_Ack = bit_decode(2, 9, 7)(data);
-    const DriveError_Controller_OverVoltag = bit_decode(2, 10, 0)(data);
-    const Controller_Undervoltage = bit_decode(2, 10, 1)(data);
-    const Overcurrent_Fault = bit_decode(2, 10, 2)(data);
+    const Side_Stand_Ack = bit_decode('02', 7, 3)(data);
+    const Direction_Ack = bit_decode('02', 7, 4)(data);
+    const Ride_Ack = bit_decode('02', 7, 5)(data);
+    const Hill_hold_Ack = bit_decode('02', 7, 6)(data);
+    const Wakeup_Ack = bit_decode('02', 7, 7)(data);
+    const DriveError_Motor_hall = bit_decode('02', 8, 0)(data);
+    const Motor_Stalling = bit_decode('02', 8, 1)(data);
+    const Motor_Phase_loss = bit_decode('02', 8, 2)(data);
+    const Controller_Over_Temeprature = bit_decode('02', 8, 3)(data);
+    const Motor_Over_Temeprature = bit_decode('02', 8, 4)(data);
+    const Throttle_Error = bit_decode('02', 8, 5)(data);
+    const MOSFET_Protection = bit_decode('02', 8, 6)(data);
+    const DriveStatus_Regenerative_Braking = bit_decode('02', 9, 0)(data);
+    const ModeR_Pulse = bit_decode('02', 9, 1)(data);
+    const ModeL_Pulse = bit_decode('02', 9, 2)(data);
+    const Brake_Pulse = bit_decode('02', 9, 3)(data);
+    const Park_Pulse = bit_decode('02', 9, 4)(data);
+    const Reverse_Pulse = bit_decode('02', 9, 5)(data);
+    const SideStand_Pulse = bit_decode('02', 9, 6)(data);
+    const ForwardParking_Mode_Ack = bit_decode('02', 9, 7)(data);
+    const DriveError_Controller_OverVoltag = bit_decode('02', 10, 0)(data);
+    const Controller_Undervoltage = bit_decode('02', 10, 1)(data);
+    const Overcurrent_Fault = bit_decode('02', 10, 2)(data);
    
     // 18F20309
-    const DriveStatus1_ride = bit_decode(3, 11, 0)(data);
-    const Wakeup_Request = bit_decode(3, 11, 2)(data);
-    const Hill_Hold = bit_decode(3, 11, 3)(data);
-    const Reverse_REQUEST = bit_decode(3, 12, 0)(data);
-    const Forward_parkingmode_REQUEST = bit_decode(3, 12, 1)(data);
-    const Side_stand_Req = bit_decode(3, 11, 1)(data);
+    const DriveStatus1_ride = bit_decode('03', 11, 0)(data);
+    const Wakeup_Request = bit_decode('03', 11, 2)(data);
+    const Hill_Hold = bit_decode('03', 11, 3)(data);
+    const Reverse_REQUEST = bit_decode('03', 12, 0)(data);
+    const Forward_parkingmode_REQUEST = bit_decode('03', 12, 1)(data);
+    const Side_stand_Req = bit_decode('03', 11, 1)(data);
    
     // 18F20316
-    const Battery_charge_logic = bit_decode(5, 16, 1)(data);
+    const Battery_charge_logic = bit_decode('05', 16, 1)(data);
    
     //18F60101
-    const Remote_cutoff = bit_decode(6, 2, 0)(data);
-    const mode_limit = bit_decode(6, 2, 1)(data);
-    const Geo_fencebuzzer = bit_decode(6, 2, 2)(data);
-    const Holiday_mode = bit_decode(6, 2, 3)(data);
-    const Service_request = bit_decode(6, 2, 4)(data);
+    const Remote_cutoff = bit_decode('06', 2, 0)(data);
+    const mode_limit = bit_decode('06', 2, 1)(data);
+    const Geo_fencebuzzer = bit_decode('06', 2, 2)(data);
+    const Holiday_mode = bit_decode('06', 2, 3)(data);
+    const Service_request = bit_decode('06', 2, 4)(data);
    
     // Annmon part 3
-    const Low_Mode_REQUEST = bit_decode(3, 11, 4)(data);
-    const Medium_Mode_REQUEST = bit_decode(3, 11, 5)(data);
-    const User_defind_mode_High_REQUEST = bit_decode(3, 11, 6)(data);
-    const Limp_mode_REQUEST = bit_decode(3, 11, 7)(data);
+    const Low_Mode_REQUEST = bit_decode('03', 11, 4)(data);
+    const Medium_Mode_REQUEST = bit_decode('03', 11, 5)(data);
+    const User_defind_mode_High_REQUEST = bit_decode('03', 11, 6)(data);
+    const Limp_mode_REQUEST = bit_decode('03', 11, 7)(data);
    
     if (cellVoltage01 !== null) setcellVol01(cellVoltage01);
     if (cellVoltage02 !== null) setcellVol02(cellVoltage02);
