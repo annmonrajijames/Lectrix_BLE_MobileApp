@@ -12,22 +12,22 @@ type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfe
  
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [cellVol01, setCellVol01] = useState<number | null>(null);
-  const [cellVol02, setCellVol02] = useState<number | null>(null);
-  const [cellVol03, setCellVol03] = useState<number | null>(null);
-  const [cellVol04, setCellVol04] = useState<number | null>(null);
-  const [cellVol05, setCellVol05] = useState<number | null>(null);
-  const [cellVol06, setCellVol06] = useState<number | null>(null);
-  const [cellVol07, setCellVol07] = useState<number | null>(null);
-  const [cellVol08, setCellVol08] = useState<number | null>(null);
-  const [cellVol09, setCellVol09] = useState<number | null>(null);
-  const [cellVol10, setCellVol10] = useState<number | null>(null);
-  const [cellVol11, setCellVol11] = useState<number | null>(null);
-  const [cellVol12, setCellVol12] = useState<number | null>(null);
-  const [cellVol13, setCellVol13] = useState<number | null>(null);
-  const [cellVol14, setCellVol14] = useState<number | null>(null);
-  const [cellVol15, setCellVol15] = useState<number | null>(null);
-  const [cellVol16, setCellVol16] = useState<number | null>(null);
+  const [cellVol01, setcellVol01] = useState<number | null>(null);
+  const [cellVol02, setcellVol02] = useState<number | null>(null);
+  const [cellVol03, setcellVol03] = useState<number | null>(null);
+  const [cellVol04, setcellVol04] = useState<number | null>(null);
+  const [cellVol05, setcellVol05] = useState<number | null>(null);
+  const [cellVol06, setcellVol06] = useState<number | null>(null);
+  const [cellVol07, setcellVol07] = useState<number | null>(null);
+  const [cellVol08, setcellVol08] = useState<number | null>(null);
+  const [cellVol09, setcellVol09] = useState<number | null>(null);
+  const [cellVol10, setcellVol10] = useState<number | null>(null);
+  const [cellVol11, setcellVol11] = useState<number | null>(null);
+  const [cellVol12, setcellVol12] = useState<number | null>(null);
+  const [cellVol13, setcellVol13] = useState<number | null>(null);
+  const [cellVol14, setcellVol14] = useState<number | null>(null);
+  const [cellVol15, setcellVol15] = useState<number | null>(null);
+  const [cellVol16, setcellVol16] = useState<number | null>(null);
  
   const [MaxCellVol, setMaxCellVol] = useState<number | null>(null);
   const [MinCellVol, setMinCellVol] = useState<number | null>(null);
@@ -559,22 +559,22 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const User_defind_mode_High_REQUEST = bit_decode(3, 11, 6)(data);
     const Limp_mode_REQUEST = bit_decode(3, 11, 7)(data);
    
-    if (cellVoltage01 !== null) setCellVol01(cellVoltage01);
-    if (cellVoltage02 !== null) setCellVol02(cellVoltage02);
-    if (cellVoltage03 !== null) setCellVol03(cellVoltage03);
-    if (cellVoltage04 !== null) setCellVol04(cellVoltage04);
-    if (cellVoltage05 !== null) setCellVol05(cellVoltage05);
-    if (cellVoltage06 !== null) setCellVol06(cellVoltage06);
-    if (cellVoltage07 !== null) setCellVol07(cellVoltage07);
-    if (cellVoltage08 !== null) setCellVol08(cellVoltage08);
-    if (cellVoltage09 !== null) setCellVol09(cellVoltage09);
-    if (cellVoltage10 !== null) setCellVol10(cellVoltage10);
-    if (cellVoltage11 !== null) setCellVol11(cellVoltage11);
-    if (cellVoltage12 !== null) setCellVol12(cellVoltage12);
-    if (cellVoltage13 !== null) setCellVol13(cellVoltage13);
-    if (cellVoltage14 !== null) setCellVol14(cellVoltage14);
-    if (cellVoltage15 !== null) setCellVol15(cellVoltage15);
-    if (cellVoltage16 !== null) setCellVol16(cellVoltage16);
+    if (cellVoltage01 !== null) setcellVol01(cellVoltage01);
+    if (cellVoltage02 !== null) setcellVol02(cellVoltage02);
+    if (cellVoltage03 !== null) setcellVol03(cellVoltage03);
+    if (cellVoltage04 !== null) setcellVol04(cellVoltage04);
+    if (cellVoltage05 !== null) setcellVol05(cellVoltage05);
+    if (cellVoltage06 !== null) setcellVol06(cellVoltage06);
+    if (cellVoltage07 !== null) setcellVol07(cellVoltage07);
+    if (cellVoltage08 !== null) setcellVol08(cellVoltage08);
+    if (cellVoltage09 !== null) setcellVol09(cellVoltage09);
+    if (cellVoltage10 !== null) setcellVol10(cellVoltage10);
+    if (cellVoltage11 !== null) setcellVol11(cellVoltage11);
+    if (cellVoltage12 !== null) setcellVol12(cellVoltage12);
+    if (cellVoltage13 !== null) setcellVol13(cellVoltage13);
+    if (cellVoltage14 !== null) setcellVol14(cellVoltage14);
+    if (cellVoltage15 !== null) setcellVol15(cellVoltage15);
+    if (cellVoltage16 !== null) setcellVol16(cellVoltage16);
  
     if (MaxCellVol !== null) setMaxCellVol(MaxCellVol);
     if (MinCellVol !== null) setMinCellVol(MinCellVol);
