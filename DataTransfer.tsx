@@ -999,7 +999,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   parameterText: {
-    color: '#FFA500',
+    color: '#FFA500',  // This makes the text orange; you can choose any color.
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -1009,7 +1009,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ccc',  // You can choose a more visible color like 'blue', 'red', etc.
+    backgroundColor: '#f0f0f0',  // Light gray background for the input field
+    color: '#333',  // Dark text color for better readability
     width: '100%',
   },
 });
