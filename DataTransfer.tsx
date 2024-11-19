@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, View, Text, StyleSheet, Alert } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, Alert } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
- 
+
 type RootStackParamList = {
   DataTransfer: { device: Device };
 };
- 
+
 type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfer'>;
- 
+
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
   const [cellVol01, setcellVol01] = useState<number | null>(null);
@@ -219,7 +219,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
   const [mode, setMode] = useState<string | null>(null);
 
-
+  const [searchTerm, setSearchTerm] = useState('');
  
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -765,227 +765,228 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     }
 
   };
+  const filteredParameters = () => {
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    return [
+      { label: 'SOC', value: SOC, unit: '%' },
+      { label: 'Temp1', value: Temp1 },
+      { label: 'Temp2', value: Temp2 },
+      { label: 'Temp3', value: Temp3 },
+      { label: 'Temp4', value: Temp4 },
+      { label: 'Temp5', value: Temp5 },
+      { label: 'Temp6', value: Temp6 },
+      { label: 'Temp7', value: Temp7 },
+      { label: 'Temp8', value: Temp8 },
+      { label: 'MotorSpeed', value: MotorSpeed, unit: 'RPM' },
+      { label: 'BatteryVoltage', value: BatteryVoltage, unit: 'V' },
+      { label: 'BatteryCurrent', value: BatteryCurrent, unit: 'A' },
+      { label: 'AC_Current', value: AC_Current, unit: 'A' },
+      { label: 'AC_Voltage', value: AC_Voltage, unit: 'V' },
+      { label: 'Throttle', value: Throttle, unit: '%' },
+      { label: 'MCU_Temperature', value: MCU_Temperature, unit: '°C' },
+      { label: 'Motor_Temperature', value: Motor_Temperature, unit: '°C' },
+      { label: 'IgnitionStatus', value: IgnitionStatus },
+      { label: 'Side_Stand_Ack', value: Side_Stand_Ack },
+      { label: 'Mode', value: mode },
+      { label: 'CellVol01', value: cellVol01, unit: 'V' },
+      { label: 'CellVol02', value: cellVol02, unit: 'V' },
+      { label: 'CellVol03', value: cellVol03, unit: 'V' },
+      { label: 'CellVol04', value: cellVol04, unit: 'V' },
+      { label: 'CellVol05', value: cellVol05, unit: 'V' },
+      { label: 'CellVol06', value: cellVol06, unit: 'V' },
+      { label: 'CellVol07', value: cellVol07, unit: 'V' },
+      { label: 'CellVol08', value: cellVol08, unit: 'V' },
+      { label: 'CellVol09', value: cellVol09, unit: 'V' },
+      { label: 'CellVol10', value: cellVol10, unit: 'V' },
+      { label: 'CellVol11', value: cellVol11, unit: 'V' },
+      { label: 'CellVol12', value: cellVol12, unit: 'V' },
+      { label: 'CellVol13', value: cellVol13, unit: 'V' },
+      { label: 'CellVol14', value: cellVol14, unit: 'V' },
+      { label: 'CellVol15', value: cellVol15, unit: 'V' },
+      { label: 'CellVol16', value: cellVol16, unit: 'V' },
+      { label: 'MaxCellVol', value: MaxCellVol, unit: 'V' },
+      { label: 'MinCellVol', value: MinCellVol, unit: 'V' },
+      { label: 'AvgCellVol', value: AvgCellVol, unit: 'V' },
+      { label: 'MaxVoltId', value: MaxVoltId },
+      { label: 'MinVoltId', value: MinVoltId },
+      { label: 'PackVol', value: PackVol, unit: 'V' },
+      { label: 'CycleCount', value: CycleCount },
+      { label: 'MaxTemp', value: MaxTemp, unit: '°C' },
+      { label: 'MinTemp', value: MinTemp, unit: '°C' },
+      { label: 'CellVolMinMaxDev', value: CellVolMinMaxDev, unit: 'V' },
+      { label: 'SOCAh', value: SOCAh, unit: 'AH' },
+      { label: 'SOH', value: SOH, unit: '%' },
+      { label: 'BmsStatus', value: BmsStatus },
+      { label: 'LedStatus', value: LedStatus },
+      { label: 'ActiveCellBalStatus', value: ActiveCellBalStatus },
+      { label: 'BMS Serial No MUX', value: BMS_Serial_No_MUX },
+      { label: 'BMS Serial No 1-7', value: BMS_Serial_No__1_7 },
+      { label: 'LatchProtection', value: LatchProtection },
+      { label: 'LatchType', value: LatchType },
+      { label: 'ChargerType', value: ChargerType },
+      { label: 'PcbTemp', value: PcbTemp, unit: '°C' },
+      { label: 'AfeTemp', value: AfeTemp, unit: '°C' },
+      { label: 'CellChemType', value: CellChemType },
+      { label: 'Chg Accumulative Ah', value: Chg_Accumulative_Ah, unit: 'AH' },
+      { label: 'Dchg Accumulative Ah', value: Dchg_Accumulative_Ah, unit: 'AH' },
+      { label: 'RefVol', value: RefVol, unit: 'V' },
+      { label: '3.3V Vol', value: _3v3Vol, unit: 'V' },
+      { label: '5V Vol', value: _5vVol, unit: 'V' },
+      { label: '12V Vol', value: _12vVol, unit: 'V' },
+      { label: 'Actual_SoC', value: Actual_SoC, unit: 'AH' },
+      { label: 'Usable Capacity Ah', value: Usable_Capacity_Ah, unit: 'AH' },
+      { label: 'ConfigVer', value: ConfigVer },
+      { label: 'InternalFWVer', value: InternalFWVer },
+      { label: 'InternalFWSubVer', value: InternalFWSubVer },
+      { label: 'BHB 66049', value: BHB_66049 },
+      { label: 'PackCurr', value: PackCurr },
+      { label: 'FetTemp', value: FetTemp, unit: '°C' },
+      { label: 'HwVer', value: HwVer },
+      { label: 'FwVer', value: FwVer },
+      { label: 'FWSubVer', value: FWSubVer },
+      { label: 'BtStatus_NC0PSM1CC2CV3Finish4', value: BtStatus_NC0PSM1CC2CV3Finish4 },
+      { label: 'Bt_liveMsg1Temp', value: Bt_liveMsg1Temp, unit: '°C' },
+      { label: 'Bt_liveMsg_soc', value: Bt_liveMsg_soc, unit: '%' },
+      { label: 'BMS_status', value: BMS_status },
+      { label: 'Demand_voltage', value: Demand_voltage, unit: 'V' },
+      { label: 'Demand_Current', value: Demand_Current, unit: 'A' },
+      { label: 'MaxChgVoltgae', value: MaxChgVoltgae, unit: 'V' },
+      { label: 'MaxChgCurrent', value: MaxChgCurrent, unit: 'A' },
+      { label: 'ActualChgVoltage', value: ActualChgVoltage, unit: 'V' },
+      { label: 'ActualChgCurrent', value: ActualChgCurrent, unit: 'A' },
+      { label: 'Charging_end_cutoff_Curr', value: Charging_end_cutoff_Curr, unit: 'A' },
+      { label: 'CHB_258', value: CHB_258 },
+      { label: 'ChgrNC0PSM1CC2CV3Finsh4', value: ChgrNC0PSM1CC2CV3Finsh4 },
+      { label: 'chgr_msg_temp', value: chgr_msg_temp, unit: '°C' },
+      { label: 'chgStatus_chg_idle', value: chgStatus_chg_idle },
+      { label: 'chgrLiveMsgChgVolt', value: chgrLiveMsgChgVolt, unit: 'V' },
+      { label: 'chgrLiveMsgChgCurrent', value: chgrLiveMsgChgCurrent, unit: 'A' },
+      { label: 'MCU_Fault_Code', value: MCU_Fault_Code },
+      { label: 'MCU_ID', value: MCU_ID },
+      { label: 'Cluster_heartbeat', value: Cluster_heartbeat },
+      { label: 'Odo_Cluster', value: Odo_Cluster, unit: 'km' },
+      { label: 'IgnitionStatus', value: IgnitionStatus },
+      { label: 'LoadDetection', value: LoadDetection },
+      { label: 'Keystatus', value: Keystatus },
+      { label: 'keyevents', value: keyevents },
+      { label: 'CellUnderVolProt', value: CellUnderVolProt },
+      { label: 'CellOverVolProt', value: CellOverVolProt },
+      { label: 'PackUnderVolProt', value: PackUnderVolProt },
+      { label: 'PackOverVolProt', value: PackOverVolProt },
+      { label: 'ChgUnderTempProt', value: ChgUnderTempProt },
+      { label: 'ChgOverTempProt', value: ChgOverTempProt },
+      { label: 'DchgUnderTempProt', value: DchgUnderTempProt },
+      { label: 'DchgOverTempProt', value: DchgOverTempProt },
+      { label: 'CellOverDevProt', value: CellOverDevProt },
+      { label: 'BattLowSocWarn', value: BattLowSocWarn },
+      { label: 'ChgOverCurrProt', value: ChgOverCurrProt },
+      { label: 'DchgOverCurrProt', value: DchgOverCurrProt },
+      { label: 'CellUnderVolWarn', value: CellUnderVolWarn },
+      { label: 'CellOverVolWarn', value: CellOverVolWarn },
+      { label: 'FetTempProt', value: FetTempProt },
+      { label: 'ResSocProt', value: ResSocProt },
+      { label: 'FetFailure', value: FetFailure },
+      { label: 'TempSenseFault', value: TempSenseFault },
+      { label: 'PackUnderVolWarn', value: PackUnderVolWarn },
+      { label: 'PackOverVolWarn', value: PackOverVolWarn },
+      { label: 'ChgUnderTempWarn', value: ChgUnderTempWarn },
+      { label: 'ChgOverTempWarn', value: ChgOverTempWarn },
+      { label: 'DchgUnderTempWarn', value: DchgUnderTempWarn },
+      { label: 'DchgOverTempWarn', value: DchgOverTempWarn },
+      { label: 'PreChgFetStatus', value: PreChgFetStatus },
+      { label: 'ChgFetStatus', value: ChgFetStatus },
+      { label: 'DchgFetStatus', value: DchgFetStatus },
+      { label: 'ResStatus', value: ResStatus },
+      { label: 'ShortCktProt', value: ShortCktProt },
+      { label: 'DschgPeakProt', value: DschgPeakProt },
+      { label: 'ChgAuth', value: ChgAuth },
+      { label: 'ChgPeakProt', value: ChgPeakProt },
+      { label: 'DI1', value: DI1 },
+      { label: 'DI2', value: DI2 },
+      { label: 'DO1', value: DO1 },
+      { label: 'DO2', value: DO2 },
+      { label: 'ChargerDetection', value: ChargerDetection },
+      { label: 'CanCommDetection', value: CanCommDetection },
+      { label: 'CellBalFeatureStatus', value: CellBalFeatureStatus },
+      { label: 'ImmoChg', value: ImmoChg },
+      { label: 'ImmoDchg', value: ImmoDchg },
+      { label: 'BuzzerStatus', value: BuzzerStatus },
+      { label: 'Side_Stand_Ack', value: Side_Stand_Ack },
+      { label: 'Direction_Ack', value: Direction_Ack },
+      { label: 'Ride_Ack', value: Ride_Ack },
+      { label: 'Hill_hold_Ack', value: Hill_hold_Ack },
+      { label: 'Wakeup_Ack', value: Wakeup_Ack },
+      { label: 'DriveError_Motor_hall', value: DriveError_Motor_hall },
+      { label: 'Motor_Stalling', value: Motor_Stalling },
+      { label: 'Motor_Phase_loss', value: Motor_Phase_loss },
+      { label: 'Controller_Over_Temeprature', value: Controller_Over_Temeprature },
+      { label: 'Motor_Over_Temeprature', value: Motor_Over_Temeprature },
+      { label: 'Throttle_Error', value: Throttle_Error },
+      { label: 'MOSFET_Protection', value: MOSFET_Protection },
+      { label: 'DriveStatus_Regenerative_Braking', value: DriveStatus_Regenerative_Braking },
+      { label: 'ModeR_Pulse', value: ModeR_Pulse },
+      { label: 'ModeL_Pulse', value: ModeL_Pulse },
+      { label: 'Brake_Pulse', value: Brake_Pulse },
+      { label: 'Park_Pulse', value: Park_Pulse },
+      { label: 'Reverse_Pulse', value: Reverse_Pulse },
+      { label: 'SideStand_Pulse', value: SideStand_Pulse },
+      { label: 'ForwardParking_Mode_Ack', value: ForwardParking_Mode_Ack },
+      { label: 'DriveError_Controller_OverVoltag', value: DriveError_Controller_OverVoltag },
+      { label: 'Controller_Undervoltage', value: Controller_Undervoltage },
+      { label: 'Overcurrent_Fault', value: Overcurrent_Fault },
+      { label: 'DriveStatus1_ride', value: DriveStatus1_ride },
+      { label: 'Wakeup_Request', value: Wakeup_Request },
+      { label: 'Hill_Hold', value: Hill_Hold },
+      { label: 'Reverse_REQUEST', value: Reverse_REQUEST },
+      { label: 'Forward_parkingmode_REQUEST', value: Forward_parkingmode_REQUEST },
+      { label: 'Side_stand_Req', value: Side_stand_Req },
+      { label: 'Battery_charge_logic', value: Battery_charge_logic },
+      { label: 'Remote_cutoff', value: Remote_cutoff },
+      { label: 'mode_limit', value: mode_limit },
+      { label: 'Geo_fencebuzzer', value: Geo_fencebuzzer },
+      { label: 'Holiday_mode', value: Holiday_mode },
+      { label: 'Service_request', value: Service_request },
+      { label: 'ChargeSOP', value: ChargeSOP },
+      { label: 'DchgSOP', value: DchgSOP },
+      { label: 'Drive_Error_Flag', value: Drive_Error_Flag },
+      { label: 'Set_Regen', value: Set_Regen },
+      { label: 'DCcurrentlimit', value: DCcurrentlimit, unit: 'A' },
+      { label: 'Custom_freq', value: Custom_freq, unit: 'Hz' },
+      { label: 'Custom_torque', value: Custom_torque, unit: 'Nm' },
+      { label: 'Buffer_speed', value: Buffer_speed, unit: 'RPM' },
+      { label: 'Base_speed', value: Base_speed, unit: 'RPM' },
+      { label: 'Initial_torque', value: Initial_torque, unit: 'Nm' },
+      { label: 'Final_torque', value: Final_torque, unit: 'Nm' },
+      { label: 'Cluster_odo', value: Cluster_odo, unit: 'km' },
+      { label: 'Low_Mode_REQUEST', value: Low_Mode_REQUEST },
+      { label: 'Medium_Mode_REQUEST', value: Medium_Mode_REQUEST },
+      { label: 'User_defined_mode_High_REQUEST', value: User_defind_mode_High_REQUEST },
+      { label: 'Limp_mode_REQUEST', value: Limp_mode_REQUEST },
+    ].filter(param => param.label.toLowerCase().includes(lowercasedSearchTerm));
+  };
+  
   
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
-        {cellVol01 !== null && <Text style={styles.parameterText}>cellVol01: {cellVol01.toFixed(4)} V</Text>}
-        {cellVol02 !== null && <Text style={styles.parameterText}>cellVol02: {cellVol02.toFixed(4)} V</Text>}
-        {cellVol03 !== null && <Text style={styles.parameterText}>cellVol03: {cellVol03.toFixed(4)} V</Text>}
-        {cellVol04 !== null && <Text style={styles.parameterText}>cellVol04: {cellVol04.toFixed(4)} V</Text>}
-        {cellVol05 !== null && <Text style={styles.parameterText}>cellVol05: {cellVol05.toFixed(4)} V</Text>}
-        {cellVol06 !== null && <Text style={styles.parameterText}>cellVol06: {cellVol06.toFixed(4)} V</Text>}
-        {cellVol07 !== null && <Text style={styles.parameterText}>cellVol07: {cellVol07.toFixed(4)} V</Text>}
-        {cellVol08 !== null && <Text style={styles.parameterText}>cellVol08: {cellVol08.toFixed(4)} V</Text>}
-        {cellVol09 !== null && <Text style={styles.parameterText}>cellVol09: {cellVol09.toFixed(4)} V</Text>}
-        {cellVol10 !== null && <Text style={styles.parameterText}>cellVol10: {cellVol10.toFixed(4)} V</Text>}
-        {cellVol11 !== null && <Text style={styles.parameterText}>cellVol11: {cellVol11.toFixed(4)} V</Text>}
-        {cellVol12 !== null && <Text style={styles.parameterText}>cellVol12: {cellVol12.toFixed(4)} V</Text>}
-        {cellVol13 !== null && <Text style={styles.parameterText}>cellVol13: {cellVol13.toFixed(4)} V</Text>}
-        {cellVol14 !== null && <Text style={styles.parameterText}>cellVol14: {cellVol14.toFixed(4)} V</Text>}
-        {cellVol15 !== null && <Text style={styles.parameterText}>cellVol15: {cellVol15.toFixed(4)} V</Text>}
-        {cellVol16 !== null && <Text style={styles.parameterText}>cellVol16: {cellVol16.toFixed(4)} V</Text>}
- 
-        {MaxCellVol !== null && <Text style={styles.parameterText}>MaxCellVol: {MaxCellVol.toFixed(4)} V</Text>}
-        {MinCellVol !== null && <Text style={styles.parameterText}>MinCellVol: {MinCellVol.toFixed(4)} V</Text>}
-        {AvgCellVol !== null && <Text style={styles.parameterText}>AvgCellVol: {AvgCellVol.toFixed(4)} V</Text>}
-        {MaxVoltId !== null && <Text style={styles.parameterText}>MaxVoltId: {MaxVoltId.toFixed(4)}</Text>}
-        {MinVoltId !== null && <Text style={styles.parameterText}>MinVoltId: {MinVoltId.toFixed(4)}</Text>}
- 
-        {PackVol !== null && <Text style={styles.parameterText}>PackVol: {PackVol.toFixed(4)} V</Text>}
- 
-        {CycleCount !== null && <Text style={styles.parameterText}>CycleCount: {CycleCount.toFixed(4)} V</Text>}
-        {MaxTemp !== null && <Text style={styles.parameterText}>MaxTemp: {MaxTemp.toFixed(4)} C</Text>}
-        {MinTemp !== null && <Text style={styles.parameterText}>MinTemp: {MinTemp.toFixed(4)} C</Text>}
-        {CellVolMinMaxDev !== null && <Text style={styles.parameterText}>CellVolMinMaxDev: {CellVolMinMaxDev.toFixed(4)} V</Text>}
- 
-        {SOC !== null && <Text style={styles.parameterText}>SOC: {SOC.toFixed(4)} %</Text>}
-        {SOCAh !== null && <Text style={styles.parameterText}>SOCAh: {SOCAh.toFixed(4)} AH</Text>}
-        {SOH !== null && <Text style={styles.parameterText}>SOH: {SOH.toFixed(4)} %</Text>}
-        {BmsStatus !== null && <Text style={styles.parameterText}>BmsStatus: {BmsStatus.toFixed(4)} </Text>}
-        {LedStatus !== null && <Text style={styles.parameterText}>LedStatus: {LedStatus.toFixed(4)}</Text>}
-        {ActiveCellBalStatus !== null && <Text style={styles.parameterText}>ActiveCellBalStatus: {ActiveCellBalStatus.toFixed(4)}</Text>}
-        {BMS_Serial_No_MUX !== null && <Text style={styles.parameterText}>BMS Serial No MUX: {BMS_Serial_No_MUX.toFixed(4)}</Text>}
-        {BMS_Serial_No__1_7 !== null && <Text style={styles.parameterText}>BMS Serial No 1-7: {BMS_Serial_No__1_7.toFixed(4)}</Text>}
-        {LatchProtection !== null && <Text style={styles.parameterText}>LatchProtection: {LatchProtection.toFixed(4)}</Text>}
-        {LatchType !== null && <Text style={styles.parameterText}>LatchType: {LatchType.toFixed(4)}</Text>}
-        {ChargerType !== null && <Text style={styles.parameterText}>ChargerType: {ChargerType.toFixed(4)}</Text>}
-        {PcbTemp !== null && <Text style={styles.parameterText}>PcbTemp: {PcbTemp.toFixed(4)} °C</Text>}
-        {AfeTemp !== null && <Text style={styles.parameterText}>AfeTemp: {AfeTemp.toFixed(4)} °C</Text>}
-        {CellChemType !== null && <Text style={styles.parameterText}>CellChemType: {CellChemType.toFixed(4)}</Text>}
-        {Chg_Accumulative_Ah !== null && <Text style={styles.parameterText}>Chg Accumulative Ah: {Chg_Accumulative_Ah.toFixed(4)} AH</Text>}
-        {Dchg_Accumulative_Ah !== null && <Text style={styles.parameterText}>Dchg Accumulative Ah: {Dchg_Accumulative_Ah.toFixed(4)} AH</Text>}
-        {RefVol !== null && <Text style={styles.parameterText}>RefVol: {RefVol.toFixed(4)} V</Text>}
-        {_3v3Vol !== null && <Text style={styles.parameterText}>3.3V Vol: {_3v3Vol.toFixed(4)} V</Text>}
-        {_5vVol !== null && <Text style={styles.parameterText}>5V Vol: {_5vVol.toFixed(4)} V</Text>}
-        {_12vVol !== null && <Text style={styles.parameterText}>12V Vol: {_12vVol.toFixed(4)} V</Text>}
-        {Actual_SoC !== null && <Text style={styles.parameterText}>Actual_SoC: {Actual_SoC.toFixed(4)} AH</Text>}
-        {Usable_Capacity_Ah !== null && <Text style={styles.parameterText}>Usable Capacity Ah: {Usable_Capacity_Ah.toFixed(4)} AH</Text>}
-        {ConfigVer !== null && <Text style={styles.parameterText}>ConfigVer: {ConfigVer.toFixed(4)}</Text>}
-        {InternalFWVer !== null && <Text style={styles.parameterText}>InternalFWVer: {InternalFWVer.toFixed(4)}</Text>}
-        {InternalFWSubVer !== null && <Text style={styles.parameterText}>InternalFWSubVer: {InternalFWSubVer.toFixed(4)}</Text>}
-        {BHB_66049 !== null && <Text style={styles.parameterText}>BHB 66049: {BHB_66049.toFixed(4)}</Text>}
-        {PackCurr !== null && <Text style={styles.parameterText}>PackCurr: {PackCurr.toFixed(4)}</Text>}
-        {MaxTemp !== null && <Text style={styles.parameterText}>MaxTemp: {MaxTemp.toFixed(4)}</Text>}
-        {MinTemp !== null && <Text style={styles.parameterText}>MinTemp: {MinTemp.toFixed(4)}</Text>}
-        {FetTemp !== null && <Text style={styles.parameterText}>FetTemp: {FetTemp.toFixed(4)}</Text>}
-        {Temp1 !== null && <Text style={styles.parameterText}>Temp1: {Temp1.toFixed(4)}</Text>}
-        {Temp2 !== null && <Text style={styles.parameterText}>Temp2: {Temp2.toFixed(4)}</Text>}
-        {Temp3 !== null && <Text style={styles.parameterText}>Temp3: {Temp3.toFixed(4)}</Text>}
-        {Temp4 !== null && <Text style={styles.parameterText}>Temp4: {Temp4.toFixed(4)}</Text>}
-        {Temp5 !== null && <Text style={styles.parameterText}>Temp5: {Temp5.toFixed(4)}</Text>}
-        {Temp6 !== null && <Text style={styles.parameterText}>Temp6: {Temp6.toFixed(4)}</Text>}
-        {Temp7 !== null && <Text style={styles.parameterText}>Temp7: {Temp7.toFixed(4)}</Text>}
-        {Temp8 !== null && <Text style={styles.parameterText}>Temp8: {Temp8.toFixed(4)}</Text>}
- 
-        {HwVer !== null && <Text style={styles.parameterText}>HwVer: {HwVer.toFixed(2)}</Text>}
-        {FwVer !== null && <Text style={styles.parameterText}>FwVer: {FwVer.toFixed(2)}</Text>}
-        {FWSubVer !== null && <Text style={styles.parameterText}>FWSubVer: {FWSubVer.toFixed(2)}</Text>}
-        {BtStatus_NC0PSM1CC2CV3Finish4 !== null && <Text style={styles.parameterText}>BtStatus_NC0PSM1CC2CV3Finish4: {BtStatus_NC0PSM1CC2CV3Finish4}</Text>}
-        {Bt_liveMsg1Temp !== null && <Text style={styles.parameterText}>Bt_liveMsg1Temp: {Bt_liveMsg1Temp.toFixed(1)} °C</Text>}
-        {Bt_liveMsg_soc !== null && <Text style={styles.parameterText}>Bt_liveMsg_soc: {Bt_liveMsg_soc.toFixed(2)}%</Text>}
-        {BMS_status !== null && <Text style={styles.parameterText}>BMS_status: {BMS_status}</Text>}
-        {Demand_voltage !== null && <Text style={styles.parameterText}>Demand_voltage: {Demand_voltage.toFixed(2)} V</Text>}
-        {Demand_Current !== null && <Text style={styles.parameterText}>Demand_Current: {Demand_Current.toFixed(2)} A</Text>}
-        {MaxChgVoltgae !== null && <Text style={styles.parameterText}>MaxChgVoltgae: {MaxChgVoltgae.toFixed(2)} V</Text>}
-        {MaxChgCurrent !== null && <Text style={styles.parameterText}>MaxChgCurrent: {MaxChgCurrent.toFixed(2)} A</Text>}
-        {ActualChgVoltage !== null && <Text style={styles.parameterText}>ActualChgVoltage: {ActualChgVoltage.toFixed(2)} V</Text>}
-        {ActualChgCurrent !== null && <Text style={styles.parameterText}>ActualChgCurrent: {ActualChgCurrent.toFixed(2)} A</Text>}
-        {Charging_end_cutoff_Curr !== null && <Text style={styles.parameterText}>Charging_end_cutoff_Curr: {Charging_end_cutoff_Curr.toFixed(2)} A</Text>}
-        {CHB_258 !== null && <Text style={styles.parameterText}>CHB_258: {CHB_258}</Text>}
-        {ChgrNC0PSM1CC2CV3Finsh4 !== null && <Text style={styles.parameterText}>ChgrNC0PSM1CC2CV3Finsh4: {ChgrNC0PSM1CC2CV3Finsh4}</Text>}
-        {chgr_msg_temp !== null && <Text style={styles.parameterText}>chgr_msg_temp: {chgr_msg_temp.toFixed(1)} °C</Text>}
-        {chgStatus_chg_idle !== null && <Text style={styles.parameterText}>chgStatus_chg_idle: {chgStatus_chg_idle}</Text>}
-        {chgrLiveMsgChgVolt !== null && <Text style={styles.parameterText}>chgrLiveMsgChgVolt: {chgrLiveMsgChgVolt.toFixed(2)} V</Text>}
-        {chgrLiveMsgChgCurrent !== null && <Text style={styles.parameterText}>chgrLiveMsgChgCurrent: {chgrLiveMsgChgCurrent.toFixed(2)} A</Text>}
- 
-        {MotorSpeed !== null && <Text style={styles.parameterText}>MotorSpeed: {MotorSpeed.toFixed(2)} RPM</Text>}
-        {BatteryVoltage !== null && <Text style={styles.parameterText}>BatteryVoltage: {BatteryVoltage.toFixed(2)} V</Text>}
-        {BatteryCurrent !== null && <Text style={styles.parameterText}>BatteryCurrent: {BatteryCurrent.toFixed(2)} A</Text>}
-        {AC_Current !== null && <Text style={styles.parameterText}>AC_Current: {AC_Current.toFixed(2)} A</Text>}
-        {AC_Voltage !== null && <Text style={styles.parameterText}>AC_Voltage: {AC_Voltage.toFixed(2)} V</Text>}
-        {Throttle !== null && <Text style={styles.parameterText}>Throttle: {Throttle.toFixed(2)}%</Text>}
-        {MCU_Temperature !== null && <Text style={styles.parameterText}>MCU_Temperature: {MCU_Temperature.toFixed(1)}°C</Text>}
-        {Motor_Temperature !== null && <Text style={styles.parameterText}>Motor_Temperature: {Motor_Temperature.toFixed(1)}°C</Text>}
-        {MCU_Fault_Code !== null && <Text style={styles.parameterText}>MCU_Fault_Code: {MCU_Fault_Code}</Text>}
-        {MCU_ID !== null && <Text style={styles.parameterText}>MCU ID: {MCU_ID}</Text>}
-        {Cluster_heartbeat !== null && <Text style={styles.parameterText}>Cluster_heartbeat: {Cluster_heartbeat}</Text>}
-        {Odo_Cluster !== null && <Text style={styles.parameterText}>Odo_Cluster: {Odo_Cluster} km</Text>}
- 
-        {IgnitionStatus !== null && <Text style={styles.parameterText}>IgnitionStatus: {IgnitionStatus}</Text>}
-        {LoadDetection !== null && <Text style={styles.parameterText}>LoadDetection: {LoadDetection}</Text>}
-        {Keystatus !== null && <Text style={styles.parameterText}>Keystatus: {Keystatus}</Text>}
-        {keyevents !== null && <Text style={styles.parameterText}>keyevents: {keyevents}</Text>}
-        {CellUnderVolProt !== null && <Text style={styles.parameterText}>CellUnderVolProt: {CellUnderVolProt}</Text>}
-        {CellOverVolProt !== null && <Text style={styles.parameterText}>CellOverVolProt: {CellOverVolProt}</Text>}
-        {PackUnderVolProt !== null && <Text style={styles.parameterText}>PackUnderVolProt: {PackUnderVolProt}</Text>}
-        {PackOverVolProt !== null && <Text style={styles.parameterText}>PackOverVolProt: {PackOverVolProt}</Text>}
-        {ChgUnderTempProt !== null && <Text style={styles.parameterText}>ChgUnderTempProt: {ChgUnderTempProt}</Text>}
-        {ChgOverTempProt !== null && <Text style={styles.parameterText}>ChgOverTempProt: {ChgOverTempProt}</Text>}
-        {DchgUnderTempProt !== null && <Text style={styles.parameterText}>DchgUnderTempProt: {DchgUnderTempProt}</Text>}
-        {DchgOverTempProt !== null && <Text style={styles.parameterText}>DchgOverTempProt: {DchgOverTempProt}</Text>}
-        {CellOverDevProt !== null && <Text style={styles.parameterText}>DchgOverTempProt: {DchgOverTempProt}</Text>}
-        {BattLowSocWarn !== null && <Text style={styles.parameterText}>Battery Low SOC Warning: {BattLowSocWarn}</Text>}
-        {ChgOverCurrProt !== null && <Text style={styles.parameterText}>BattLowSocWarn: {ChgOverCurrProt}</Text>}
-        {DchgOverCurrProt !== null && <Text style={styles.parameterText}>DchgOverCurrProt: {DchgOverCurrProt}</Text>}
-        {CellUnderVolWarn !== null && <Text style={styles.parameterText}>CellUnderVolWarn: {CellUnderVolWarn}</Text>}
-        {CellOverVolWarn !== null && <Text style={styles.parameterText}>CellOverVolWarn: {CellOverVolWarn}</Text>}
-        {FetTempProt !== null && <Text style={styles.parameterText}>FetTempProt: {FetTempProt}</Text>}
-        {ResSocProt !== null && <Text style={styles.parameterText}>ResSocProt: {ResSocProt}</Text>}
-        {FetFailure !== null && <Text style={styles.parameterText}>FetFailure: {FetFailure}</Text>}
-        {TempSenseFault !== null && <Text style={styles.parameterText}>TempSenseFault: {TempSenseFault}</Text>}
-        {PackUnderVolWarn !== null && <Text style={styles.parameterText}>PackUnderVolWarn: {PackUnderVolWarn}</Text>}
-        {PackOverVolWarn !== null && <Text style={styles.parameterText}>PackOverVolWarn: {PackOverVolWarn}</Text>}
-        {ChgUnderTempWarn !== null && <Text style={styles.parameterText}>ChgUnderTempWarn: {ChgUnderTempWarn}</Text>}
-        {ChgOverTempWarn !== null && <Text style={styles.parameterText}>ChgOverTempWarn: {ChgOverTempWarn}</Text>}
-        {DchgUnderTempWarn !== null && <Text style={styles.parameterText}>DchgUnderTempWarn: {DchgUnderTempWarn}</Text>}
-        {DchgOverTempWarn !== null && <Text style={styles.parameterText}>DchgOverTempWarn: {DchgOverTempWarn}</Text>}
-        {PreChgFetStatus !== null && <Text style={styles.parameterText}>PreChgFetStatus: {PreChgFetStatus}</Text>}
-        {ChgFetStatus !== null && <Text style={styles.parameterText}>ChgFetStatus: {ChgFetStatus}</Text>}
-        {DchgFetStatus !== null && <Text style={styles.parameterText}>DchgFetStatus: {DchgFetStatus}</Text>}
-        {ResStatus !== null && <Text style={styles.parameterText}>ResStatus: {ResStatus}</Text>}
-        {ShortCktProt !== null && <Text style={styles.parameterText}>ShortCktProt: {ShortCktProt}</Text>}
-        {DschgPeakProt !== null && <Text style={styles.parameterText}>DschgPeakProt: {DschgPeakProt}</Text>}
-        {ChgAuth !== null && <Text style={styles.parameterText}>ChgAuth: {ChgAuth}</Text>}
-        {ChgPeakProt !== null && <Text style={styles.parameterText}>ChgPeakProt: {ChgPeakProt}</Text>}
-        {DI1 !== null && <Text style={styles.parameterText}>DI1: {DI1}</Text>}
-        {DI2 !== null && <Text style={styles.parameterText}>DI2: {DI2}</Text>}
-        {DO1 !== null && <Text style={styles.parameterText}>DO1: {DO1}</Text>}
-        {DO2 !== null && <Text style={styles.parameterText}>DO2: {DO2}</Text>}
-        {ChargerDetection !== null && <Text style={styles.parameterText}>ChargerDetection: {ChargerDetection}</Text>}
-        {CanCommDetection !== null && <Text style={styles.parameterText}>CanCommDetection: {CanCommDetection}</Text>}
-        {CellBalFeatureStatus !== null && <Text style={styles.parameterText}>CellBalFeatureStatus: {CellBalFeatureStatus}</Text>}
-        {ImmoChg !== null && <Text style={styles.parameterText}>ImmoChg: {ImmoChg}</Text>}
-        {ImmoDchg !== null && <Text style={styles.parameterText}>ImmoDchg: {ImmoDchg}</Text>}
-        {BuzzerStatus !== null && <Text style={styles.parameterText}>BuzzerStatus: {BuzzerStatus}</Text>}
-        {Side_Stand_Ack !== null && <Text style={styles.parameterText}>Side_Stand_Ack: {Side_Stand_Ack}</Text>}
-        {Direction_Ack !== null && <Text style={styles.parameterText}>Direction_Ack: {Direction_Ack}</Text>}
-        {Ride_Ack !== null && <Text style={styles.parameterText}>Ride_Ack: {Ride_Ack}</Text>}
-        {Hill_hold_Ack !== null && <Text style={styles.parameterText}>Hill_hold_Ack: {Hill_hold_Ack}</Text>}
-        {Wakeup_Ack !== null && <Text style={styles.parameterText}>Wakeup_Ack: {Wakeup_Ack}</Text>}
-        {DriveError_Motor_hall !== null && <Text style={styles.parameterText}>DriveError_Motor_hall: {DriveError_Motor_hall}</Text>}
-        {Motor_Stalling !== null && <Text style={styles.parameterText}>Motor_Stalling: {Motor_Stalling}</Text>}
-        {Motor_Phase_loss !== null && <Text style={styles.parameterText}>Motor_Phase_loss: {Motor_Phase_loss}</Text>}
-        {Controller_Over_Temeprature !== null && <Text style={styles.parameterText}>Controller_Over_Temeprature: {Controller_Over_Temeprature}</Text>}
-        {Motor_Over_Temeprature !== null && <Text style={styles.parameterText}>Motor_Over_Temeprature: {Motor_Over_Temeprature}</Text>}
-        {Throttle_Error !== null && <Text style={styles.parameterText}>Throttle_Error: {Throttle_Error}</Text>}
-        {MOSFET_Protection !== null && <Text style={styles.parameterText}>MOSFET_Protection: {MOSFET_Protection}</Text>}
-        {DriveStatus_Regenerative_Braking !== null && <Text style={styles.parameterText}>DriveStatus_Regenerative_Braking: {DriveStatus_Regenerative_Braking}</Text>}
-        {ModeR_Pulse !== null && <Text style={styles.parameterText}>ModeR_Pulse: {ModeR_Pulse}</Text>}
-        {ModeL_Pulse !== null && <Text style={styles.parameterText}>ModeL_Pulse: {ModeL_Pulse}</Text>}
-        {Brake_Pulse !== null && <Text style={styles.parameterText}>Brake_Pulse: {Brake_Pulse}</Text>}
-        {Park_Pulse !== null && <Text style={styles.parameterText}>Park_Pulse: {Park_Pulse}</Text>}
-        {Reverse_Pulse !== null && <Text style={styles.parameterText}>Reverse_Pulse: {Reverse_Pulse}</Text>}
-        {SideStand_Pulse !== null && <Text style={styles.parameterText}>SideStand_Pulse: {SideStand_Pulse}</Text>}
-        {ForwardParking_Mode_Ack !== null && <Text style={styles.parameterText}>ForwardParking_Mode_Ack: {ForwardParking_Mode_Ack}</Text>}
-        {DriveError_Controller_OverVoltag !== null && <Text style={styles.parameterText}>DriveError_Controller_OverVoltag: {DriveError_Controller_OverVoltag}</Text>}
-        {Controller_Undervoltage !== null && <Text style={styles.parameterText}>Controller_Undervoltage: {Controller_Undervoltage}</Text>}
-        {Overcurrent_Fault !== null && <Text style={styles.parameterText}>Overcurrent_Fault: {Overcurrent_Fault}</Text>}
-        {DriveStatus1_ride !== null && <Text style={styles.parameterText}>DriveStatus1_ride: {DriveStatus1_ride}</Text>}
-        {Wakeup_Request !== null && <Text style={styles.parameterText}>Wakeup_Request: {Wakeup_Request}</Text>}
-        {Hill_Hold !== null && <Text style={styles.parameterText}>Hill_Hold: {Hill_Hold}</Text>}
-        {Reverse_REQUEST !== null && <Text style={styles.parameterText}>Reverse_REQUEST: {Reverse_REQUEST}</Text>}
-        {Forward_parkingmode_REQUEST !== null && <Text style={styles.parameterText}>Forward_parkingmode_REQUEST: {Forward_parkingmode_REQUEST}</Text>}
-        {Side_stand_Req !== null && <Text style={styles.parameterText}>Side_stand_Req: {Side_stand_Req}</Text>}
-        {Battery_charge_logic !== null && <Text style={styles.parameterText}>Battery_charge_logic: {Battery_charge_logic}</Text>}
-        {Remote_cutoff !== null && <Text style={styles.parameterText}>Remote_cutoff: {Remote_cutoff}</Text>}
-        {mode_limit !== null && <Text style={styles.parameterText}>mode_limit: {mode_limit}</Text>}
-        {Geo_fencebuzzer !== null && <Text style={styles.parameterText}>Geo_fencebuzzer: {Geo_fencebuzzer}</Text>}
-        {Holiday_mode !== null && <Text style={styles.parameterText}>Holiday_mode: {Holiday_mode}</Text>}
-        {Service_request !== null && <Text style={styles.parameterText}>Service_request: {Service_request}</Text>}
-        {mode !== null ? <Text style={styles.parameterText}>Mode: {mode}</Text> : <Text>No Mode Data Received</Text>}
-        {ChargeSOP !== null && <Text style={styles.parameterText}>ChargeSOP: {ChargeSOP.toFixed(4)}</Text>}
-        {DchgSOP !== null && <Text style={styles.parameterText}>DchgSOP: {DchgSOP.toFixed(4)}</Text>}
-        {Drive_Error_Flag !== null && <Text style={styles.parameterText}>Drive Error Flag: {Drive_Error_Flag.toFixed(4)}</Text>}
-        {Set_Regen !== null && <Text style={styles.parameterText}>Set Regen: {Set_Regen.toFixed(4)}</Text>}
-        {DCcurrentlimit !== null && <Text style={styles.parameterText}>DC Current Limit: {DCcurrentlimit.toFixed(4)} A</Text>}
-        {Custom_freq !== null && <Text style={styles.parameterText}>Custom Frequency: {Custom_freq.toFixed(4)} Hz</Text>}
-        {Custom_torque !== null && <Text style={styles.parameterText}>Custom Torque: {Custom_torque.toFixed(4)} Nm</Text>}
-        {Buffer_speed !== null && <Text style={styles.parameterText}>Buffer Speed: {Buffer_speed.toFixed(4)} RPM</Text>}
-        {Base_speed !== null && <Text style={styles.parameterText}>Base Speed: {Base_speed.toFixed(4)} RPM</Text>}
-        {Initial_torque !== null && <Text style={styles.parameterText}>Initial Torque: {Initial_torque.toFixed(4)} Nm</Text>}
-        {Final_torque !== null && <Text style={styles.parameterText}>Final Torque: {Final_torque.toFixed(4)} Nm</Text>}
-        {Cluster_odo !== null && <Text style={styles.parameterText}>Cluster Odometer: {Cluster_odo.toFixed(4)} km</Text>}
-        {Low_Mode_REQUEST !== null && <Text style={styles.parameterText}>Low_Mode_REQUEST: {Low_Mode_REQUEST}</Text>}
-        {Medium_Mode_REQUEST !== null && <Text style={styles.parameterText}>Medium_Mode_REQUEST: {Medium_Mode_REQUEST}</Text>}
-        {User_defind_mode_High_REQUEST !== null && <Text style={styles.parameterText}>User_defind_mode_High_REQUEST: {User_defind_mode_High_REQUEST}</Text>}
-        {Limp_mode_REQUEST !== null && <Text style={styles.parameterText}>Limp_mode_REQUEST: {Limp_mode_REQUEST}</Text>}     
-
- 
-        {/* {cellVol01 === null && cellVol02 === null && cellVol03 === null && cellVol04 === null &&
-       cellVol05 === null && cellVol06 === null && cellVol07 === null && cellVol08 === null &&
-       cellVol09 === null && cellVol10 === null && cellVol11 === null && cellVol12 === null &&
-       cellVol13 === null && cellVol14 === null && cellVol15 === null && cellVol16 === null &&
-       MaxCellVol === null && MinCellVol === null && AvgCellVol === null && MaxVoltId === null &&
-       PackVol === null && CycleCount === null && MaxTemp === null &&
-       MinTemp === null && CellVolMinMaxDev === null && MinTemp === null && CellVolMinMaxDev === null &&
-       MinTemp === null && CellVolMinMaxDev === null &&
- <Text>No Data Received Yet</Text>} */}
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search Parameters"
+          onChangeText={setSearchTerm}
+          value={searchTerm}
+        />
+        {filteredParameters().map((param, index) => (
+          param.value !== null && (
+            <Text key={index} style={styles.parameterText}>
+              {param.label}: {typeof param.value === 'number' ? param.value.toFixed(2) : param.value} {param.unit || ''}
+            </Text>
+          )
+        ))}
       </View>
     </ScrollView>
   );
 };
- 
+
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
@@ -1003,6 +1004,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  searchBar: {
+    fontSize: 20,
+    marginBottom: 20,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    width: '100%',
+  },
 });
- 
+
 export default DataTransfer;
