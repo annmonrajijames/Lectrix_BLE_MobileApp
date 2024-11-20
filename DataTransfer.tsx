@@ -768,6 +768,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const filteredParameters = () => {
     const lowercasedSearchTerm = searchTerm.toLowerCase();
     return [
+      // Battery
       { label: 'SOC', value: SOC, unit: '%' },
       { label: 'Temp1', value: Temp1 },
       { label: 'Temp2', value: Temp2 },
@@ -777,16 +778,11 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       { label: 'Temp6', value: Temp6 },
       { label: 'Temp7', value: Temp7 },
       { label: 'Temp8', value: Temp8 },
-      { label: 'MotorSpeed', value: MotorSpeed, unit: 'RPM' },
       { label: 'BatteryVoltage', value: BatteryVoltage, unit: 'V' },
       { label: 'BatteryCurrent', value: BatteryCurrent, unit: 'A' },
       { label: 'AC_Current', value: AC_Current, unit: 'A' },
       { label: 'AC_Voltage', value: AC_Voltage, unit: 'V' },
-      { label: 'Throttle', value: Throttle, unit: '%' },
-      { label: 'MCU_Temperature', value: MCU_Temperature, unit: '°C' },
-      { label: 'Motor_Temperature', value: Motor_Temperature, unit: '°C' },
       { label: 'IgnitionStatus', value: IgnitionStatus },
-      { label: 'Side_Stand_Ack', value: Side_Stand_Ack },
       { label: 'Mode', value: mode },
       { label: 'CellVol01', value: cellVol01, unit: 'V' },
       { label: 'CellVol02', value: cellVol02, unit: 'V' },
@@ -861,10 +857,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       { label: 'chgStatus_chg_idle', value: chgStatus_chg_idle },
       { label: 'chgrLiveMsgChgVolt', value: chgrLiveMsgChgVolt, unit: 'V' },
       { label: 'chgrLiveMsgChgCurrent', value: chgrLiveMsgChgCurrent, unit: 'A' },
-      { label: 'MCU_Fault_Code', value: MCU_Fault_Code },
-      { label: 'MCU_ID', value: MCU_ID },
-      { label: 'Cluster_heartbeat', value: Cluster_heartbeat },
-      { label: 'Odo_Cluster', value: Odo_Cluster, unit: 'km' },
       { label: 'IgnitionStatus', value: IgnitionStatus },
       { label: 'LoadDetection', value: LoadDetection },
       { label: 'Keystatus', value: Keystatus },
@@ -911,6 +903,22 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       { label: 'ImmoChg', value: ImmoChg },
       { label: 'ImmoDchg', value: ImmoDchg },
       { label: 'BuzzerStatus', value: BuzzerStatus },
+      { label: 'Remote_cutoff', value: Remote_cutoff },
+      { label: 'mode_limit', value: mode_limit },
+      { label: 'Geo_fencebuzzer', value: Geo_fencebuzzer },
+      { label: 'Holiday_mode', value: Holiday_mode },
+      { label: 'ChargeSOP', value: ChargeSOP },
+      { label: 'DchgSOP', value: DchgSOP },
+      { label: 'Drive_Error_Flag', value: Drive_Error_Flag },
+
+      // MCU
+      { label: 'MotorSpeed', value: MotorSpeed, unit: 'RPM' },
+      { label: 'Throttle', value: Throttle, unit: '%' },
+      { label: 'MCU_Temperature', value: MCU_Temperature, unit: '°C' },
+      { label: 'Motor_Temperature', value: Motor_Temperature, unit: '°C' },
+      { label: 'Side_Stand_Ack', value: Side_Stand_Ack },
+      { label: 'MCU_Fault_Code', value: MCU_Fault_Code },
+      { label: 'MCU_ID', value: MCU_ID },
       { label: 'Side_Stand_Ack', value: Side_Stand_Ack },
       { label: 'Direction_Ack', value: Direction_Ack },
       { label: 'Ride_Ack', value: Ride_Ack },
@@ -940,15 +948,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       { label: 'Reverse_REQUEST', value: Reverse_REQUEST },
       { label: 'Forward_parkingmode_REQUEST', value: Forward_parkingmode_REQUEST },
       { label: 'Side_stand_Req', value: Side_stand_Req },
-      { label: 'Battery_charge_logic', value: Battery_charge_logic },
-      { label: 'Remote_cutoff', value: Remote_cutoff },
-      { label: 'mode_limit', value: mode_limit },
-      { label: 'Geo_fencebuzzer', value: Geo_fencebuzzer },
-      { label: 'Holiday_mode', value: Holiday_mode },
-      { label: 'Service_request', value: Service_request },
-      { label: 'ChargeSOP', value: ChargeSOP },
-      { label: 'DchgSOP', value: DchgSOP },
-      { label: 'Drive_Error_Flag', value: Drive_Error_Flag },
       { label: 'Set_Regen', value: Set_Regen },
       { label: 'DCcurrentlimit', value: DCcurrentlimit, unit: 'A' },
       { label: 'Custom_freq', value: Custom_freq, unit: 'Hz' },
@@ -962,6 +961,15 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       { label: 'Medium_Mode_REQUEST', value: Medium_Mode_REQUEST },
       { label: 'User_defined_mode_High_REQUEST', value: User_defind_mode_High_REQUEST },
       { label: 'Limp_mode_REQUEST', value: Limp_mode_REQUEST },
+
+      // VCU
+      { label: 'Cluster_heartbeat', value: Cluster_heartbeat },
+      { label: 'Odo_Cluster', value: Odo_Cluster, unit: 'km' },
+
+      // IOT
+      { label: 'Battery_charge_logic', value: Battery_charge_logic },
+      { label: 'Service_request', value: Service_request },
+
     ].filter(param => param.label.toLowerCase().includes(lowercasedSearchTerm));
   };
   
