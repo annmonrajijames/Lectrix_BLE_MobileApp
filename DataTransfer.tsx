@@ -3,6 +3,7 @@ import { ScrollView, View, Text, TextInput, StyleSheet, Alert } from 'react-nati
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
+import { Picker } from '@react-native-picker/picker';
 
 type RootStackParamList = {
   DataTransfer: { device: Device };
@@ -220,6 +221,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [mode, setMode] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');  // State to manage selected category
  
   const serviceUUID = '00FF';
   const characteristicUUID = 'FF01';
@@ -987,12 +989,15 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         ]
       }
     ]
-    return parameters
-    .map(group => ({
-      ...group,
-      items: group.items.filter(param => param.label.toLowerCase().includes(lowercasedSearchTerm))
-    }))
-    .filter(group => group.items.length > 0);
+     // Filter by search term and selected category
+     return parameters
+     .filter(group => selectedCategory === 'All' || group.category === selectedCategory) // Filter by category
+     .map(group => ({
+       ...group,
+       items: group.items.filter(param => param.label.toLowerCase().includes(lowercasedSearchTerm))
+     }))
+     .filter(group => group.items.length > 0);
+
   };
   
   
@@ -1005,6 +1010,20 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
           onChangeText={setSearchTerm}
           value={searchTerm}
         />
+        
+        {/* Category Dropdown */}
+        <Picker
+          selectedValue={selectedCategory}
+          onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+          style={styles.picker}
+        >
+          <Picker.Item label="All Categories" value="All" />
+          <Picker.Item label="Battery" value="Battery" />
+          <Picker.Item label="MCU" value="MCU" />
+          <Picker.Item label="VCU" value="VCU" />
+          <Picker.Item label="IOT" value="IOT" />
+        </Picker>
+
         {filteredParameters().map((paramGroup, index) => (
           <View key={index}>
             <Text style={styles.categoryText}>{paramGroup.category}</Text>
@@ -1020,13 +1039,12 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       </View>
     </ScrollView>
   );
-  
 };
 
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
@@ -1035,23 +1053,31 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   parameterText: {
-    color: 'black',
-    fontSize: 16,
+    color: '#FFA500',
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
   },
   searchBar: {
-    width: '80%',
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: '#fff',
+    fontSize: 20,
     marginBottom: 20,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: '#f0f0f0',
+    color: '#333',
+    width: '100%',
   },
-  categoryText: {  // Add this style
+  categoryText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 10,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    marginBottom: 20,
   },
 });
 
