@@ -1044,16 +1044,17 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff', // White background
   },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#fff', // White background
   },
   parameterText: {
-    color: '#FFA500',
+    color: '#000', // Black text
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -1064,20 +1065,22 @@ const styles = StyleSheet.create({
     padding: 10,
     borderWidth: 1,
     borderColor: '#ccc',
-    backgroundColor: '#f0f0f0',
-    color: '#333',
+    backgroundColor: '#fff', // White background for the input
+    color: '#000', // Black text for the input
     width: '100%',
   },
   categoryText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000', // Black text
     marginBottom: 10,
   },
   picker: {
     height: 50,
     width: '100%',
     marginBottom: 20,
+    color: '#000', // -Black text for Picker items
+    backgroundColor: '#fff', // White background for Picker
   },
 });
 
