@@ -130,19 +130,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#fff', // White background
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#000', // Black text
   },
   deviceInfo: {
     fontSize: 16,
     marginVertical: 10,
     padding: 10,
-    backgroundColor: '#DDD',
+    backgroundColor: '#FFF', // White background for device info
+    color: '#000', // Black text for device info
     borderRadius: 5,
-  }
+  },
+  button: {
+    backgroundColor: '#007BFF', // Blue button color
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  buttonText: {
+    color: '#fff', // White text on buttons
+    fontWeight: 'bold',
+  },
 });
+
 
 export default App;
