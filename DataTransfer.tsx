@@ -1004,7 +1004,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
-        <TextInput
+        <TextInput placeholderTextColor={"gray"}
           style={styles.searchBar}
           placeholder="Search Parameters"
           onChangeText={setSearchTerm}
@@ -1064,9 +1064,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff', // White background for the input
+    borderColor: 'green', // Gray border for the search bar
+    backgroundColor: '#e6f7ff', // White background for the input
     color: '#000', // Black text for the input
+    borderRadius: 25, // Optional: Rounded corners for better aesthetics
     width: '100%',
   },
   categoryText: {
@@ -1079,9 +1080,14 @@ const styles = StyleSheet.create({
     height: 50,
     width: '100%',
     marginBottom: 20,
-    color: '#000', // -Black text for Picker items
-    backgroundColor: '#fff', // White background for Picker
+    color: '#000', // Black text for Picker items
+    backgroundColor: '#e6f7ff', // White background for Picker
+    borderWidth: 10, // Add border for the dropdown
+    borderColor: 'black', // Gray border
+    borderRadius: 25, // Optional: Rounded corners for better aesthetics
+    paddingHorizontal: 10, // Add padding inside the dropdown
   },
 });
+
 
 export default DataTransfer;
