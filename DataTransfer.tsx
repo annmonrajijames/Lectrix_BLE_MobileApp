@@ -1073,7 +1073,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000', // Black text
+    color: '#e6f7ff', // Black text
     marginBottom: 10,
   },
   picker: {
