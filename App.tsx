@@ -5,12 +5,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import HIL_Receive_from_vehicle from './HIL_Receive_from_vehicle';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
-import AppToVCUFeatures from './App_to_VCU_features'; // Make sure this import is correct
-import CurrentLimit from './CurrentLimit';
 
 type RootStackParamList = {
   Home: undefined;
-  DataTransfer: { device: Device };
   HIL_Receive_from_vehicle: { device: Device };
   AppToVCUFeatures: { device: Device };
   CurrentLimit: {device: Device};
@@ -114,9 +111,7 @@ const App: React.FC = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Scan BLE Devices' }} />
-        <Stack.Screen name="HIL_Receive_from_vehicle" component={HIL_Receive_from_vehicle} options={{ title: 'HIL_Receive_from_vehicle' }} />
-        <Stack.Screen name="AppToVCUFeatures" component={AppToVCUFeatures} options={{ title: 'App to VCU Features' }} />
-        <Stack.Screen name="CurrentLimit" component={CurrentLimit} options={{ title: 'Current Limit' }} />
+        <Stack.Screen name="HIL_Receive_from_vehicle" component={HIL_Receive_from_vehicle} options={{ title: 'Data Transfer' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -128,19 +123,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#fff', // White background
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#000', // Black text
   },
   deviceInfo: {
     fontSize: 16,
     marginVertical: 10,
     padding: 10,
-    backgroundColor: '#DDD',
+    backgroundColor: '#FFF', // White background for device info
+    color: '#000', // Black text for device info
     borderRadius: 5,
-  }
+  },
+  button: {
+    backgroundColor: '#007BFF', // Blue button color
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  buttonText: {
+    color: '#fff', // White text on buttons
+    fontWeight: 'bold',
+  },
 });
+
 
 export default App;
