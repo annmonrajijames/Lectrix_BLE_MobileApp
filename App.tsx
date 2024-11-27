@@ -1,42 +1,47 @@
 import React from 'react';
-import { View, Text, Button, Alert } from 'react-native';
-import RNFS from 'react-native-fs';
-import { unparse } from 'papaparse';
+import { SafeAreaView, StyleSheet, Button, Alert, Text } from 'react-native';
+import { NativeModules } from 'react-native';
+
+const { FileSaveModule } = NativeModules;
 
 const App = () => {
-  // Function to generate and save CSV
-  const saveDataAsCSV = () => {
-    // Sample data
-    const data = [
-      { name: "Alice", age: 25 },
-      { name: "Bob", age: 30 },
-    ];
+  const handleSaveFile = () => {
+    // Example content to be saved in a CSV file
+    const csvContent = "name,age\nAlice,25\nBob,30";
 
-    // Convert JSON to CSV
-    const csv = unparse(data);
-
-    // Define a path to save the file
-    const path = RNFS.DocumentDirectoryPath + '/sample.csv';
-    console.log("DEBUG path"+path);
-
-    // Write the CSV file
-    RNFS.writeFile(path, csv, 'utf8')
-      .then(() => {
-        console.log('FILE WRITTEN!');
-        Alert.alert('Success', 'CSV file saved successfully!');
+    // Calling the native module function to save the file
+    FileSaveModule.saveFile(csvContent)
+      .then((result: string) => {
+        Alert.alert('Success', 'File saved successfully at: ' + result);
       })
-      .catch((err) => {
-        console.error(err.message);
-        Alert.alert('Error', 'Failed to save CSV file.');
+      .catch((error: { message: string; }) => {
+        console.error(error);
+        Alert.alert('Error', 'Failed to save file: ' + error.message);
       });
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Press the button to save data as CSV</Text>
-      <Button title="Save CSV" onPress={saveDataAsCSV} />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.instructions}>
+        Press the button below to save a CSV file using the native file picker.
+      </Text>
+      <Button title="Save CSV File" onPress={handleSaveFile} />
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  instructions: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
+  }
+});
 
 export default App;
