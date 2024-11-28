@@ -1,31 +1,54 @@
-import React from 'react';
-import { SafeAreaView, StyleSheet, Button, Alert, Text } from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView, StyleSheet, Button, Alert, View } from 'react-native';
 import { NativeModules } from 'react-native';
 
 const { FileSaveModule } = NativeModules;
 
 const App = () => {
-  const handleSaveFile = () => {
-    // Example content to be saved in a CSV file
-    const csvContent = "name,age\nAlice,25\nBob,30";
+  const [recording, setRecording] = useState(false);
+  const [locationChosen, setLocationChosen] = useState(false);
 
-    // Calling the native module function to save the file
-    FileSaveModule.saveFile(csvContent)
-      .then((result: string) => {
-        Alert.alert('Success', 'File saved successfully at: ' + result);
-      })
-      .catch((error: { message: string; }) => {
-        console.error(error);
-        Alert.alert('Error', 'Failed to save file: ' + error.message);
-      });
+  let intervalId: string | number | NodeJS.Timeout | undefined;
+
+  const chooseLocation = async () => {
+    try {
+      const result = await FileSaveModule.chooseLocation();
+      Alert.alert('Location Chosen', `File will be saved to: ${result}`);
+      setLocationChosen(true);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Failed to choose file location');
+    }
+  };
+
+  const startRecording = () => {
+    if (!locationChosen) {
+      Alert.alert('Error', 'Please choose a location first!');
+      return;
+    }
+    FileSaveModule.startRecording();
+    setRecording(true);
+    let id = 0;
+    intervalId = setInterval(() => {
+      const randomNumber = Math.floor(Math.random() * 100);
+      FileSaveModule.writeData(++id, randomNumber);
+    }, 100);
+  };
+
+  const stopRecording = () => {
+    clearInterval(intervalId);
+    FileSaveModule.stopRecording();
+    setRecording(false);
+    Alert.alert('Recording Stopped', 'The data recording has been stopped and saved.');
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.instructions}>
-        Press the button below to save a CSV file using the native file picker.
-      </Text>
-      <Button title="Save CSV File" onPress={handleSaveFile} />
+      <Button title="Choose Location to Store" onPress={chooseLocation} />
+      <View style={styles.buttonContainer}>
+        <Button title="Start Recording" onPress={startRecording} disabled={!locationChosen || recording} />
+        <Button title="Stop Recording" onPress={stopRecording} disabled={!recording} />
+      </View>
     </SafeAreaView>
   );
 };
@@ -35,12 +58,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
   },
-  instructions: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center',
+  buttonContainer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
   }
 });
 
