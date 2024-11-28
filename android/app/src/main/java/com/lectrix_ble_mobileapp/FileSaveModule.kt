@@ -6,11 +6,13 @@ import android.net.Uri
 import com.facebook.react.bridge.*
 import java.io.FileOutputStream
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 
 class FileSaveModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     private var outputStream: FileOutputStream? = null
     private var uri: Uri? = null
+    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
 
     companion object {
         const val CREATE_FILE_REQUEST_CODE = 1
@@ -35,6 +37,7 @@ class FileSaveModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
                 if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
                     uri = data?.data
                     promise.resolve(uri.toString())
+                    startNewFileWithHeader()
                 } else {
                     promise.reject("ERROR", "Failed to choose location or operation was cancelled.")
                 }
@@ -42,11 +45,25 @@ class FileSaveModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
         })
     }
 
-    @ReactMethod
-    fun startRecording() {
+    private fun startNewFileWithHeader() {
         try {
             uri?.let {
                 outputStream = reactApplicationContext.contentResolver.openOutputStream(it) as FileOutputStream
+                outputStream?.write("time_stamp,ID,random_number\n".toByteArray())
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    @ReactMethod
+    fun startRecording() {
+        try {
+            if (outputStream == null) {
+                uri?.let {
+                    outputStream = reactApplicationContext.contentResolver.openOutputStream(it) as FileOutputStream
+                    outputStream?.write("time_stamp,ID,random_number\n".toByteArray())
+                }
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -55,8 +72,9 @@ class FileSaveModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
 
     @ReactMethod
     fun writeData(id: Int, randomNumber: Int) {
+        val timeStamp = dateFormatter.format(Date())
         try {
-            outputStream?.write("$id, $randomNumber\n".toByteArray())
+            outputStream?.write("$timeStamp,$id,$randomNumber\n".toByteArray())
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -66,6 +84,7 @@ class FileSaveModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
     fun stopRecording() {
         try {
             outputStream?.close()
+            outputStream = null // Ensure we can restart cleanly
         } catch (e: IOException) {
             e.printStackTrace()
         }
