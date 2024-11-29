@@ -87,4 +87,23 @@ class FileSaveModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
             e.printStackTrace()
         }
     }
+    @ReactMethod
+    fun shareFile(fileUriString: String, promise: Promise) {
+        try {
+            val fileUri = Uri.parse(fileUriString)
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_STREAM, fileUri)
+                type = "text/csv"
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            val chooserIntent = Intent.createChooser(shareIntent, "Share CSV File")
+            chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // Necessary to start activity from non-activity context
+            reactApplicationContext.startActivity(chooserIntent)
+            promise.resolve("File shared successfully")
+        } catch (e: Exception) {
+            promise.reject("ERROR_SHARING_FILE", "Failed to share file", e)
+        }
+    }
+
 }
