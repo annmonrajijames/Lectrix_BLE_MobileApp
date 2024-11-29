@@ -3,16 +3,14 @@ package com.lectrix_ble_mobileapp
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.util.Log  // Import for using Log
 import com.facebook.react.bridge.*
 import java.io.FileOutputStream
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
 class FileSaveModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     private var outputStream: FileOutputStream? = null
     private var uri: Uri? = null
-    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
 
     companion object {
         const val CREATE_FILE_REQUEST_CODE = 1
@@ -71,8 +69,8 @@ class FileSaveModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
     }
 
     @ReactMethod
-    fun writeData(id: Int, randomNumber: Int) {
-        val timeStamp = dateFormatter.format(Date())
+    fun writeData(timeStamp: String, id: Int, randomNumber: Int) {
+        Log.d("FileSaveModule", "Writing data: $timeStamp,$id,$randomNumber")  // Log the data being written
         try {
             outputStream?.write("$timeStamp,$id,$randomNumber\n".toByteArray())
         } catch (e: IOException) {
