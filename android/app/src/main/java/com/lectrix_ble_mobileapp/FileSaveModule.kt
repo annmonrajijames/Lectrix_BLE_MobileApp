@@ -105,5 +105,21 @@ class FileSaveModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
             promise.reject("ERROR_SHARING_FILE", "Failed to share file", e)
         }
     }
+    @ReactMethod
+fun viewFile(fileUriString: String, promise: Promise) {
+    try {
+        val fileUri = Uri.parse(fileUriString)
+        val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(fileUri, "text/csv")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooserIntent = Intent.createChooser(viewIntent, "Open With")
+        chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // Necessary when starting an activity from outside an Activity context
+        reactApplicationContext.startActivity(chooserIntent)
+        promise.resolve("File opened successfully")
+    } catch (e: Exception) {
+        promise.reject("ERROR_OPENING_FILE", "Failed to open file", e)
+    }
+}
 
 }

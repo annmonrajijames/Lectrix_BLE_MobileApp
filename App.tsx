@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, Button, Alert, View, Share } from 'react-native';
+import { SafeAreaView, StyleSheet, Button, Alert, View } from 'react-native';
 import { NativeModules } from 'react-native';
 
 const { FileSaveModule } = NativeModules;
@@ -30,6 +30,15 @@ const App = () => {
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'Failed to share the file');
+    }
+  };
+
+  const viewFile = async () => {
+    try {
+      await FileSaveModule.viewFile(fileUri);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Failed to open the file');
     }
   };
 
@@ -70,10 +79,11 @@ const App = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Button title="Choose Location to Store" onPress={chooseLocation} />
-      <Button title="Share" onPress={shareFile} disabled={!locationChosen} />
       <View style={styles.buttonContainer}>
         <Button title="Start Recording" onPress={startRecording} disabled={!locationChosen || recording} />
         <Button title="Stop Recording" onPress={stopRecording} disabled={!recording} />
+        <Button title="Share" onPress={shareFile} disabled={!locationChosen} />
+        <Button title="View File" onPress={viewFile} disabled={!locationChosen} />
       </View>
     </SafeAreaView>
   );
