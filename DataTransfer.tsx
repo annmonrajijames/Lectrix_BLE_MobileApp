@@ -15,7 +15,7 @@ const { FileSaveModule } = NativeModules;
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [cellVol01, setCellVol01] = useState<number | null>(null);
+  const [cellVol01, setcellVol01] = useState<number | null>(null);
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
 
@@ -44,19 +44,21 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   };
 
   const decodeData = (data: string) => {
-    const newCellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
-
-    if (newCellVol01 !== null) {
-      setCellVol01(newCellVol01);
+    const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
+  
+    if (cellVol01 !== null) {
+      setcellVol01(cellVol01);
+      console.log('Updated cellVol01:', cellVol01);  // Debug statement added here
+      console.log('DEBUG recording:', recording);
       if (recording) {
         const timestamp = new Date().toISOString();
-        const csvData = `${timestamp},${newCellVol01}`;
+        const csvData = `${timestamp},${cellVol01}`;
         FileSaveModule.writeData(csvData);
         console.log('Sending data to native module:', csvData);
       }
     }
   };
-
+  
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
