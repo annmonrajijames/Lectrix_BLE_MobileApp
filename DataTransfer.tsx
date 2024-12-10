@@ -53,16 +53,16 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
     if (cellVol01 !== null) {
       setCellVol01(cellVol01);
-      console.log('Updated cellVol01:', cellVol01);  // Debug statement added here
+      console.log('Updated cellVol01:', cellVol01);
       console.log("DEBUG currentRecording"+currentRecording);
       if (currentRecording) {
-        const timestamp = new Date().toISOString();
+        const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -1); // Updated line
         const csvData = `${timestamp},${cellVol01}`;
         FileSaveModule.writeData(csvData);
         console.log('Sending data to native module:', csvData);
       }
     }
-  };
+};
   
   return (
     <ScrollView style={styles.scrollView}>
