@@ -19,7 +19,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
 
-  // Use a ref to keep track of the recording state inside asynchronous operations
   const recordingRef = useRef(recording);
   useEffect(() => {
     recordingRef.current = recording;
@@ -49,6 +48,18 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     return null;
   };
 
+  const formatTimestamp = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;  // Months start at 0!
+    const day = now.getDate();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    const second = now.getSeconds();
+    const milliseconds = now.getMilliseconds();
+    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+  };
+
   const decodeData = (data: string, currentRecording: boolean) => {
     const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
     if (cellVol01 !== null) {
@@ -56,14 +67,14 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       console.log('Updated cellVol01:', cellVol01);
       console.log("DEBUG currentRecording"+currentRecording);
       if (currentRecording) {
-        const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -1); // Updated line
+        const timestamp = formatTimestamp();  // Updated line to use formatTimestamp function
         const csvData = `${timestamp},${cellVol01}`;
         FileSaveModule.writeData(csvData);
         console.log('Sending data to native module:', csvData);
       }
     }
-};
-  
+  };
+
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
