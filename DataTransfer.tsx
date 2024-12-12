@@ -16,6 +16,7 @@ const { FileSaveModule } = NativeModules;
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
   const [cellVol01, setCellVol01] = useState<number | null>(null);
+  const [packCurr, setPackCurr] = useState<number | null>(null);
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
 
@@ -48,6 +49,27 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     return null;
   };
 
+  const signed_eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
+    return (data: string) => {
+      if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
+        const bytes = positions.map(pos => data.substring(2 * pos, 2 * pos + 2)).join('');
+        let decimalValue = parseInt(bytes, 16);
+
+        // Adjust for two's complement if the value is a negative number
+        const byteLength = positions.length;
+        const maxByteValue = Math.pow(2, 8 * byteLength); // Max value for byte length
+        const signBit = Math.pow(2, 8 * byteLength - 1); // Value of the sign bit
+
+        if (decimalValue >= signBit) {
+          decimalValue -= maxByteValue;
+        }
+
+        return decimalValue * multiplier;
+      }
+      return null;
+    }
+  };
+
   const formatTimestamp = () => {
     const now = new Date();
     const year = now.getFullYear();
@@ -62,16 +84,20 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
   const decodeData = (data: string, currentRecording: boolean) => {
     const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
+    const PackCurr = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
+
     if (cellVol01 !== null) {
       setCellVol01(cellVol01);
-      console.log('Updated cellVol01:', cellVol01);
-      console.log("DEBUG currentRecording"+currentRecording);
-      if (currentRecording) {
-        const timestamp = formatTimestamp();  // Updated line to use formatTimestamp function
-        const csvData = `${timestamp},${cellVol01}`;
-        FileSaveModule.writeData(csvData);
-        console.log('Sending data to native module:', csvData);
-      }
+    }
+    if (PackCurr !== null) {
+      setPackCurr(PackCurr);
+    }
+
+    if (currentRecording && (cellVol01 !== null || PackCurr !== null)) {
+      const timestamp = formatTimestamp();  
+      const csvData = `${timestamp},${cellVol01 ?? "N/A"},${PackCurr ?? "N/A"}`;
+      FileSaveModule.writeData(csvData);
+      console.log('Sending data to native module:', csvData);
     }
   };
 
@@ -108,6 +134,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
           }
         }} disabled={!fileUri} />
         {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
+        {packCurr !== null && <Text style={styles.packCurrText}>Pack Current: {packCurr.toFixed(3)} A</Text>}
       </View>
     </ScrollView>
   );
@@ -126,6 +153,12 @@ const styles = StyleSheet.create({
   },
   cellVolText: {
     color: '#FFA500',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  packCurrText: {
+    color: '#FF4500',
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
