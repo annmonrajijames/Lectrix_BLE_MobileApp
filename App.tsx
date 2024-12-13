@@ -3,18 +3,17 @@ import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert, Plat
 import { BleManager, Device } from 'react-native-ble-plx';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
-import DataTransfer from './DataTransfer';
-import DataDirection from './DataDirection';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
-import AppToVCUFeatures from './App_to_VCU_features'; // Make sure this import is correct
-import CurrentLimit from './CurrentLimit';
+import HIL_Receive_from_vehicle from './HIL_Receive_from_vehicle';
+import TransmitReceivePage from './TransmitReceivePage';
+import SOCTransmit from './SOCTransmit';
 
-type RootStackParamList = {
+// Exporting RootStackParamList for use in other components
+export type RootStackParamList = {
   Home: undefined;
-  DataTransfer: { device: Device };
-  DataDirection: { device: Device };
-  AppToVCUFeatures: { device: Device };
-  CurrentLimit: {device: Device};
+  HIL_Receive_from_vehicle: { device: Device };
+  TransmitReceivePage: { device: Device };
+  SOCTransmit: { device: Device };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -29,14 +28,13 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
 
   const checkBluetoothState = async () => {
     const state = await BluetoothStateManager.getState();
-
     if (state === 'PoweredOff') {
       Alert.alert(
         'Enable Bluetooth',
         'This app needs Bluetooth to scan for devices. Would you like to enable it?',
         [
-          { text: 'No', onPress: () => console.log('User declined Bluetooth enablement'), style: 'cancel' },
-          { text: 'Yes', onPress: () => BluetoothStateManager.requestToEnable().then(() => requestBluetoothPermissions()) }
+          { text: 'No', style: 'cancel' },
+          { text: 'Yes', onPress: () => BluetoothStateManager.requestToEnable().then(() => requestBluetoothPermissions()) },
         ]
       );
     } else {
@@ -52,8 +50,8 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
       ]);
 
       if (result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT] !== PermissionsAndroid.RESULTS.GRANTED ||
-          result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN] !== PermissionsAndroid.RESULTS.GRANTED) {
-        Alert.alert("Permission Error", "Bluetooth permissions are required to scan for devices.");
+        result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN] !== PermissionsAndroid.RESULTS.GRANTED) {
+        Alert.alert('Permission Error', 'Bluetooth permissions are required to scan for devices.');
       }
     }
     scanAndConnect();
@@ -62,15 +60,13 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
   const connectToDevice = (device: Device) => {
     manager.stopDeviceScan();
     device.connect()
+      .then(device => device.discoverAllServicesAndCharacteristics())
       .then(device => {
-        return device.discoverAllServicesAndCharacteristics();
+        navigation.navigate('TransmitReceivePage', { device });
       })
-      .then(device => {
-        navigation.navigate('DataDirection', { device });
-      })
-      .catch((error: any) => {
-        console.error("Connection failed", error);
-        Alert.alert("Connection Error", `Error connecting to device: ${error.message}`);
+      .catch(error => {
+        console.error('Connection failed', error);
+        Alert.alert('Connection Error', `Error connecting to device: ${error.message}`);
       });
   };
 
@@ -90,7 +86,7 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
 
     setTimeout(() => {
       manager.stopDeviceScan();
-    }, 10000); // Stop scanning after 10 seconds
+    }, 10000);
   };
 
   return (
@@ -115,10 +111,9 @@ const App: React.FC = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Scan BLE Devices' }} />
-        <Stack.Screen name="DataDirection" component={DataDirection} options={{ title: 'Data Direction' }} />
-        <Stack.Screen name="DataTransfer" component={DataTransfer} options={{ title: 'Data Transfer' }} />
-        <Stack.Screen name="AppToVCUFeatures" component={AppToVCUFeatures} options={{ title: 'App to VCU Features' }} />
-        <Stack.Screen name="CurrentLimit" component={CurrentLimit} options={{ title: 'Current Limit' }} />
+        <Stack.Screen name="HIL_Receive_from_vehicle" component={HIL_Receive_from_vehicle} options={{ title: 'Data Transfer' }} />
+        <Stack.Screen name="TransmitReceivePage" component={TransmitReceivePage} options={{ title: 'Transmit or Receive Data' }} />
+        <Stack.Screen name="SOCTransmit" component={SOCTransmit} options={{ title: 'SOC Transmit' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -130,33 +125,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff', // White background
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#000', // Black text
   },
   deviceInfo: {
     fontSize: 16,
     marginVertical: 10,
     padding: 10,
-    backgroundColor: '#FFF', // White background for device info
-    color: '#000', // Black text for device info
+    backgroundColor: '#f0f0f0',
     borderRadius: 5,
-  },
-  button: {
-    backgroundColor: '#007BFF', // Blue button color
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 20,
-  },
-  buttonText: {
-    color: '#fff', // White text on buttons
-    fontWeight: 'bold',
   },
 });
-
 
 export default App;
