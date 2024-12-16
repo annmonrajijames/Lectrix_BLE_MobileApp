@@ -82,24 +82,42 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
   };
 
-  const decodeData = (data: string, currentRecording: boolean) => {
-    const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
-    const PackCurr = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
+// Temporary storage to hold values from each packet until all are received
+const tempStorage = useRef({ cellVol01: [], packCurr: [] });
 
-    if (cellVol01 !== null) {
-      setCellVol01(cellVol01);
-    }
-    if (PackCurr !== null) {
-      setPackCurr(PackCurr);
-    }
+const decodeData = (data: string, currentRecording: boolean) => {
+  // Use the first two characters directly as a hexadecimal string
+  const packetNumberHex = data.substring(0, 2);
+  console.log('Packet Number:', packetNumberHex);
 
-    if (currentRecording && (cellVol01 !== null || PackCurr !== null)) {
-      const timestamp = formatTimestamp();  
-      const csvData = `${timestamp},${cellVol01 ?? "N/A"},${PackCurr ?? "N/A"}`;
-      FileSaveModule.writeData(csvData);
-      console.log('Sending data to native module:', csvData);
-    }
-  };
+  const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
+  const packCurr = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
+
+  // Store the data temporarily
+  if (cellVol01 !== null) {
+      tempStorage.current.cellVol01.push(cellVol01);
+  }
+  if (packCurr !== null) {
+      tempStorage.current.packCurr.push(packCurr);
+  }
+
+  // Check if this is the last packet
+  if (packetNumberHex === '14') {  // '14' is hexadecimal for 20
+      if (currentRecording) {
+          const timestamp = formatTimestamp();
+          // Process all accumulated data
+          tempStorage.current.cellVol01.forEach((vol, index) => {
+              const current = tempStorage.current.packCurr[index] ?? "N/A";
+              const csvData = `${timestamp},${vol.toFixed(4)},${current}`;
+              FileSaveModule.writeData(csvData);
+              console.log('Sending data to native module:', csvData);
+          });
+
+          // Clear temporary storage after writing to file
+          tempStorage.current = { cellVol01: [], packCurr: [] };
+      }
+  }
+};
 
   return (
     <ScrollView style={styles.scrollView}>
