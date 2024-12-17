@@ -42,6 +42,51 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     setupSubscription();
   }, [device]);
 
+  const tempStorage = useRef({
+    cellVol01: [],
+    packCurr: [],
+    isFirstCycle: true,
+    firstTimestamp: null
+  });
+
+  const decodeData = (data: string, currentRecording: boolean) => {
+    const packetNumberHex = data.substring(0, 2);
+    const timestamp = formatTimestamp();
+
+    const cellVol = eight_bytes_decode('07', 0.0001, 7, 8)(data);
+    const packCurrent = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
+
+    if (cellVol !== null) {
+      tempStorage.current.cellVol01.push(cellVol);
+      setCellVol01(cellVol); // Update state for display
+    }
+    if (packCurrent !== null) {
+      tempStorage.current.packCurr.push(packCurrent);
+      setPackCurr(packCurrent); // Update state for display
+    }
+
+    if (packetNumberHex === '01' && tempStorage.current.isFirstCycle) {
+      tempStorage.current.firstTimestamp = timestamp;
+    }
+
+    if (packetNumberHex === '20') {
+      tempStorage.current.cellVol01.forEach((vol, index) => {
+        const current = tempStorage.current.packCurr[index] ?? "N/A";
+        const csvData = `${timestamp},${vol.toFixed(4)},${current}`;
+
+        if (!(tempStorage.current.isFirstCycle && tempStorage.current.firstTimestamp === timestamp)) {
+          FileSaveModule.writeData(csvData);
+          console.log('Data Written:', csvData);
+        }
+      });
+
+      tempStorage.current.isFirstCycle = false;
+      tempStorage.current.cellVol01 = [];
+      tempStorage.current.packCurr = [];
+      tempStorage.current.firstTimestamp = null;
+    }
+  };
+
   const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => (data: string) => {
     if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
       return parseInt(data.substring(2 * positions[0], 2 * positions[1] + 2), 16) * multiplier;
@@ -49,31 +94,25 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     return null;
   };
 
-  const signed_eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
-    return (data: string) => {
-      if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
-        const bytes = positions.map(pos => data.substring(2 * pos, 2 * pos + 2)).join('');
-        let decimalValue = parseInt(bytes, 16);
-
-        // Adjust for two's complement if the value is a negative number
-        const byteLength = positions.length;
-        const maxByteValue = Math.pow(2, 8 * byteLength); // Max value for byte length
-        const signBit = Math.pow(2, 8 * byteLength - 1); // Value of the sign bit
-
-        if (decimalValue >= signBit) {
-          decimalValue -= maxByteValue;
-        }
-
-        return decimalValue * multiplier;
+  const signed_eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => (data: string) => {
+    if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
+      const bytes = positions.map(pos => data.substring(2 * pos, 2 * pos + 2)).join('');
+      let decimalValue = parseInt(bytes, 16);
+      const byteLength = positions.length;
+      const maxByteValue = Math.pow(2, 8 * byteLength);
+      const signBit = Math.pow(2, 8 * byteLength - 1);
+      if (decimalValue >= signBit) {
+        decimalValue -= maxByteValue;
       }
-      return null;
+      return decimalValue * multiplier;
     }
+    return null;
   };
 
   const formatTimestamp = () => {
     const now = new Date();
     const year = now.getFullYear();
-    const month = now.getMonth() + 1;  // Months start at 0!
+    const month = now.getMonth() + 1; // Months start at 0!
     const day = now.getDate();
     const hour = now.getHours();
     const minute = now.getMinutes();
@@ -81,54 +120,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const milliseconds = now.getMilliseconds();
     return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
   };
-
-// Temporary storage to hold values from each packet until all are received
-// Assuming tempStorage also stores a flag and the initial timestamp for comparison
-const tempStorage = useRef({
-  cellVol01: [],
-  packCurr: [],
-  isFirstCycle: true,  // Flag to check if it's the first cycle
-  firstTimestamp: null  // Store the first timestamp
-});
-
-const decodeData = (data: string, currentRecording: boolean) => {
-  const packetNumberHex = data.substring(0, 2);
-  const timestamp = formatTimestamp();  // Get current timestamp for this packet
-
-  const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
-  const packCurr = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
-
-  if (cellVol01 !== null) {
-      tempStorage.current.cellVol01.push(cellVol01);
-  }
-  if (packCurr !== null) {
-      tempStorage.current.packCurr.push(packCurr);
-  }
-
-  // Set the first timestamp during the first packet of the first cycle
-  if (packetNumberHex === '01' && tempStorage.current.isFirstCycle) {
-      tempStorage.current.firstTimestamp = timestamp;
-  }
-
-  // Check if this is the last packet
-  if (packetNumberHex === '20') {
-      tempStorage.current.cellVol01.forEach((vol, index) => {
-          const current = tempStorage.current.packCurr[index] ?? "N/A";
-          const csvData = `${timestamp},${vol.toFixed(4)},${current}`;
-
-          // Skip writing the first timestamp during the first cycle
-          if (!(tempStorage.current.isFirstCycle && tempStorage.current.firstTimestamp === timestamp)) {
-              FileSaveModule.writeData(csvData);
-              console.log('Data Written:', csvData);
-          }
-      });
-
-      // After the first cycle, update the flag
-      tempStorage.current.isFirstCycle = false;
-      tempStorage.current = { cellVol01: [], packCurr: [], isFirstCycle: false, firstTimestamp: null };
-      console.log('Data processing completed for all packets, cycle reset.');
-  }
-};
 
   return (
     <ScrollView style={styles.scrollView}>
@@ -143,11 +134,9 @@ const decodeData = (data: string, currentRecording: boolean) => {
             Alert.alert('Error', 'Please choose a location first!');
             return;
           }
-          FileSaveModule.startRecording();
           setRecording(true);
         }} disabled={recording} />
         <Button title="Stop Recording" onPress={() => {
-          FileSaveModule.stopRecording();
           setRecording(false);
           Alert.alert('Recording Stopped', 'The data recording has been stopped and saved.');
         }} disabled={!recording} />
