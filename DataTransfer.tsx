@@ -86,14 +86,13 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 const tempStorage = useRef({ cellVol01: [], packCurr: [] });
 
 const decodeData = (data: string, currentRecording: boolean) => {
-  // Use the first two characters directly as a hexadecimal string
+  const startTime = performance.now(); // Start timing when function is called
   const packetNumberHex = data.substring(0, 2);
-  console.log('Packet Number:', packetNumberHex);
+  console.log('Packet Number:', packetNumberHex, 'Received at:', startTime);
 
   const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
   const packCurr = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
 
-  // Store the data temporarily
   if (cellVol01 !== null) {
       tempStorage.current.cellVol01.push(cellVol01);
   }
@@ -101,18 +100,22 @@ const decodeData = (data: string, currentRecording: boolean) => {
       tempStorage.current.packCurr.push(packCurr);
   }
 
-  // Check if this is the last packet
-  if (packetNumberHex === '14') {  // '14' is hexadecimal for 20
+  // Check if this is the last packet, checking directly against the string '20'
+  if (packetNumberHex === '20') {
       if (currentRecording) {
+          const processTime = performance.now();
+          console.log('Processing start at:', processTime, 'Processing delay:', processTime - startTime);
+
           const timestamp = formatTimestamp();
           // Process all accumulated data
           tempStorage.current.cellVol01.forEach((vol, index) => {
               const current = tempStorage.current.packCurr[index] ?? "N/A";
               const csvData = `${timestamp},${vol.toFixed(4)},${current}`;
               FileSaveModule.writeData(csvData);
-              console.log('Sending data to native module:', csvData);
+              console.log('Data Written:', performance.now(), 'Write delay:', performance.now() - processTime);
           });
 
+          console.log('Total processing time:', performance.now() - startTime);
           // Clear temporary storage after writing to file
           tempStorage.current = { cellVol01: [], packCurr: [] };
       }
