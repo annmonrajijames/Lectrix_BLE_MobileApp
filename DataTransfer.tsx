@@ -17,7 +17,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
   const [cellVol01, setCellVol01] = useState<number | null>(null);
   const [packCurr, setPackCurr] = useState<number | null>(null);
-  const [SOC, setSOC] = useState<number | null>(null); // State variable for SOC
+  const [SOC, setSOC] = useState<number | null>(null); 
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
 
@@ -54,14 +54,13 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const decodeData = (data: string, currentRecording: boolean) => {
     const packetNumberHex = data.substring(0, 2);
     const timestamp = formatTimestamp();
-
-    const cellVol = eight_bytes_decode('07', 0.0001, 7, 8)(data);
+    const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
     const packCurrent = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
     const SOCValue = eight_bytes_decode('09', 1, 17)(data); // Decoding SOC value
     console.log("SOC DEBUG"+SOCValue);
-    if (cellVol !== null) {
-      tempStorage.current.cellVol01.push(cellVol);
-      setCellVol01(cellVol); 
+    if (cellVol01 !== null) {
+      tempStorage.current.cellVol01.push(cellVol01);
+      setCellVol01(cellVol01); 
     }
     if (packCurrent !== null) {
       tempStorage.current.packCurr.push(packCurrent);
@@ -79,8 +78,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (packetNumberHex === '20') {
       tempStorage.current.cellVol01.forEach((vol, index) => {
         const current = tempStorage.current.packCurr[index] ?? "N/A";
-        const soc = tempStorage.current.SOC[index] ?? "N/A";
-        const csvData = `${timestamp},${vol.toFixed(4)},${current},${soc}`;
+        const SOC = tempStorage.current.SOC[index] ?? "N/A";
+        const csvData = `${timestamp},${vol.toFixed(4)},${current},${SOC}`;
 
         if (!(tempStorage.current.isFirstCycle && tempStorage.current.firstTimestamp === timestamp)) {
           FileSaveModule.writeData(csvData);
