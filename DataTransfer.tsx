@@ -83,12 +83,17 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   };
 
 // Temporary storage to hold values from each packet until all are received
-const tempStorage = useRef({ cellVol01: [], packCurr: [] });
+// Assuming tempStorage also stores a flag and the initial timestamp for comparison
+const tempStorage = useRef({
+  cellVol01: [],
+  packCurr: [],
+  isFirstCycle: true,  // Flag to check if it's the first cycle
+  firstTimestamp: null  // Store the first timestamp
+});
 
 const decodeData = (data: string, currentRecording: boolean) => {
-  const startTime = performance.now(); // Start timing when function is called
   const packetNumberHex = data.substring(0, 2);
-  console.log('Packet Number:', packetNumberHex, 'Received at:', startTime);
+  const timestamp = formatTimestamp();  // Get current timestamp for this packet
 
   const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
   const packCurr = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
@@ -100,25 +105,28 @@ const decodeData = (data: string, currentRecording: boolean) => {
       tempStorage.current.packCurr.push(packCurr);
   }
 
-  // Check if this is the last packet, checking directly against the string '20'
+  // Set the first timestamp during the first packet of the first cycle
+  if (packetNumberHex === '01' && tempStorage.current.isFirstCycle) {
+      tempStorage.current.firstTimestamp = timestamp;
+  }
+
+  // Check if this is the last packet
   if (packetNumberHex === '20') {
-      if (currentRecording) {
-          const processTime = performance.now();
-          console.log('Processing start at:', processTime, 'Processing delay:', processTime - startTime);
+      tempStorage.current.cellVol01.forEach((vol, index) => {
+          const current = tempStorage.current.packCurr[index] ?? "N/A";
+          const csvData = `${timestamp},${vol.toFixed(4)},${current}`;
 
-          const timestamp = formatTimestamp();
-          // Process all accumulated data
-          tempStorage.current.cellVol01.forEach((vol, index) => {
-              const current = tempStorage.current.packCurr[index] ?? "N/A";
-              const csvData = `${timestamp},${vol.toFixed(4)},${current}`;
+          // Skip writing the first timestamp during the first cycle
+          if (!(tempStorage.current.isFirstCycle && tempStorage.current.firstTimestamp === timestamp)) {
               FileSaveModule.writeData(csvData);
-              console.log('Data Written:', performance.now(), 'Write delay:', performance.now() - processTime);
-          });
+              console.log('Data Written:', csvData);
+          }
+      });
 
-          console.log('Total processing time:', performance.now() - startTime);
-          // Clear temporary storage after writing to file
-          tempStorage.current = { cellVol01: [], packCurr: [] };
-      }
+      // After the first cycle, update the flag
+      tempStorage.current.isFirstCycle = false;
+      tempStorage.current = { cellVol01: [], packCurr: [], isFirstCycle: false, firstTimestamp: null };
+      console.log('Data processing completed for all packets, cycle reset.');
   }
 };
 
