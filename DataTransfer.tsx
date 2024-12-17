@@ -17,6 +17,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
   const [cellVol01, setCellVol01] = useState<number | null>(null);
   const [packCurr, setPackCurr] = useState<number | null>(null);
+  const [SOC, setSOC] = useState<number | null>(null); // State variable for SOC
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
 
@@ -45,6 +46,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const tempStorage = useRef({
     cellVol01: [],
     packCurr: [],
+    SOC: [], // Adding SOC to temporary storage
     isFirstCycle: true,
     firstTimestamp: null
   });
@@ -55,14 +57,19 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
     const cellVol = eight_bytes_decode('07', 0.0001, 7, 8)(data);
     const packCurrent = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
-
+    const SOCValue = eight_bytes_decode('09', 1, 17)(data); // Decoding SOC value
+    console.log("SOC DEBUG"+SOCValue);
     if (cellVol !== null) {
       tempStorage.current.cellVol01.push(cellVol);
-      setCellVol01(cellVol); // Update state for display
+      setCellVol01(cellVol); 
     }
     if (packCurrent !== null) {
       tempStorage.current.packCurr.push(packCurrent);
-      setPackCurr(packCurrent); // Update state for display
+      setPackCurr(packCurrent);
+    }
+    if (SOCValue !== null) {
+      tempStorage.current.SOC.push(SOCValue);
+      setSOC(SOCValue); // Update state for SOC
     }
 
     if (packetNumberHex === '01' && tempStorage.current.isFirstCycle) {
@@ -72,7 +79,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     if (packetNumberHex === '20') {
       tempStorage.current.cellVol01.forEach((vol, index) => {
         const current = tempStorage.current.packCurr[index] ?? "N/A";
-        const csvData = `${timestamp},${vol.toFixed(4)},${current}`;
+        const soc = tempStorage.current.SOC[index] ?? "N/A";
+        const csvData = `${timestamp},${vol.toFixed(4)},${current},${soc}`;
 
         if (!(tempStorage.current.isFirstCycle && tempStorage.current.firstTimestamp === timestamp)) {
           FileSaveModule.writeData(csvData);
@@ -83,31 +91,42 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       tempStorage.current.isFirstCycle = false;
       tempStorage.current.cellVol01 = [];
       tempStorage.current.packCurr = [];
+      tempStorage.current.SOC = [];
       tempStorage.current.firstTimestamp = null;
     }
   };
 
-  const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => (data: string) => {
-    if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
-      return parseInt(data.substring(2 * positions[0], 2 * positions[1] + 2), 16) * multiplier;
-    }
-    return null;
-  };
-
-  const signed_eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => (data: string) => {
-    if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
-      const bytes = positions.map(pos => data.substring(2 * pos, 2 * pos + 2)).join('');
-      let decimalValue = parseInt(bytes, 16);
-      const byteLength = positions.length;
-      const maxByteValue = Math.pow(2, 8 * byteLength);
-      const signBit = Math.pow(2, 8 * byteLength - 1);
-      if (decimalValue >= signBit) {
-        decimalValue -= maxByteValue;
+  const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
+    return (data: string) => {
+      if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
+        const bytes = positions.map(pos => data.substring(2 * pos, 2 * pos + 2)).join('');
+        const decimalValue = parseInt(bytes, 16);
+        return decimalValue * multiplier;
       }
-      return decimalValue * multiplier;
+      return null;
     }
-    return null;
-  };
+  }
+
+  const signed_eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
+    return (data: string) => {
+      if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
+        const bytes = positions.map(pos => data.substring(2 * pos, 2 * pos + 2)).join('');
+        let decimalValue = parseInt(bytes, 16);
+ 
+        // Adjust for two's complement if the value is a negative number
+        const byteLength = positions.length;
+        const maxByteValue = Math.pow(2, 8 * byteLength); // Max value for byte length
+        const signBit = Math.pow(2, 8 * byteLength - 1); // Value of the sign bit
+ 
+        if (decimalValue >= signBit) {
+          decimalValue -= maxByteValue;
+        }
+ 
+        return decimalValue * multiplier;
+      }
+      return null;
+    }
+  }
 
   const formatTimestamp = () => {
     const now = new Date();
@@ -153,6 +172,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         }} disabled={!fileUri} />
         {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
         {packCurr !== null && <Text style={styles.packCurrText}>Pack Current: {packCurr.toFixed(3)} A</Text>}
+        {SOC !== null && <Text style={styles.SOCText}>State of Charge: {SOC}%</Text>}
       </View>
     </ScrollView>
   );
@@ -181,6 +201,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  SOCText: {
+    color: '#32CD32', // Green color for SOC
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  }
 });
 
 export default DataTransfer;
