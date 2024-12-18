@@ -15,8 +15,8 @@ const { FileSaveModule } = NativeModules;
 
 const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const { device } = route.params;
-  const [cellVol01, setCellVol01] = useState<number | null>(null);
-  const [packCurr, setPackCurr] = useState<number | null>(null);
+  const [CellVol01, setCellVol01] = useState<number | null>(null);
+  const [PackCurr, setPackCurr] = useState<number | null>(null);
   const [SOC, setSOC] = useState<number | null>(null); 
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
@@ -44,54 +44,53 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   }, [device]);
 
   const tempStorage = useRef({
-    cellVol01: [],
-    packCurr: [],
-    SOC: [], // Adding SOC to temporary storage
+    CellVol01: [],
+    PackCurr: [],
+    SOC: [],
     isFirstCycle: true,
-    firstTimestamp: null
+    firstLocalTime: null
   });
 
   const decodeData = (data: string, currentRecording: boolean) => {
     const packetNumberHex = data.substring(0, 2);
-    const timestamp = formatTimestamp();
-    const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
-    const packCurrent = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
-    const SOCValue = eight_bytes_decode('09', 1, 17)(data); // Decoding SOC value
-    console.log("SOC DEBUG"+SOCValue);
-    if (cellVol01 !== null) {
-      tempStorage.current.cellVol01.push(cellVol01);
-      setCellVol01(cellVol01); 
+    const LocalTime = formatLocalTime();
+    const CellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
+    const PackCurr = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
+    const SOC = eight_bytes_decode('09', 1, 17)(data); 
+    if (CellVol01 !== null) {
+      tempStorage.current.CellVol01.push(CellVol01);
+      setCellVol01(CellVol01); 
     }
-    if (packCurrent !== null) {
-      tempStorage.current.packCurr.push(packCurrent);
-      setPackCurr(packCurrent);
+    if (PackCurr !== null) {
+      tempStorage.current.PackCurr.push(PackCurr);
+      setPackCurr(PackCurr);
     }
-    if (SOCValue !== null) {
-      tempStorage.current.SOC.push(SOCValue);
-      setSOC(SOCValue); // Update state for SOC
+    if (SOC !== null) {
+      tempStorage.current.SOC.push(SOC);
+      setSOC(SOC); 
     }
 
     if (packetNumberHex === '01' && tempStorage.current.isFirstCycle) {
-      tempStorage.current.firstTimestamp = timestamp;
+      tempStorage.current.firstLocalTime = LocalTime;
     }
 
     if (packetNumberHex === '20') {
-      tempStorage.current.cellVol01.forEach((vol, index) => {
-        const current = tempStorage.current.packCurr[index] ?? "N/A";
+      tempStorage.current.CellVol01.forEach((CellVol01, index) => {
+        const PackCurr = tempStorage.current.PackCurr[index] ?? "N/A";
         const SOC = tempStorage.current.SOC[index] ?? "N/A";
-        const csvData = `${timestamp},${vol.toFixed(4)},${current},${SOC}`;
-
-        if (!(tempStorage.current.isFirstCycle && tempStorage.current.firstTimestamp === timestamp)) {
+        const csvData = `${LocalTime},${CellVol01.toFixed(4)},${PackCurr},${SOC}`;
+    
+        if (!(tempStorage.current.isFirstCycle && tempStorage.current.firstLocalTime === LocalTime)) {
           FileSaveModule.writeData(csvData);
           console.log('Data Written:', csvData);
         }
       });
-
+    
       tempStorage.current.isFirstCycle = false;
-      tempStorage.current.cellVol01 = [];
-      tempStorage.current.packCurr = [];
+      tempStorage.current.CellVol01 = [];
+      tempStorage.current.PackCurr = [];
       tempStorage.current.SOC = [];
-      tempStorage.current.firstTimestamp = null;
+      tempStorage.current.firstLocalTime = null;
     }
   };
 
@@ -127,7 +126,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     }
   }
 
-  const formatTimestamp = () => {
+  const formatLocalTime = () => {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth() + 1; // Months start at 0!
@@ -169,9 +168,9 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
             Alert.alert('Share', result.message);
           }
         }} disabled={!fileUri} />
-        {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
-        {packCurr !== null && <Text style={styles.packCurrText}>Pack Current: {packCurr.toFixed(3)} A</Text>}
-        {SOC !== null && <Text style={styles.SOCText}>State of Charge: {SOC}%</Text>}
+        {CellVol01 !== null && <Text style={styles.CellVol01}>CellVol01: {CellVol01.toFixed(4)} V</Text>}
+        {PackCurr !== null && <Text style={styles.PackCurr}>PackCurr: {PackCurr.toFixed(3)} A</Text>}
+        {SOC !== null && <Text style={styles.SOC}>SOC: {SOC}%</Text>}
       </View>
     </ScrollView>
   );
@@ -188,19 +187,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  cellVolText: {
+  CellVol01: {
     color: '#FFA500',
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  packCurrText: {
+  PackCurr: {
     color: '#FF4500',
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  SOCText: {
+  SOC: {
     color: '#32CD32', // Green color for SOC
     fontSize: 20,
     fontWeight: 'bold',
