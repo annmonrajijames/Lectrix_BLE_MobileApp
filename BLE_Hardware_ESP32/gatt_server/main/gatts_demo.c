@@ -1804,6 +1804,16 @@ static void twai_receive_task(void *arg) {
                     byte_395 = message.data[6];
                     byte_396 = message.data[7];
                     break;
+                case 0x18FF3002: // CAN #48- Controller firmware number
+                    byte_397 = message.data[0];
+                    byte_398 = message.data[1];
+                    byte_399 = message.data[2];
+                    byte_400 = message.data[3];
+                 // byte_401=0x21 is to identify the packet number
+                    byte_402 = message.data[4];
+                    byte_403 = message.data[5];
+                    byte_404 = message.data[6];
+                    byte_405 = message.data[7];
       
                 default:
                     ESP_LOGI("TWAI Receiver", "Unknown CAN ID: 0x%08" PRIx32, message.identifier);
