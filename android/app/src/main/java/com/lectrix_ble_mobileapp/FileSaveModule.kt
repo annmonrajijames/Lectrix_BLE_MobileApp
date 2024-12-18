@@ -48,7 +48,7 @@ class FileSaveModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
             uri?.let {
                 outputStream = reactApplicationContext.contentResolver.openOutputStream(it) as FileOutputStream
                 // Create a header for just time_stamp and CellVoltage01 for now
-                val header = "LocalTime,CellVol01,PackCurr,SOC,IgnitionStatus\n"
+                val header = "LocalTime,CellVol01,PackCurr,SOC,IgnitionStatus,Mode_Ack\n"
                 outputStream?.write(header.toByteArray())
             }
         } catch (e: IOException) {
