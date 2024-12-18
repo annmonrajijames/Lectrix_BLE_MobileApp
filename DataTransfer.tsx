@@ -18,6 +18,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
   const [CellVol01, setCellVol01] = useState<number | null>(null);
   const [PackCurr, setPackCurr] = useState<number | null>(null);
   const [SOC, setSOC] = useState<number | null>(null); 
+  const [IgnitionStatus, setIgnitionStatus] = useState<number | null>(null);
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
 
@@ -47,6 +48,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     CellVol01: [],
     PackCurr: [],
     SOC: [],
+    IgnitionStatus: [],
     isFirstCycle: true,
     firstLocalTime: null
   });
@@ -57,6 +59,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     const CellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
     const PackCurr = signed_eight_bytes_decode('09', 0.001, 9, 10, 11, 12)(data);
     const SOC = eight_bytes_decode('09', 1, 17)(data); 
+    const IgnitionStatus = bit_decode('11', 18, 0)(data);
+
     if (CellVol01 !== null) {
       tempStorage.current.CellVol01.push(CellVol01);
       setCellVol01(CellVol01); 
@@ -69,6 +73,10 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       tempStorage.current.SOC.push(SOC);
       setSOC(SOC); 
     }
+    if (IgnitionStatus !== null) {
+      tempStorage.current.IgnitionStatus.push(IgnitionStatus);
+      setIgnitionStatus(IgnitionStatus); 
+    }
 
     if (packetNumberHex === '01' && tempStorage.current.isFirstCycle) {
       tempStorage.current.firstLocalTime = LocalTime;
@@ -78,7 +86,8 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       tempStorage.current.CellVol01.forEach((CellVol01, index) => {
         const PackCurr = tempStorage.current.PackCurr[index] ?? "N/A";
         const SOC = tempStorage.current.SOC[index] ?? "N/A";
-        const csvData = `${LocalTime},${CellVol01.toFixed(4)},${PackCurr},${SOC}`;
+        const IgnitionStatus = tempStorage.current.IgnitionStatus[index] ?? "N/A";
+        const csvData = `${LocalTime},${CellVol01.toFixed(4)},${PackCurr},${SOC},${IgnitionStatus}`;
     
         if (!(tempStorage.current.isFirstCycle && tempStorage.current.firstLocalTime === LocalTime)) {
           FileSaveModule.writeData(csvData);
@@ -90,6 +99,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
       tempStorage.current.CellVol01 = [];
       tempStorage.current.PackCurr = [];
       tempStorage.current.SOC = [];
+      tempStorage.current.IgnitionStatus = [];
       tempStorage.current.firstLocalTime = null;
     }
   };
@@ -105,6 +115,17 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     }
   }
 
+  const bit_decode = (firstByteCheck: string, bytePosition: number, bitPosition: number) => {
+    return (data: string) => {
+      if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) === firstByteCheck) {
+        const byte = data.substring(2 * bytePosition, 2 * bytePosition + 2);
+        const bits = parseInt(byte, 16).toString(2).padStart(8, '0');
+        return bits[7 - bitPosition] === '1' ? 1 : 0;
+      }
+      return null;
+    }
+  }
+  
   const signed_eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
     return (data: string) => {
       if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
@@ -171,6 +192,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
         {CellVol01 !== null && <Text style={styles.CellVol01}>CellVol01: {CellVol01.toFixed(4)} V</Text>}
         {PackCurr !== null && <Text style={styles.PackCurr}>PackCurr: {PackCurr.toFixed(3)} A</Text>}
         {SOC !== null && <Text style={styles.SOC}>SOC: {SOC}%</Text>}
+        {IgnitionStatus !== null && <Text style={styles.IgnitionStatus}>IgnitionStatus: {IgnitionStatus}</Text>}
       </View>
     </ScrollView>
   );
@@ -201,6 +223,12 @@ const styles = StyleSheet.create({
   },
   SOC: {
     color: '#32CD32', // Green color for SOC
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  IgnitionStatus: {
+    color: '#32CD32', // Green color for IgnitionStatus
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
