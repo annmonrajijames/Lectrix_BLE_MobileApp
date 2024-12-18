@@ -465,6 +465,107 @@ uint8_t byte_398=0x0;
 uint8_t byte_399=0x0;
 uint8_t byte_400=0x0;
 
+uint8_t byte_401=0x21;   // Packet Address
+uint8_t byte_402=0x0;
+uint8_t byte_403=0x0;
+uint8_t byte_404=0x0;
+uint8_t byte_405=0x0;
+uint8_t byte_406=0x0;
+uint8_t byte_407=0x0;
+uint8_t byte_408=0x0;
+uint8_t byte_409=0x0;
+uint8_t byte_410=0x0;
+uint8_t byte_411=0x0;
+uint8_t byte_412=0x0;
+uint8_t byte_413=0x0;
+uint8_t byte_414=0x0;
+uint8_t byte_415=0x0;
+uint8_t byte_416=0x0;
+uint8_t byte_417=0x0;
+uint8_t byte_418=0x0;
+uint8_t byte_419=0x0;
+uint8_t byte_420=0x0;
+uint8_t byte_421=0x22;   // Packet Address
+uint8_t byte_422=0x0;
+uint8_t byte_423=0x0;
+uint8_t byte_424=0x0;
+uint8_t byte_425=0x0;
+uint8_t byte_426=0x0;
+uint8_t byte_427=0x0;
+uint8_t byte_428=0x0;
+uint8_t byte_429=0x0;
+uint8_t byte_430=0x0;
+uint8_t byte_431=0x0;
+uint8_t byte_432=0x0;
+uint8_t byte_433=0x0;
+uint8_t byte_434=0x0;
+uint8_t byte_435=0x0;
+uint8_t byte_436=0x0;
+uint8_t byte_437=0x0;
+uint8_t byte_438=0x0;
+uint8_t byte_439=0x0;
+uint8_t byte_440=0x0;
+uint8_t byte_441=0x23;   // Packet Address
+uint8_t byte_442=0x0;
+uint8_t byte_443=0x0;
+uint8_t byte_444=0x0;
+uint8_t byte_445=0x0;
+uint8_t byte_446=0x0;
+uint8_t byte_447=0x0;
+uint8_t byte_448=0x0;
+uint8_t byte_449=0x0;
+uint8_t byte_450=0x0;
+uint8_t byte_451=0x0;
+uint8_t byte_452=0x0;
+uint8_t byte_453=0x0;
+uint8_t byte_454=0x0;
+uint8_t byte_455=0x0;
+uint8_t byte_456=0x0;
+uint8_t byte_457=0x0;
+uint8_t byte_458=0x0;
+uint8_t byte_459=0x0;
+uint8_t byte_460=0x0;
+uint8_t byte_461=0x24;   // Packet Address
+uint8_t byte_462=0x0;
+uint8_t byte_463=0x0;
+uint8_t byte_464=0x0;
+uint8_t byte_465=0x0;
+uint8_t byte_466=0x0;
+uint8_t byte_467=0x0;
+uint8_t byte_468=0x0;
+uint8_t byte_469=0x0;
+uint8_t byte_470=0x0;
+uint8_t byte_471=0x0;
+uint8_t byte_472=0x0;
+uint8_t byte_473=0x0;
+uint8_t byte_474=0x0;
+uint8_t byte_475=0x0;
+uint8_t byte_476=0x0;
+uint8_t byte_477=0x0;
+uint8_t byte_478=0x0;
+uint8_t byte_479=0x0;
+uint8_t byte_480=0x0;
+uint8_t byte_481=0x25;   // Packet Address
+uint8_t byte_482=0x0;
+uint8_t byte_483=0x0;
+uint8_t byte_484=0x0;
+uint8_t byte_485=0x0;
+uint8_t byte_486=0x0;
+uint8_t byte_487=0x0;
+uint8_t byte_488=0x0;
+uint8_t byte_489=0x0;
+uint8_t byte_490=0x0;
+uint8_t byte_491=0x0;
+uint8_t byte_492=0x0;
+uint8_t byte_493=0x0;
+uint8_t byte_494=0x0;
+uint8_t byte_495=0x0;
+uint8_t byte_496=0x0;
+uint8_t byte_497=0x0;
+uint8_t byte_498=0x0;
+uint8_t byte_499=0x0;
+uint8_t byte_500=0x0;
+
 static esp_ble_adv_data_t adv_data = {
     .set_scan_rsp = false,
     .include_name = true,
@@ -957,6 +1058,77 @@ void notification_task(void *param) {
 
             vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
+
+        uint8_t notify_data21[20] = {
+            byte_401, byte_402, byte_403, byte_404, byte_405,
+            byte_406, byte_407, byte_408, byte_409, byte_410,
+            byte_411, byte_412, byte_413, byte_414, byte_415,
+            byte_416, byte_417, byte_418, byte_419, byte_420
+        };
+
+            esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
+                                        gl_profile_tab[PROFILE_A_APP_ID].char_handle,
+                                        sizeof(notify_data21), notify_data21, false);
+
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
+            count=count+1;
+
+        uint8_t notify_data22[20] = {
+            byte_421, byte_422, byte_423, byte_424, byte_425,
+            byte_426, byte_427, byte_428, byte_429, byte_430,
+            byte_431, byte_432, byte_433, byte_434, byte_435,
+            byte_436, byte_437, byte_438, byte_439, byte_440
+        };
+
+            esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
+                                        gl_profile_tab[PROFILE_A_APP_ID].char_handle,
+                                        sizeof(notify_data22), notify_data22, false);
+
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
+            count=count+1;
+
+        uint8_t notify_data23[20] = {
+            byte_441, byte_442, byte_443, byte_444, byte_445,
+            byte_446, byte_447, byte_448, byte_449, byte_450,
+            byte_451, byte_452, byte_453, byte_454, byte_455,
+            byte_456, byte_457, byte_458, byte_459, byte_460
+        };
+
+            esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
+                                        gl_profile_tab[PROFILE_A_APP_ID].char_handle,
+                                        sizeof(notify_data23), notify_data23, false);
+
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
+            count=count+1;
+
+        uint8_t notify_data24[20] = {
+            byte_461, byte_462, byte_463, byte_464, byte_465,
+            byte_466, byte_467, byte_468, byte_469, byte_470,
+            byte_471, byte_472, byte_473, byte_474, byte_475,
+            byte_476, byte_477, byte_478, byte_479, byte_480
+        };
+
+            esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
+                                        gl_profile_tab[PROFILE_A_APP_ID].char_handle,
+                                        sizeof(notify_data24), notify_data24, false);
+
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
+            count=count+1;
+
+        uint8_t notify_data25[20] = {
+            byte_481, byte_482, byte_483, byte_484, byte_485,
+            byte_486, byte_487, byte_488, byte_489, byte_490,
+            byte_491, byte_492, byte_493, byte_494, byte_495,
+            byte_496, byte_497, byte_498, byte_499, byte_500
+        };
+
+            esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
+                                        gl_profile_tab[PROFILE_A_APP_ID].char_handle,
+                                        sizeof(notify_data25), notify_data25, false);
+
+            vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
+            count=count+1;
+
 
         printf("Count %d", count);
     }
