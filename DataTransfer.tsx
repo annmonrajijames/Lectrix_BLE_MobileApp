@@ -34,7 +34,7 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
 
   const [PackCurr, setPackCurr] = useState<number | null>(null);
   const [SOC, setSOC] = useState<number | null>(null);
-  const [IgnitionStatus, setIgnitionStatus] = useState<string | null>(null);
+  const [IgnitionStatus, setIgnitionStatus] = useState<number | null>(null);
   const [Mode_Ack, setMode_Ack] = useState<number | null>(null);
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
