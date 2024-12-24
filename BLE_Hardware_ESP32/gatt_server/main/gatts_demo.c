@@ -359,35 +359,35 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id, ESP_GATT_OK, &rsp);
         break;
     case ESP_GATTS_WRITE_EVT:
-        ESP_LOGI(GATTS_TAG, "GATT_WRITE_EVT, conn_id %d, handle %d", param->write.conn_id, param->write.handle);
+        ESP_LOGI(GATTS_TAG, "GATT_WRITE_EVT received, conn_id: %d, handle: %d", param->write.conn_id, param->write.handle);
 
-        // Ensure the data length is valid and handle the write
-        if (param->write.len > 0) { 
-            ESP_LOGI(GATTS_TAG, "Received data: ");
+        // Ensure valid data length
+        if (param->write.len > 0) {
+            ESP_LOGI(GATTS_TAG, "Received data:");
             esp_log_buffer_hex(GATTS_TAG, param->write.value, param->write.len);
 
-            // Check for reset command
+            // Example: Handle specific commands (RESET_COMMAND, CAN_COMMAND)
             if (param->write.len == sizeof(RESET_COMMAND) - 1 &&
-                strncmp((char*)param->write.value, RESET_COMMAND, sizeof(RESET_COMMAND) - 1) == 0) {
-                ESP_LOGI(GATTS_TAG, "Received reset command, performing service reset...");
-                send_service_reset_can_message();  // Send the service reset CAN message
+                strncmp((char *)param->write.value, RESET_COMMAND, sizeof(RESET_COMMAND) - 1) == 0) {
+                ESP_LOGI(GATTS_TAG, "Reset command received");
+                send_service_reset_can_message();
             }
 
-            // Optionally add more command checks here (e.g., SEND_CAN)
             if (param->write.len == sizeof(CAN_COMMAND) - 1 &&
-                strncmp((char*)param->write.value, CAN_COMMAND, sizeof(CAN_COMMAND) - 1) == 0) {
-                ESP_LOGI(GATTS_TAG, "Received CAN command, sending CAN message...");
-                send_can_message();  // Send a regular CAN message
+                strncmp((char *)param->write.value, CAN_COMMAND, sizeof(CAN_COMMAND) - 1) == 0) {
+                ESP_LOGI(GATTS_TAG, "CAN command received");
+                send_can_message();
             }
 
-            // Acknowledge the write and send response to mobile app
+            // Acknowledge the write
             esp_gatt_rsp_t rsp;
             memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
-            rsp.attr_value.len = 0;  // Send an empty response
-            esp_gatts_send_response(param->write.conn_id, param->write.handle, ESP_GATT_OK, &rsp);
-            ESP_LOGI(GATTS_TAG, "Write acknowledged and response sent.");
+            rsp.attr_value.handle = param->write.handle;
+            rsp.attr_value.len = 0; // No data sent back
+            esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, ESP_GATT_OK, &rsp);
+            ESP_LOGI(GATTS_TAG, "Write acknowledged.");
         } else {
-            ESP_LOGW(GATTS_TAG, "Received empty write data.");
+            ESP_LOGW(GATTS_TAG, "Empty write received.");
         }
         break;
 
@@ -395,9 +395,14 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
     case ESP_GATTS_EXEC_WRITE_EVT:
         ESP_LOGI(GATTS_TAG, "ESP_GATTS_EXEC_WRITE_EVT= %d", ESP_GATTS_EXEC_WRITE_EVT);
         ESP_LOGI(GATTS_TAG, "Execute write event.");
+
+        // Acknowledge the execute write operation
         esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, ESP_GATT_OK, NULL);
+
+        // Handle prepared writes (if needed)
         example_exec_write_event_env(&a_prepare_write_env, param);
         break;
+
     case ESP_GATTS_MTU_EVT:
         ESP_LOGI(GATTS_TAG, "ESP_GATTS_MTU_EVT= %d", ESP_GATTS_MTU_EVT);
         ESP_LOGI(GATTS_TAG, "MTU updated to %d", param->mtu.mtu);
