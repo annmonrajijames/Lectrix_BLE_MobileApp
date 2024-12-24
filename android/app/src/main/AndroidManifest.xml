@@ -21,5 +21,10 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+      <activity
+        android:name=".NativeActivity"
+        android:label="@string/title_activity_native"
+        android:exported="false">
+      </activity>
     </application>
 </manifest>
