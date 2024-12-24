@@ -6,13 +6,13 @@ import { Device } from 'react-native-ble-plx';
 
 type RootStackParamList = {
   DataTransfer: { device: Device };
-  AppToVCUFeatures: { device: Device };
+  ReactPage: { device: Device };
   CurrentLimit: { device: Device };
 };
 
-type AppToVCUFeaturesProps = NativeStackScreenProps<RootStackParamList, 'AppToVCUFeatures'>;
+type ReactPageProps = NativeStackScreenProps<RootStackParamList, 'ReactPage'>;
 
-const AppToVCUFeatures: React.FC<AppToVCUFeaturesProps> = ({ navigation, route }) => {
+const ReactPage: React.FC<ReactPageProps> = ({ navigation, route }) => {
   const { device } = route.params; // Assuming device is being passed
 
   return (
@@ -31,4 +31,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AppToVCUFeatures;
+export default ReactPage;
