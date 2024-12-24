@@ -1,20 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ScrollView, View, Text, StyleSheet, Alert, Button } from 'react-native';
-import { Device } from 'react-native-ble-plx';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
 import { NativeModules } from 'react-native';
 
-type RootStackParamList = {
-  DataTransfer: { device: Device };
-};
-
-type DataTransferProps = NativeStackScreenProps<RootStackParamList, 'DataTransfer'>;
-
 const { FileSaveModule } = NativeModules;
 
-const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
-  const { device } = route.params;
+const DataTransfer: React.FC = () => {
   const [cellVol01, setCellVol01] = useState<number | null>(null);
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
@@ -25,22 +16,12 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     recordingRef.current = recording;
   }, [recording]);
 
-  useEffect(() => {
-    const setupSubscription = async () => {
-      await device.monitorCharacteristicForService('00FF', 'FF01', (error, characteristic) => {
-        if (error) {
-          Alert.alert("Subscription Error", error.message);
-          return;
-        }
-        if (characteristic?.value) {
-          const data = Buffer.from(characteristic.value, 'base64').toString('hex');
-          decodeData(data, recordingRef.current);
-        }
-      });
-      return () => device.cancelConnection();
-    };
-    setupSubscription();
-  }, [device]);
+  // Function to generate random data starting with '07'
+  const generateRandomData = () => {
+    const randomPart = Math.random().toString(16).substring(2, 18); // Generates a random string
+    const data = '07' + randomPart;
+    return data;
+  };
 
   const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => (data: string) => {
     if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
@@ -49,21 +30,36 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
     return null;
   };
 
-  const decodeData = (data: string, currentRecording: boolean) => {
+  const decodeData = (data: string, currentRecording: boolean, startDecodeTime) => {
     const cellVol01 = eight_bytes_decode('07', 0.0001, 7, 8)(data);
     if (cellVol01 !== null) {
       setCellVol01(cellVol01);
-      console.log('Updated cellVol01:', cellVol01);  // Debug statement added here
-      console.log("DEBUG currentRecording"+currentRecording);
       if (currentRecording) {
         const timestamp = new Date().toISOString();
         const csvData = `${timestamp},${cellVol01}`;
-        FileSaveModule.writeData(csvData);
-        console.log('Sending data to native module:', csvData);
+
+        const preWriteTime = Date.now(); // Time just before sending data to native module
+        FileSaveModule.writeData(csvData, (error, result) => {
+          const postWriteTime = Date.now(); // Time after data is written
+
+          console.log(`Decoding took ${preWriteTime - startDecodeTime} ms`);
+          console.log('Data write response:', result);
+          console.log(`Total process time from decoding to write complete: ${postWriteTime - startDecodeTime} ms`);
+        });
       }
     }
   };
-  
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const data = generateRandomData();
+      const startDecodeTime = Date.now(); // Start timing right before decoding
+      decodeData(data, recordingRef.current, startDecodeTime);
+    }, 0); // Generate data as quickly as possible
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
@@ -85,17 +81,6 @@ const DataTransfer: React.FC<DataTransferProps> = ({ route }) => {
           setRecording(false);
           Alert.alert('Recording Stopped', 'The data recording has been stopped and saved.');
         }} disabled={!recording} />
-        <Button title="View File" onPress={async () => {
-          if (fileUri) {
-            await FileSaveModule.viewFile(fileUri);
-          }
-        }} disabled={!fileUri} />
-        <Button title="Share File" onPress={async () => {
-          if (fileUri) {
-            const result = await FileSaveModule.shareFile(fileUri);
-            Alert.alert('Share', result.message);
-          }
-        }} disabled={!fileUri} />
         {cellVol01 !== null && <Text style={styles.cellVolText}>Cell Voltage 01: {cellVol01.toFixed(4)} V</Text>}
       </View>
     </ScrollView>

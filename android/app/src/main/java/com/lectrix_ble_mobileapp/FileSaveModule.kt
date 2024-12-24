@@ -64,16 +64,25 @@ class FileSaveModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
     }
 
     @ReactMethod
-    fun writeData(data: String) {
+    fun writeData(data: String, callback: Callback) {
         Log.d("FileSaveModule", "Attempting to write data: $data")
         try {
+            val startTime = System.currentTimeMillis() // Start timing
+    
             outputStream?.let {
                 it.write((data + "\n").toByteArray())
                 it.flush()  // Ensure data is written to the file immediately
+                val endTime = System.currentTimeMillis() // End timing
+    
                 Log.d("FileSaveModule", "Data written successfully")
-            } ?: Log.e("FileSaveModule", "OutputStream not initialized")
+                callback.invoke(null, "Data written in ${endTime - startTime} ms")
+            } ?: run {
+                Log.e("FileSaveModule", "OutputStream not initialized")
+                callback.invoke("OutputStream not initialized", null)
+            }
         } catch (e: IOException) {
             Log.e("FileSaveModule", "Error writing data", e)
+            callback.invoke(e.toString(), null)
         }
     }    
 
