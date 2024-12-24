@@ -20,6 +20,7 @@
 #include "sdkconfig.h"
 
 #define GATTS_TAG "GATTS_DEMO"
+#define ERROR_CHECK "SRIJANANI"
 
 // Declare the static function
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
@@ -191,6 +192,34 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     }
 }
 
+void transmit_task(uint8_t tenth_byte)
+{
+    uint8_t Reset_bit;
+    if(tenth_byte == 0x01)
+    {
+        Reset_bit = 8 ;
+        printf("Reset ON------------------------------------------------->");
+    }
+    else
+    {
+        Reset_bit = 0;
+        printf("Reset OFF------------------------------------------------->");
+    }
+    twai_message_t transmit_message_switch = {.identifier = (0x18f60001), .data_length_code = 8, .extd = 1, .data = {Reset_bit, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+        if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
+        {
+        printf("Message sent----------->");
+        ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
+        vTaskDelay(pdMS_TO_TICKS(100));
+        }
+        else
+        {
+        ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));
+ 
+}
+
 void can_init() {
     // Initialize CAN bus with TWAI configuration
     twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(GPIO_NUM_21, GPIO_NUM_22, TWAI_MODE_NORMAL); // Updated configuration
@@ -318,7 +347,7 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
     ESP_LOGI(GATTS_TAG, "Profile A Event Handler: Event = %d", event);
     switch (event) {
-        ESP_LOGI(GATTS_TAG,"EVENT CALLED");
+        ESP_LOGI(ERROR_CHECK,"EVENT CALLED");
     case ESP_GATTS_REG_EVT:
         ESP_LOGI(GATTS_TAG, "ESP_GATTS_REG_EVT= %d", ESP_GATTS_REG_EVT);
         ESP_LOGI(GATTS_TAG, "REGISTER_APP_EVT, status %d, app_id %d", param->reg.status, param->reg.app_id);
@@ -365,6 +394,12 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         if (param->write.len > 0) {
             ESP_LOGI(GATTS_TAG, "Received data:");
             esp_log_buffer_hex(GATTS_TAG, param->write.value, param->write.len);
+
+            uint8_t tenth_byte = param->write.value[9];  // Extract the 10th byte (index 9)
+            ESP_LOGI(GATTS_TAG, "10th byte value: 0x%02X", tenth_byte);
+
+            // Call the transmit_task function with the 10th byte
+            transmit_task(tenth_byte);
 
             // Example: Handle specific commands (RESET_COMMAND, CAN_COMMAND)
             if (param->write.len == sizeof(RESET_COMMAND) - 1 &&
@@ -497,7 +532,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         ESP_LOGI(GATTS_TAG, "Other event: %d", event);
         break;
     default:
-        ESP_LOGE(GATTS_TAG, "Unhandled event %d", event);
+        // ESP_LOGE(GATTS_TAG, "Unhandled event -------->JANANI %d", event);
         break;
     }
 }
@@ -595,4 +630,5 @@ void app_main(void) {
 
     // Initialize the CAN bus
     can_init();
+    // transmit_task();
 }
