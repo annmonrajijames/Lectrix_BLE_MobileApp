@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,7 +9,7 @@
         android:id="@+id/infoTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome! Please choose a location to save the file or start decoding."
+        android:text="Welcome! Please choose a location to save the file or start recording."
         android:textSize="16sp"
         android:padding="20dp"
         android:gravity="center" />
@@ -23,10 +22,17 @@
         android:layout_marginTop="20dp"/>
 
     <Button
-        android:id="@+id/decodeButton"
+        android:id="@+id/startRecordingButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start Decoding"
+        android:text="Start Recording"
+        android:layout_marginTop="20dp"/>
+
+    <Button
+        android:id="@+id/stopRecordingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop Recording"
         android:layout_marginTop="20dp"/>
 
 </LinearLayout>

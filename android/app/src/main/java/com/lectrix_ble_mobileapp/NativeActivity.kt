@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.*
 import java.io.OutputStreamWriter
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
@@ -16,22 +17,28 @@ import java.util.*
 class NativeActivity : AppCompatActivity() {
     private lateinit var infoTextView: TextView
     private var saveFileUri: Uri? = null
-    private var headersWritten = false  // Flag to track if headers have been written
+    private var headersWritten = false
+    private var job: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_native)
 
         infoTextView = findViewById(R.id.infoTextView)
-        val decodeButton: Button = findViewById(R.id.decodeButton)
+        val startRecordingButton: Button = findViewById(R.id.startRecordingButton)
+        val stopRecordingButton: Button = findViewById(R.id.stopRecordingButton)
         val saveLocationButton: Button = findViewById(R.id.saveLocationButton)
 
-        decodeButton.setOnClickListener {
+        startRecordingButton.setOnClickListener {
             if (saveFileUri != null) {
-                performDecodeOperation()
+                startRecording()
             } else {
                 infoTextView.text = "Please select a location to save the file first."
             }
+        }
+
+        stopRecordingButton.setOnClickListener {
+            stopRecording()
         }
 
         saveLocationButton.setOnClickListener {
@@ -39,8 +46,46 @@ class NativeActivity : AppCompatActivity() {
         }
     }
 
+    private fun startRecording() {
+        job = CoroutineScope(Dispatchers.IO).launch {
+            while (isActive) {
+                performDecodeOperation()
+                // delay(1000)  // Delay for 1 second before the next recording, adjust as necessary
+            }
+        }
+    }
+
+    private fun stopRecording() {
+        job?.cancel()
+        runOnUiThread {
+            infoTextView.text = "Recording stopped."
+        }
+    }
+
+    private fun performDecodeOperation() {
+        val results = mutableListOf<String>()
+        val dataList = (1..200).map { i -> generateRandomData(i) }
+        results.addAll(dataList.map { data -> eightBytesDecode(data, "07", 0.0001, 7, 8)?.toString() ?: "NaN" })
+
+        // Append results to the CSV file
+        saveFileUri?.let { uri ->
+            contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
+                OutputStreamWriter(outputStream).use { writer ->
+                    if (!headersWritten) {
+                        writer.append("timestamp," + (1..200).joinToString(",") { "cellVol$it" } + "\n")
+                        headersWritten = true
+                    }
+                    val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).apply {
+                        timeZone = TimeZone.getTimeZone("Asia/Kolkata")
+                    }.format(Date())
+                    writer.append("$timestamp," + results.joinToString(",") + "\n")
+                }
+            }
+        }
+    }
+
     private fun generateRandomData(parameterIndex: Int): String {
-        val randomBytes = ByteArray(19) // Generate 19 bytes to make the total 20 bytes with the "07" prefix.
+        val randomBytes = ByteArray(19)
         Random.nextBytes(randomBytes)
         return "07" + randomBytes.joinToString("") { String.format("%02x", it) }
     }
@@ -52,46 +97,6 @@ class NativeActivity : AppCompatActivity() {
         return null
     }
 
-    private fun performDecodeOperation() {
-        val fileUri = saveFileUri ?: return run {
-            infoTextView.text = "No file location selected. Please select a location to save the file first."
-            return
-        }
-    
-        val results = mutableListOf<String>()
-        val dataGenerationTime = measureTimeMillis {
-            val dataList = (1..200).map { i -> generateRandomData(i) }
-            dataList.map { data -> eightBytesDecode(data, "07", 0.0001, 7, 8) }.forEach { decoded ->
-                results.add(decoded?.toString() ?: "NaN")
-            }
-        }
-    
-        // Write results to the CSV file.
-        val writingTime = measureTimeMillis {
-            contentResolver.openOutputStream(fileUri, "wa")?.use { outputStream ->
-                OutputStreamWriter(outputStream).use { writer ->
-                    // Write headers only if they haven't been written yet.
-                    if (!headersWritten) {
-                        writer.append("timestamp," + (1..200).joinToString(",") { "cellVol$it" } + "\n")
-                        headersWritten = true  // Set the flag once headers are written.
-                    }
-                    // Generate and prepend timestamp
-                    val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).apply {
-                        timeZone = TimeZone.getTimeZone("Asia/Kolkata")
-                    }.format(Date())
-                    
-                    // Append a new row of results with timestamp.
-                    writer.append("$timestamp," + results.joinToString(",") + "\n")
-                }
-            }
-        }
-    
-        // Update UI with performance info.
-        runOnUiThread {
-            infoTextView.text = "Data Generation Time: $dataGenerationTime ms\nDecoding Time: $dataGenerationTime ms\nWriting Time: $writingTime ms"
-        }
-    }
-    
     private fun openDirectoryChooser() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
