@@ -7,9 +7,17 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/infoTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="You are now in the Native Activity!"
-        android:textSize="24sp" />
+        android:textSize="16sp"
+        android:text="Press the button to decode data and write to CSV."
+        android:padding="20dp" />
+
+    <Button
+        android:id="@+id/decodeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Decode and Write" />
+
 </LinearLayout>
