@@ -10,10 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import java.io.OutputStreamWriter
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
+import java.text.SimpleDateFormat
+import java.util.*
 
 class NativeActivity : AppCompatActivity() {
     private lateinit var infoTextView: TextView
     private var saveFileUri: Uri? = null
+    private var headersWritten = false  // Flag to track if headers have been written
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,24 +52,18 @@ class NativeActivity : AppCompatActivity() {
         return null
     }
 
-    private var headersWritten = false  // Flag to track if headers have been written
-
     private fun performDecodeOperation() {
         val fileUri = saveFileUri ?: return run {
             infoTextView.text = "No file location selected. Please select a location to save the file first."
             return
         }
     
-        // Generate data.
-        val dataList: List<String>
+        val results = mutableListOf<String>()
         val dataGenerationTime = measureTimeMillis {
-            dataList = (1..200).map { i -> generateRandomData(i) }
-        }
-    
-        // Decode the generated data.
-        val results: List<Double?>
-        val decodingTime = measureTimeMillis {
-            results = dataList.map { data -> eightBytesDecode(data, "07", 0.0001, 7, 8) }
+            val dataList = (1..200).map { i -> generateRandomData(i) }
+            dataList.map { data -> eightBytesDecode(data, "07", 0.0001, 7, 8) }.forEach { decoded ->
+                results.add(decoded?.toString() ?: "NaN")
+            }
         }
     
         // Write results to the CSV file.
@@ -75,22 +72,26 @@ class NativeActivity : AppCompatActivity() {
                 OutputStreamWriter(outputStream).use { writer ->
                     // Write headers only if they haven't been written yet.
                     if (!headersWritten) {
-                        writer.append((1..200).joinToString(",", postfix = "\n") { "cellVol$it" })
+                        writer.append("timestamp," + (1..200).joinToString(",") { "cellVol$it" } + "\n")
                         headersWritten = true  // Set the flag once headers are written.
                     }
-                    // Append a new row of results.
-                    writer.append(results.joinToString(",", postfix = "\n") { it?.toString() ?: "NaN" })
+                    // Generate and prepend timestamp
+                    val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).apply {
+                        timeZone = TimeZone.getTimeZone("Asia/Kolkata")
+                    }.format(Date())
+                    
+                    // Append a new row of results with timestamp.
+                    writer.append("$timestamp," + results.joinToString(",") + "\n")
                 }
             }
         }
     
         // Update UI with performance info.
         runOnUiThread {
-            infoTextView.text = "Data Generation Time: $dataGenerationTime ms\nDecoding Time: $decodingTime ms\nWriting Time: $writingTime ms"
+            infoTextView.text = "Data Generation Time: $dataGenerationTime ms\nDecoding Time: $dataGenerationTime ms\nWriting Time: $writingTime ms"
         }
     }
     
-        
     private fun openDirectoryChooser() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
