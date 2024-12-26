@@ -194,19 +194,36 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 
 void transmit_task(uint8_t tenth_byte)
 {
-    uint8_t Reset_bit;
+    uint8_t Reset_bit_1;
+    uint8_t Reset_bit_2;
+    
     if(tenth_byte == 0x01)
     {
-        Reset_bit = 8 ;
+        Reset_bit_1= 8 ;
         printf("Reset ON------------------------------------------------->");
+        Reset_bit_2=0;
     }
     else
     {
-        Reset_bit = 0;
+        Reset_bit_1= 0;
         printf("Reset OFF------------------------------------------------->");
+        Reset_bit_2=0;
     }
-    twai_message_t transmit_message_switch = {.identifier = (0x18f60001), .data_length_code = 8, .extd = 1, .data = {Reset_bit, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-        if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
+    twai_message_t transmit_message_reset_high = {.identifier = (0x18f60001), .data_length_code = 8, .extd = 1, .data = {Reset_bit_1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+        if (twai_transmit(&transmit_message_reset_high, 1000) == ESP_OK)
+        {
+        printf("Message sent----------->");
+        ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        }
+        else
+        {
+        ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));
+
+    twai_message_t transmit_message_reset_low = {.identifier = (0x18f60001), .data_length_code = 8, .extd = 1, .data = {Reset_bit_2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+        if (twai_transmit(&transmit_message_reset_low, 1000) == ESP_OK)
         {
         printf("Message sent----------->");
         ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
