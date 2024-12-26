@@ -22,13 +22,13 @@ class NativeActivity : AppCompatActivity() {
         }
     }
 
-    private fun generateRandomData(): String {
-        val randomBytes = ByteArray(8) // Generate 8 bytes (16 hex characters)
+    private fun generateRandomData(parameterIndex: Int): String {
+        val randomBytes = ByteArray(19) // Generate 19 bytes to make the total 20 bytes with the "07" prefix.
         Random.nextBytes(randomBytes)
         return "07" + randomBytes.joinToString("") { String.format("%02x", it) }
     }
 
-    private fun eightBytesDecode(firstByteCheck: String, multiplier: Double, start: Int, end: Int, data: String): Double? {
+    private fun eightBytesDecode(data: String, firstByteCheck: String, multiplier: Double, start: Int, end: Int): Double? {
         if (data.length >= 2 * (end + 1) && data.substring(0, 2) == firstByteCheck) {
             return Integer.parseInt(data.substring(2 * start, 2 * (end + 1)), 16) * multiplier
         }
@@ -38,33 +38,26 @@ class NativeActivity : AppCompatActivity() {
     private fun performDecodeOperation() {
         val file = File(filesDir, "output.csv")
         if (!file.exists()) {
-            file.writeText("cellVol01\n") // Write header to CSV
+            // Create headers for CSV
+            file.writeText((1..200).joinToString(",", prefix = "", postfix = "\n") { "cellVol$it" })
         }
 
-        val data = generateRandomData()
-        val decodedValue: Double?
-        val decodingTime: Long
-        val writingTime: Long
-
-        decodingTime = measureTimeMillis {
-            decodedValue = eightBytesDecode("07", 0.0001, 7, 8, data)
-        }
-        println("Decoding time: $decodingTime ms")
-
-        writingTime = measureTimeMillis {
-            decodedValue?.let {
-                file.appendText("$it\n") // Append decoded value to CSV
+        val results = mutableListOf<Double?>()
+        val decodingTime = measureTimeMillis {
+            (1..200).forEach { i ->
+                val data = generateRandomData(i)
+                // Use the adjusted function call
+                results.add(eightBytesDecode(data, "07", 0.0001, 7, 8))
             }
         }
-        println("Writing time: $writingTime ms")
 
-        // Update the text view with the results
+        val writingTime = measureTimeMillis {
+            file.appendText(results.joinToString(",", postfix = "\n") { it?.toString() ?: "" })
+        }
+
+        // Update UI with performance info
         runOnUiThread {
-            decodedValue?.let {
-                infoTextView.text = "Decoded value: $it\nDecoding Time: $decodingTime ms\nWriting Time: $writingTime ms"
-            } ?: run {
-                infoTextView.text = "Failed to decode value."
-            }
+            infoTextView.text = "Decoding Time: $decodingTime ms\nWriting Time: $writingTime ms"
         }
     }
 }
