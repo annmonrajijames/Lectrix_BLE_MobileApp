@@ -42,10 +42,15 @@ class NativeActivity : AppCompatActivity() {
             file.writeText((1..200).joinToString(",", prefix = "", postfix = "\n") { "cellVol$it" })
         }
 
+        val dataList: List<String> // Declare dataList outside of the timing block
+        val dataGenerationTime = measureTimeMillis {
+            dataList = (1..200).map { i -> generateRandomData(i) } // Assign dataList here
+        }
+
         val results = mutableListOf<Double?>()
         val decodingTime = measureTimeMillis {
-            (1..200).forEach { i ->
-                val data = generateRandomData(i)
+            (1..200).forEachIndexed { index, _ ->
+                val data = dataList[index]
                 // Use the adjusted function call
                 results.add(eightBytesDecode(data, "07", 0.0001, 7, 8))
             }
@@ -57,7 +62,7 @@ class NativeActivity : AppCompatActivity() {
 
         // Update UI with performance info
         runOnUiThread {
-            infoTextView.text = "Decoding Time: $decodingTime ms\nWriting Time: $writingTime ms"
+            infoTextView.text = "Data Generation Time: $dataGenerationTime ms\nDecoding Time: $decodingTime ms\nWriting Time: $writingTime ms"
         }
     }
 }
