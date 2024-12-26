@@ -3,21 +3,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:gravity="center">
 
     <TextView
         android:id="@+id/infoTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Welcome! Please choose a location to save the file or start decoding."
         android:textSize="16sp"
-        android:text="Press the button to decode data and write to CSV."
-        android:padding="20dp" />
+        android:padding="20dp"
+        android:gravity="center" />
+
+    <Button
+        android:id="@+id/saveLocationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose a Location to Store"
+        android:layout_marginTop="20dp"/>
 
     <Button
         android:id="@+id/decodeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Decode and Write" />
+        android:text="Start Decoding"
+        android:layout_marginTop="20dp"/>
 
 </LinearLayout>

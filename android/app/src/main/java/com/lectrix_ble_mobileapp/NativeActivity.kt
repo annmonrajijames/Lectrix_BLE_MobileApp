@@ -1,15 +1,19 @@
 package com.lectrix_ble_mobileapp
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import java.io.File
+import java.io.OutputStreamWriter
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
 class NativeActivity : AppCompatActivity() {
     private lateinit var infoTextView: TextView
+    private var saveFileUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,8 +21,18 @@ class NativeActivity : AppCompatActivity() {
 
         infoTextView = findViewById(R.id.infoTextView)
         val decodeButton: Button = findViewById(R.id.decodeButton)
+        val saveLocationButton: Button = findViewById(R.id.saveLocationButton)
+
         decodeButton.setOnClickListener {
-            performDecodeOperation()
+            if (saveFileUri != null) {
+                performDecodeOperation()
+            } else {
+                infoTextView.text = "Please select a location to save the file first."
+            }
+        }
+
+        saveLocationButton.setOnClickListener {
+            openDirectoryChooser()
         }
     }
 
@@ -35,34 +49,65 @@ class NativeActivity : AppCompatActivity() {
         return null
     }
 
+    private var headersWritten = false  // Flag to track if headers have been written
+
     private fun performDecodeOperation() {
-        val file = File(filesDir, "output.csv")
-        if (!file.exists()) {
-            // Create headers for CSV
-            file.writeText((1..200).joinToString(",", prefix = "", postfix = "\n") { "cellVol$it" })
+        val fileUri = saveFileUri ?: return run {
+            infoTextView.text = "No file location selected. Please select a location to save the file first."
+            return
         }
-
-        val dataList: List<String> // Declare dataList outside of the timing block
-        val dataGenerationTime = measureTimeMillis {
-            dataList = (1..200).map { i -> generateRandomData(i) } // Assign dataList here
-        }
-
+    
         val results = mutableListOf<Double?>()
+        val dataGenerationTime = measureTimeMillis {
+            val dataList = (1..200).map { i -> generateRandomData(i) }
+            results.addAll(dataList.map { data -> eightBytesDecode(data, "07", 0.0001, 7, 8) })
+        }
+    
+        // Write results to the CSV file.
         val decodingTime = measureTimeMillis {
-            (1..200).forEachIndexed { index, _ ->
-                val data = dataList[index]
-                // Use the adjusted function call
-                results.add(eightBytesDecode(data, "07", 0.0001, 7, 8))
+            contentResolver.openOutputStream(fileUri, "wa")?.use { outputStream ->
+                OutputStreamWriter(outputStream).use { writer ->
+                    // Write headers only if they haven't been written yet.
+                    if (!headersWritten) {
+                        writer.append((1..200).joinToString(",", postfix = "\n") { "cellVol$it" })
+                        headersWritten = true  // Set the flag once headers are written.
+                    }
+                    // Append a new row of results.
+                    writer.append(results.joinToString(",", postfix = "\n") { it?.toString() ?: "NaN" })
+                }
             }
         }
-
-        val writingTime = measureTimeMillis {
-            file.appendText(results.joinToString(",", postfix = "\n") { it?.toString() ?: "" })
-        }
-
-        // Update UI with performance info
+    
+        // Update UI with performance info.
         runOnUiThread {
-            infoTextView.text = "Data Generation Time: $dataGenerationTime ms\nDecoding Time: $decodingTime ms\nWriting Time: $writingTime ms"
+            infoTextView.text = "Data Generation Time: $dataGenerationTime ms\nDecoding Time: $decodingTime ms"
         }
+    }           
+
+    private fun openDirectoryChooser() {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "text/csv"
+            putExtra(Intent.EXTRA_TITLE, "output.csv")
+        }
+        startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            data?.data?.also { uri ->
+                saveFileUri = uri
+                contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+                infoTextView.text = "File save location selected."
+            }
+        }
+    }
+
+    companion object {
+        const val CREATE_FILE_REQUEST_CODE = 1
     }
 }
