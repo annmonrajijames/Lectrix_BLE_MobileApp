@@ -57,14 +57,20 @@ class NativeActivity : AppCompatActivity() {
             return
         }
     
-        val results = mutableListOf<Double?>()
+        // Generate data.
+        val dataList: List<String>
         val dataGenerationTime = measureTimeMillis {
-            val dataList = (1..200).map { i -> generateRandomData(i) }
-            results.addAll(dataList.map { data -> eightBytesDecode(data, "07", 0.0001, 7, 8) })
+            dataList = (1..200).map { i -> generateRandomData(i) }
+        }
+    
+        // Decode the generated data.
+        val results: List<Double?>
+        val decodingTime = measureTimeMillis {
+            results = dataList.map { data -> eightBytesDecode(data, "07", 0.0001, 7, 8) }
         }
     
         // Write results to the CSV file.
-        val decodingTime = measureTimeMillis {
+        val writingTime = measureTimeMillis {
             contentResolver.openOutputStream(fileUri, "wa")?.use { outputStream ->
                 OutputStreamWriter(outputStream).use { writer ->
                     // Write headers only if they haven't been written yet.
@@ -80,10 +86,11 @@ class NativeActivity : AppCompatActivity() {
     
         // Update UI with performance info.
         runOnUiThread {
-            infoTextView.text = "Data Generation Time: $dataGenerationTime ms\nDecoding Time: $decodingTime ms"
+            infoTextView.text = "Data Generation Time: $dataGenerationTime ms\nDecoding Time: $decodingTime ms\nWriting Time: $writingTime ms"
         }
-    }           
-
+    }
+    
+        
     private fun openDirectoryChooser() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
