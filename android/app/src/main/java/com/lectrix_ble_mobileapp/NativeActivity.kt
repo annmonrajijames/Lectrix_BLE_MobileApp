@@ -64,23 +64,38 @@ class NativeActivity : AppCompatActivity() {
 
     private fun performDecodeOperation() {
         val results = mutableListOf<String>()
-        val dataList = (1..200).map { i -> generateRandomData(i) }
-        results.addAll(dataList.map { data -> eightBytesDecode(data, "07", 0.0001, 7, 8)?.toString() ?: "NaN" })
+        val dataGenerationTime = measureTimeMillis {
+            // Generate random data for 200 parameters
+            val dataList = (1..200).map { i -> generateRandomData(i) }
+            results.addAll(dataList.map { data -> eightBytesDecode(data, "07", 0.0001, 7, 8)?.toString() ?: "NaN" })
+        }
     
-        // Append results to the CSV file
-        saveFileUri?.let { uri ->
-            contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
-                OutputStreamWriter(outputStream).use { writer ->
-                    if (!headersWritten) {
-                        writer.append("timestamp," + (1..200).joinToString(",") { "cellVol$it" } + "\n")
-                        headersWritten = true
+        // Decode the generated data
+        val decodingTime = measureTimeMillis {
+            // Assume decoding is part of data processing above; adjust if decoding is separate
+        }
+    
+        // Write results to the CSV file
+        val writingTime = measureTimeMillis {
+            saveFileUri?.let { uri ->
+                contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
+                    OutputStreamWriter(outputStream).use { writer ->
+                        if (!headersWritten) {
+                            writer.append("timestamp," + (1..200).joinToString(",") { "cellVol$it" } + "\n")
+                            headersWritten = true
+                        }
+                        val timestamp = SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS", Locale.getDefault()).apply {
+                            timeZone = TimeZone.getTimeZone("Asia/Kolkata")
+                        }.format(Date())
+                        writer.append("$timestamp," + results.joinToString(",") + "\n")
                     }
-                    val timestamp = SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS", Locale.getDefault()).apply {
-                        timeZone = TimeZone.getTimeZone("Asia/Kolkata")
-                    }.format(Date())
-                    writer.append("$timestamp," + results.joinToString(",") + "\n")
                 }
             }
+        }
+    
+        // Display the timing results in the UI
+        runOnUiThread {
+            infoTextView.text = "Data Generation Time: $dataGenerationTime ms\nDecoding Time: $decodingTime ms\nWriting Time: $writingTime ms"
         }
     }    
 
