@@ -114,7 +114,7 @@ const App: React.FC = () => {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Scan BLE Devices' }} />
         <Stack.Screen name="DataDirection" component={DataDirection} options={{ title: 'Data Direction' }} />
-        <Stack.Screen name="Receive" component={Receive} options={{ title: 'App to VCU Features' }} />
+        <Stack.Screen name="Receive" component={Receive} options={{ title: 'Receive' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
