@@ -87,13 +87,13 @@ class NativeActivity : AppCompatActivity() {
             contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
                 OutputStreamWriter(outputStream).use { writer ->
                     if (!headersWritten) {
-                        writer.append("timestamp," + (1..200).joinToString(",") { "cellVol$it" } + "\n")
+                        writer.append("localtime," + (1..200).joinToString(",") { "cellVol$it" } + "\n")
                         headersWritten = true
                     }
-                    val timestamp = SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS", Locale.getDefault()).apply {
+                    val localtime = SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS", Locale.getDefault()).apply {
                         timeZone = TimeZone.getTimeZone("Asia/Kolkata")
                     }.format(Date())
-                    writer.append("$timestamp," + results.joinToString(",") + "\n")
+                    writer.append("$localtime," + results.joinToString(",") + "\n")
                 }
             }
         }
@@ -102,14 +102,19 @@ class NativeActivity : AppCompatActivity() {
         // Writing time in milliseconds with higher precision
         val writingTime = (endWriting - startWriting) / 1_000_000.0
     
-        // Display the timing results in the UI
+        // Update UI to display results
         runOnUiThread {
-            infoTextView.text = "Data Generation Time: ${"%.3f".format(dataGenerationTime)} ms\n" +
-                                "Decoding Time: ${"%.3f".format(decodingTime)} ms\n" +
-                                "Writing Time: ${"%.3f".format(writingTime)} ms"
+            infoTextView.text = "200 Parameters Data Generation Time: ${"%.3f".format(dataGenerationTime)} ms\n" +
+                                "200 Parameters Decoding Time: ${"%.3f".format(decodingTime)} ms\n" +
+                                "200 Parameters Writing Time: ${"%.3f".format(writingTime)} ms"
+    
+            val paramsTextView: TextView = findViewById(R.id.paramsTextView)
+            paramsTextView.text = results.withIndex().joinToString("\n") { (index, value) ->
+                "cellVol${index + 1}: $value"
+            }
         }
     }
-
+    
     private fun generateRandomData(parameterIndex: Int): String {
         val randomBytes = ByteArray(19)
         Random.nextBytes(randomBytes)
