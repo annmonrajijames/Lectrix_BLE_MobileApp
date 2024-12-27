@@ -6,14 +6,14 @@ import { Buffer } from 'buffer';
 import { NativeModules } from 'react-native';
 
 type RootStackParamList = {
-  AppToVCUFeatures: { device: Device };
+  Receive: { device: Device };
 };
 
-type AppToVCUFeaturesProps = NativeStackScreenProps<RootStackParamList, 'AppToVCUFeatures'>;
+type ReceiveProps = NativeStackScreenProps<RootStackParamList, 'Receive'>;
 
 const { FileSaveModule } = NativeModules;
 
-const AppToVCUFeatures: React.FC<AppToVCUFeaturesProps> = ({ route }) => {
+const Receive: React.FC<ReceiveProps> = ({ route }) => {
   const { device } = route.params;
   const [CellVol01, setCellVol01] = useState<number | null>(null);
   const [PackCurr, setPackCurr] = useState<number | null>(null);
@@ -263,4 +263,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AppToVCUFeatures;
+export default Receive;

@@ -5,13 +5,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import DataDirection from './DataDirection';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
-import AppToVCUFeatures from './App_to_VCU_features'; // Make sure this import is correct
+import Receive from './Receive'; 
 
 type RootStackParamList = {
   Home: undefined;
   DataTransfer: { device: Device };
   DataDirection: { device: Device };
-  AppToVCUFeatures: { device: Device };
+  Receive: { device: Device };
   CurrentLimit: {device: Device};
 };
 
@@ -114,7 +114,7 @@ const App: React.FC = () => {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Scan BLE Devices' }} />
         <Stack.Screen name="DataDirection" component={DataDirection} options={{ title: 'Data Direction' }} />
-        <Stack.Screen name="AppToVCUFeatures" component={AppToVCUFeatures} options={{ title: 'App to VCU Features' }} />
+        <Stack.Screen name="Receive" component={Receive} options={{ title: 'App to VCU Features' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
