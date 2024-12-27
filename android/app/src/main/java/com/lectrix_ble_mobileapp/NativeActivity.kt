@@ -66,7 +66,7 @@ class NativeActivity : AppCompatActivity() {
         val results = mutableListOf<String>()
         val dataList = (1..200).map { i -> generateRandomData(i) }
         results.addAll(dataList.map { data -> eightBytesDecode(data, "07", 0.0001, 7, 8)?.toString() ?: "NaN" })
-
+    
         // Append results to the CSV file
         saveFileUri?.let { uri ->
             contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
@@ -75,14 +75,14 @@ class NativeActivity : AppCompatActivity() {
                         writer.append("timestamp," + (1..200).joinToString(",") { "cellVol$it" } + "\n")
                         headersWritten = true
                     }
-                    val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).apply {
+                    val timestamp = SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS", Locale.getDefault()).apply {
                         timeZone = TimeZone.getTimeZone("Asia/Kolkata")
                     }.format(Date())
                     writer.append("$timestamp," + results.joinToString(",") + "\n")
                 }
             }
         }
-    }
+    }    
 
     private fun generateRandomData(parameterIndex: Int): String {
         val randomBytes = ByteArray(19)
