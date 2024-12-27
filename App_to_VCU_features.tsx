@@ -7,7 +7,6 @@ import { Device } from 'react-native-ble-plx';
 type RootStackParamList = {
   DataTransfer: { device: Device };
   AppToVCUFeatures: { device: Device };
-  CurrentLimit: {device: Device};
 };
 
 type AppToVCUFeaturesProps = NativeStackScreenProps<RootStackParamList, 'AppToVCUFeatures'>;
@@ -23,7 +22,6 @@ const AppToVCUFeatures: React.FC<AppToVCUFeaturesProps> = ({ navigation, route }
       <Button title="VCU reset" onPress={() => console.log('VCU reset')} />
       <Button title="Navigation" onPress={() => console.log('Navigation')} />
       <Button title="Mobile ICON" onPress={() => console.log('Mobile ICON')} />
-      <Button title="Current Limit" onPress={() => navigation.navigate('CurrentLimit', { device })} />
       <Button title="Regen Limit" onPress={() => console.log('Regen Limit')} />
       <Button title="RPM Limit" onPress={() => console.log('RPM Limit')} />
       <Button title="Temperature limits-for warning" onPress={() => console.log('Temperature limits-for warning')} />
