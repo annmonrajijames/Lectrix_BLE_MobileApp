@@ -697,9 +697,11 @@ void notification_task(void *param) {
                                         sizeof(notify_data1), notify_data1, false);
         vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
         count=count+1;
+
         uint8_t notify_data2[20] = {
             byte_21, byte_22, byte_23, byte_24, byte_25,
-            byte_26, byte_27, byte_28, byte_29, byte_30,
+            byte_26, byte_27, rand() % 10,  // random value for byte_28
+            byte_29, byte_30,
             byte_31, byte_32, byte_33, byte_34, byte_35,
             byte_36, byte_37, byte_38, byte_39, byte_40
         };
@@ -765,11 +767,11 @@ void notification_task(void *param) {
 
         uint8_t notify_data7[20] = {
             byte_121, byte_122, byte_123, byte_124, byte_125,
-            byte_126, byte_127, byte_128, byte_129, byte_130,
+            byte_126, byte_127, rand() % 256,  // random value for byte_128
+            byte_129, byte_130,
             byte_131, byte_132, byte_133, byte_134, byte_135,
             byte_136, byte_137, byte_138, byte_139, byte_140
         };
-
 
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
@@ -820,11 +822,13 @@ void notification_task(void *param) {
 
             vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
+
         uint8_t notify_data11[20] = {
             byte_201, byte_202, byte_203, byte_204, byte_205,
             byte_206, byte_207, byte_208, byte_209, byte_210,
             byte_211, byte_212, byte_213, byte_214, byte_215,
-            byte_216, byte_217, byte_218, byte_219, byte_220
+            byte_216, byte_217, byte_218, rand() % 2,  // random value for byte_219, either 0 or 1
+            byte_220
         };
 
 
@@ -1355,10 +1359,10 @@ static void twai_receive_task(void *arg) {
                     byte_169 = message.data[7];
                     break;
                 case 0x6: // CAN #21
-                    // byte_170 = message.data[0];
-                    // byte_171 = message.data[1];
-                    // byte_172 = message.data[2];
-                    // byte_173 = message.data[3];
+                    byte_170 = message.data[0];
+                    byte_171 = message.data[1];
+                    byte_172 = message.data[2];
+                    byte_173 = message.data[3];
                     byte_174 = message.data[4];
                     byte_175 = message.data[5];
                     byte_176 = message.data[6];
