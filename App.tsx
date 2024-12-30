@@ -1,3 +1,4 @@
+//App.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert, Platform, PermissionsAndroid } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
@@ -9,7 +10,6 @@ import Receive from './Receive';
 
 type RootStackParamList = {
   Home: undefined;
-  DataTransfer: { device: Device };
   DataDirection: { device: Device };
   Receive: { device: Device };
 };
