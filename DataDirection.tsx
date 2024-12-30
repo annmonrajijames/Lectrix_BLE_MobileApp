@@ -3,11 +3,10 @@ import React from 'react';
 import { View, Button, StyleSheet, Text } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-
+  
 type RootStackParamList = {
-  DataTransfer: { device: Device };
   DataDirection: { device: Device };
-  Receive: { device: Device }; // Add this line
+  Receive: { device: Device };
 };
 
 type DataDirectionProps = NativeStackScreenProps<RootStackParamList, 'DataDirection'>;
@@ -19,12 +18,12 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
     <View style={styles.container}>
       <Text>Select Data Direction</Text>
       <Button
-        title="Mobile app to VCU"
+        title="Receive"
         onPress={() => navigation.navigate('Receive', { device })}
       />
       <Button
-        title="VCU to Mobile app"
-        onPress={() => console.log('VCU to Mobile app pressed')}
+        title="Transmit"
+        onPress={() => console.log('Transmit')}
       />
     </View>
   );

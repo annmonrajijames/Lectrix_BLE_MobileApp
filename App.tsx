@@ -12,7 +12,6 @@ type RootStackParamList = {
   DataTransfer: { device: Device };
   DataDirection: { device: Device };
   Receive: { device: Device };
-  CurrentLimit: {device: Device};
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
