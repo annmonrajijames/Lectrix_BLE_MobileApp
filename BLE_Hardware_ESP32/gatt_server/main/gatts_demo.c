@@ -789,12 +789,16 @@ void notification_task(void *param) {
                                         sizeof(notify_data8), notify_data8, false);
             vTaskDelay(pdMS_TO_TICKS(delay)); // check delay value
             count=count+1;
-        uint8_t notify_data9[20] = {
-            byte_161, byte_162, byte_163, byte_164, byte_165,
-            byte_166, byte_167, byte_168, byte_169, byte_170,
-            byte_171, byte_172, byte_173, byte_174, byte_175,
-            byte_176, byte_177, byte_178, byte_179, byte_180
-        };
+            uint8_t notify_data9[20] = {
+                byte_161, byte_162, byte_163, byte_164, byte_165,
+                byte_166, byte_167, byte_168, byte_169, rand() % 256,  // random value for byte_170
+                rand() % 256,  // random value for byte_171
+                rand() % 256,  // random value for byte_172
+                rand() % 256,  // random value for byte_173
+                byte_174, byte_175,
+                byte_176, byte_177, rand() % 256,  // random value for byte_178
+                byte_179, byte_180
+            };
 
             esp_ble_gatts_send_indicate(global_gatts_if, gl_profile_tab[PROFILE_A_APP_ID].conn_id,
                                         gl_profile_tab[PROFILE_A_APP_ID].char_handle,
@@ -1351,10 +1355,10 @@ static void twai_receive_task(void *arg) {
                     byte_169 = message.data[7];
                     break;
                 case 0x6: // CAN #21
-                    byte_170 = message.data[0];
-                    byte_171 = message.data[1];
-                    byte_172 = message.data[2];
-                    byte_173 = message.data[3];
+                    // byte_170 = message.data[0];
+                    // byte_171 = message.data[1];
+                    // byte_172 = message.data[2];
+                    // byte_173 = message.data[3];
                     byte_174 = message.data[4];
                     byte_175 = message.data[5];
                     byte_176 = message.data[6];
@@ -1675,6 +1679,8 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
 void app_main(void)
 {
+    // Seed the random number generator
+    srand(time(NULL));
     ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config));
     // ESP_LOGI("TWAI", "Driver installed");
     ESP_ERROR_CHECK(twai_start());
