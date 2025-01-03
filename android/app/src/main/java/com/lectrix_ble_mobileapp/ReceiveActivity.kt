@@ -3,6 +3,7 @@ package com.lectrix_ble_mobileapp
 import android.bluetooth.*
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
@@ -13,7 +14,8 @@ class ReceiveActivity : AppCompatActivity() {
     private var bluetoothGatt: BluetoothGatt? = null
 
     private lateinit var dataReceivedView: TextView
-    private var lastValidCellVol01: Double? = null  // Variable to store the last valid value
+    private var lastValidCellVol01: Double? = null
+    private var lastValidPackCurr: Double? = null
 
     companion object {
         const val DEVICE_ADDRESS = "DEVICE_ADDRESS"
@@ -21,7 +23,9 @@ class ReceiveActivity : AppCompatActivity() {
         val CHARACTERISTIC_UUID: UUID = UUID.fromString("0000ff01-0000-1000-8000-00805f9b34fb")
         const val TAG = "ReceiveActivity"
 
-        // Define the eightBytesDecode function within the companion object
+        val cellVol01Decoder = eightBytesDecode("07", 0.0001, 7, 8)
+        val packCurrDecoder = signedEightBytesDecode("09", 0.001, 9, 10, 11, 12)
+
         fun eightBytesDecode(firstByteCheck: String, multiplier: Double, vararg positions: Int): (String) -> Double? {
             return { data ->
                 if (data.length >= 2 * positions.size && data.substring(0, 2) == firstByteCheck) {
@@ -34,7 +38,26 @@ class ReceiveActivity : AppCompatActivity() {
             }
         }
 
-        val cellVol01Decoder = eightBytesDecode("07", 0.0001, 7, 8)
+        fun signedEightBytesDecode(firstByteCheck: String, multiplier: Double, vararg positions: Int): (String) -> Double? {
+            return { data ->
+                if (data.length >= 2 * positions.size && data.substring(0, 2) == firstByteCheck) {
+                    val bytes = positions.map { pos -> data.substring(2 * pos, 2 * pos + 2) }.joinToString("")
+                    var decimalValue = bytes.toLong(16)
+
+                    val byteLength = positions.size
+                    val maxByteValue = 1L shl (8 * byteLength) // Max value for byte length
+                    val signBit = 1L shl (8 * byteLength - 1) // Value of the sign bit
+
+                    if (decimalValue >= signBit) {
+                        decimalValue -= maxByteValue
+                    }
+
+                    decimalValue * multiplier
+                } else {
+                    null
+                }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,16 +114,18 @@ class ReceiveActivity : AppCompatActivity() {
             override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
                 val rawData = characteristic.value
                 val hexString = rawData.joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
-                val decodedValue = cellVol01Decoder(hexString)
+                val decodedCellVol01 = cellVol01Decoder(hexString)
+                val decodedPackCurr = packCurrDecoder(hexString)
 
-                // Only update lastValidCellVol01 if decodedValue is not null
-                if (decodedValue != null) {
-                    lastValidCellVol01 = decodedValue
+                if (decodedCellVol01 != null) {
+                    lastValidCellVol01 = decodedCellVol01
+                }
+                if (decodedPackCurr != null) {
+                    lastValidPackCurr = decodedPackCurr
                 }
 
-                // Always display the last valid value
                 runOnUiThread {
-                    dataReceivedView.text = "Cell Vol 01: ${lastValidCellVol01 ?: "Waiting for data..."}"
+                    dataReceivedView.text = "Cell Vol 01: ${lastValidCellVol01 ?: "Waiting for data..."}\nPack Curr: ${lastValidPackCurr ?: "Waiting for data..."}"
                 }
             }
         })
