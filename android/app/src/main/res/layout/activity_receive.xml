@@ -10,6 +10,31 @@
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:gravity="center"
-        android:text="No data yet" />
+        android:text="No data yet"
+        android:layout_alignParentTop="true" />
+
+    <Button
+        android:id="@+id/startRecordingButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Recording"
+        android:layout_below="@id/dataReceivedView"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/stopRecordingButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop Recording"
+        android:layout_below="@id/startRecordingButton"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        android:id="@+id/saveLocationButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose Save Location"
+        android:layout_below="@id/stopRecordingButton"
+        android:layout_marginTop="10dp" />
 
 </RelativeLayout>
