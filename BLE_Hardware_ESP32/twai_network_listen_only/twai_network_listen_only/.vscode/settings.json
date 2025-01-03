@@ -3,5 +3,5 @@
     "idf.espIdfPathWin": "C:\\Users\\srija\\esp\\v5.3\\esp-idf",
     "idf.toolsPathWin": "C:\\Users\\srija\\.espressif",
     "idf.flashType": "UART",
-    "idf.portWin": "COM6"
+    "idf.portWin": "COM5"
 }

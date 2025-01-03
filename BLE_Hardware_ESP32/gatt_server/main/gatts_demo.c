@@ -16,10 +16,11 @@
 #include "esp_bt_main.h"
 #include "esp_bt_device.h"
 #include "esp_gatt_common_api.h"
-
+#include "driver/twai.h"  // For CAN communication
 #include "sdkconfig.h"
 
 #define GATTS_TAG "GATTS_DEMO"
+#define ERROR_CHECK "ERROR CHECK"
 
 // Declare the static function
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
@@ -29,11 +30,14 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 #define GATTS_DESCR_UUID_TEST_A     0x3333
 #define GATTS_NUM_HANDLE_TEST_A     4
 
-#define TEST_DEVICE_NAME            "Annmon_LECTRIX" 
+#define TEST_DEVICE_NAME            "Srijananiiiiiiiiiiii(New)" 
 #define TEST_MANUFACTURER_DATA_LEN  17
 
 #define GATTS_DEMO_CHAR_VAL_LEN_MAX 0x40
-
+#define RESET_COMMAND "RESET"  // Command to reset
+#define CAN_COMMAND "SEND_CAN"  // Command to send CAN message
+#define SERVICE_RESET_CAN_ID 0x18F60001  // CAN ID for service reset
+#define SOC_CAN_ID 0x00000008  // CAN ID for SOC (State of Charge)
 #define PREPARE_BUF_MAX_SIZE 1024
 
 static uint8_t char1_str[] = {0x11,0x22,0x33};
@@ -55,6 +59,13 @@ static uint8_t adv_service_uuid128[32] = {
     // UUIDs
     0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0xEE, 0x00, 0x00, 0x00,
     0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00,
+};
+
+twai_timing_config_t t_config = {
+    .brp = 8,  // Bit rate prescaler
+    .sjw = 1,  // Synchronization jump width
+    .tseg_1 = 15,  // Time segment 1
+    .tseg_2 = 4,   // Time segment 2
 };
 
 static esp_ble_adv_data_t adv_data = {
@@ -182,6 +193,165 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     }
 }
 
+void transmit_task(uint8_t tenth_byte)
+{
+    uint8_t Reset_bit_1;
+    uint8_t Reset_bit_2;
+    
+    if(tenth_byte == 0x01)
+    {
+        Reset_bit_1= 8 ;
+        printf("Reset ON------------------------------------------------->");
+        Reset_bit_2=0;
+    }
+    else
+    {
+        Reset_bit_1= 0;
+        printf("Reset OFF------------------------------------------------->");
+        Reset_bit_2=0;
+    }
+    twai_message_t transmit_message_reset_high = {.identifier = (0x18f60001), .data_length_code = 8, .extd = 1, .data = {Reset_bit_1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+        if (twai_transmit(&transmit_message_reset_high, 1000) == ESP_OK)
+        {
+        printf("Message sent----------->");
+        ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        }
+        else
+        {
+        ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));
+
+    twai_message_t transmit_message_reset_low = {.identifier = (0x18f60001), .data_length_code = 8, .extd = 1, .data = {Reset_bit_2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+        if (twai_transmit(&transmit_message_reset_low, 1000) == ESP_OK)
+        {
+        printf("Message sent----------->");
+        ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
+        vTaskDelay(pdMS_TO_TICKS(100));
+        }
+        else
+        {
+        ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));
+ 
+}
+
+void can_init() {
+    // Initialize CAN bus with TWAI configuration
+    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(GPIO_NUM_21, GPIO_NUM_22, TWAI_MODE_NORMAL); // Updated configuration
+    g_config.tx_io = GPIO_NUM_21;     // Example TX pin (change to your pin)
+    g_config.rx_io = GPIO_NUM_22;     // Example RX pin (change to your pin)
+
+    twai_timing_config_t t_config = {
+        .brp = 8,   // Bit rate prescaler
+        .sjw = 1,   // Synchronization jump width
+        .tseg_1 = 15, // Time segment 1
+        .tseg_2 = 4   // Time segment 2
+    };  // 500kbps CAN speed (adjust timing values as needed)
+
+    twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL(); // Accept all messages
+
+    // Install and start the TWAI driver
+    ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config));
+    ESP_ERROR_CHECK(twai_start());
+    ESP_LOGI(GATTS_TAG, "CAN bus initialized");
+}
+
+// Function to send a service reset CAN message
+static void send_service_reset_can_message() {
+    // Initialize a message to send for service reset
+    twai_message_t tx_message = {
+        .identifier = SERVICE_RESET_CAN_ID,  // Service reset CAN ID
+        .data_length_code = 1,  // Data length
+        .data = {0x01}  // Data representing reset (could be a flag or status)
+    };
+
+    esp_err_t ret = twai_transmit(&tx_message, pdMS_TO_TICKS(1000));
+    if (ret == ESP_OK) {
+        ESP_LOGI(GATTS_TAG, "Service reset CAN message sent successfully.");
+    } else {
+        ESP_LOGE(GATTS_TAG, "Failed to send service reset CAN message, error code = %x", ret);
+    }
+}
+
+// Function to send a regular CAN message
+static void send_can_message() {
+    // Example of sending a regular CAN message
+    twai_message_t tx_message = {
+        .identifier = 0x100,  // Example CAN ID
+        .data_length_code = 8,
+        .data = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}
+    };
+
+    esp_err_t ret = twai_transmit(&tx_message, pdMS_TO_TICKS(1000));
+    if (ret == ESP_OK) {
+        ESP_LOGI(GATTS_TAG, "CAN message sent successfully.");
+    } else {
+        ESP_LOGE(GATTS_TAG, "Failed to send CAN message, error code = %x", ret);
+    }
+}
+
+// Function to send SOC (State of Charge) CAN message
+static void send_soc_can_message(uint8_t soc_value) {
+    // Initialize a message to send SOC value
+    twai_message_t tx_message = {
+        .identifier = 0x08,  // CAN ID for SOC
+        .data_length_code = 8,  // Data length
+        .data = {soc_value, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}  // SOC value in the first byte
+
+    };
+
+    esp_err_t ret = twai_transmit(&tx_message, pdMS_TO_TICKS(1000));
+    if (ret == ESP_OK) {
+        ESP_LOGI(GATTS_TAG, "SOC CAN message sent successfully.");
+    } else {
+        ESP_LOGE(GATTS_TAG, "Failed to send SOC CAN message, error code = %x", ret);
+    }
+}
+// Function to handle GATT write events
+static void handle_gatt_write_event(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
+    ESP_LOGI(GATTS_TAG, "GATT_WRITE_EVT received, conn_id: %d, handle: %d", param->write.conn_id, param->write.handle);
+
+    // Ensure valid data length
+    if (param->write.len > 0) {
+        ESP_LOGI(GATTS_TAG, "Received data:");
+        esp_log_buffer_hex(GATTS_TAG, param->write.value, param->write.len);
+
+        // Handle specific commands
+        if (param->write.len == sizeof(RESET_COMMAND) - 1 &&
+            strncmp((char *)param->write.value, RESET_COMMAND, sizeof(RESET_COMMAND) - 1) == 0) {
+            ESP_LOGI(GATTS_TAG, "Reset command received");
+            send_service_reset_can_message();
+        }
+
+        // Handle SOC value (1-byte SOC message)
+        if (param->write.len == 1) {
+            uint8_t soc_value = param->write.value[0]; // Extract SOC value
+            ESP_LOGI(GATTS_TAG, "SOC value received: %d", soc_value);
+
+            // Send SOC CAN message
+            send_soc_can_message(soc_value);
+        }
+
+        if (param->write.len == sizeof(CAN_COMMAND) - 1 &&
+            strncmp((char *)param->write.value, CAN_COMMAND, sizeof(CAN_COMMAND) - 1) == 0) {
+            ESP_LOGI(GATTS_TAG, "CAN command received");
+            send_can_message();
+        }
+
+        // Acknowledge the write
+        esp_gatt_rsp_t rsp;
+        memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
+        rsp.attr_value.handle = param->write.handle;
+        rsp.attr_value.len = 0; // No data sent back
+        esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, ESP_GATT_OK, &rsp);
+        ESP_LOGI(GATTS_TAG, "Write acknowledged.");
+    } else {
+        ESP_LOGW(GATTS_TAG, "Empty write received.");
+    }
+}
 void example_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param){
     ESP_LOGI(GATTS_TAG, "Handling GATT write event: need_rsp=%d, is_prep=%d, offset=%d, len=%d",
              param->write.need_rsp, param->write.is_prep, param->write.offset, param->write.len);
@@ -251,6 +421,7 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
     ESP_LOGI(GATTS_TAG, "Profile A Event Handler: Event = %d", event);
     switch (event) {
+        ESP_LOGI(ERROR_CHECK,"EVENT CALLED");
     case ESP_GATTS_REG_EVT:
         ESP_LOGI(GATTS_TAG, "ESP_GATTS_REG_EVT= %d", ESP_GATTS_REG_EVT);
         ESP_LOGI(GATTS_TAG, "REGISTER_APP_EVT, status %d, app_id %d", param->reg.status, param->reg.app_id);
@@ -291,56 +462,70 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id, ESP_GATT_OK, &rsp);
         break;
     case ESP_GATTS_WRITE_EVT:
-    
-        ESP_LOGI(GATTS_TAG, "GATT_WRITE_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d, is_prep %d, need_rsp %d",
-                 param->write.conn_id, param->write.trans_id, param->write.handle, param->write.is_prep, param->write.need_rsp);
-        ESP_LOGI(GATTS_TAG, "ESP_GATTS_WRITE_EVT= %d", ESP_GATTS_WRITE_EVT);
-        if (!param->write.is_prep){
-            ESP_LOGI(GATTS_TAG, "Write event: value len %d, value :", param->write.len);
+        ESP_LOGI(GATTS_TAG, "GATT_WRITE_EVT received, conn_id: %d, handle: %d", param->write.conn_id, param->write.handle);
+
+        // Ensure valid data length
+        if (param->write.len > 0) {
+            ESP_LOGI(GATTS_TAG, "Received data:");
             esp_log_buffer_hex(GATTS_TAG, param->write.value, param->write.len);
-            if (gl_profile_tab[PROFILE_A_APP_ID].descr_handle == param->write.handle && param->write.len == 2){
-                uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
-                if (descr_value == 0x0001){
-                    if (a_property & ESP_GATT_CHAR_PROP_BIT_NOTIFY){
-                        ESP_LOGI(GATTS_TAG, "Notify enabled");
-                        uint8_t notify_data[20];
-                        for (int i = 0; i < sizeof(notify_data); ++i)
-                        {
-                            notify_data[i] = i%0xff;
-                        }
-                        //the size of notify_data[] need less than MTU size
-                        esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-                                                sizeof(notify_data), notify_data, false);
-                    }
-                }else if (descr_value == 0x0002){
-                    if (a_property & ESP_GATT_CHAR_PROP_BIT_INDICATE){
-                        ESP_LOGI(GATTS_TAG, "Indicate enabled");
-                        uint8_t indicate_data[15];
-                        for (int i = 0; i < sizeof(indicate_data); ++i)
-                        {
-                            indicate_data[i] = i%0xff;
-                        }
-                        //the size of indicate_data[] need less than MTU size
-                        esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_A_APP_ID].char_handle,
-                                                sizeof(indicate_data), indicate_data, true);
-                    }
-                }
-                else if (descr_value == 0x0000){
-                    ESP_LOGI(GATTS_TAG, "Notify/Indicate disabled");
-                }else{
-                    ESP_LOGE(GATTS_TAG, "Unknown descriptor value");
-                    esp_log_buffer_hex(GATTS_TAG, param->write.value, param->write.len);
+
+            // Handle specific commands
+            if (param->write.len == sizeof(RESET_COMMAND) - 1 &&
+                strncmp((char *)param->write.value, RESET_COMMAND, sizeof(RESET_COMMAND) - 1) == 0) {
+                ESP_LOGI(GATTS_TAG, "Reset command received");
+                send_service_reset_can_message();
+            }
+
+            if (param->write.len == sizeof(CAN_COMMAND) - 1 &&
+                strncmp((char *)param->write.value, CAN_COMMAND, sizeof(CAN_COMMAND) - 1) == 0) {
+                ESP_LOGI(GATTS_TAG, "CAN command received");
+                send_can_message();
+            }
+
+            // Handle SOC value (1-byte SOC message)
+            if (param->write.len == 1) {
+                uint8_t soc_value = param->write.value[0]; // Extract SOC value
+                ESP_LOGI(GATTS_TAG, "SOC value received: %d", soc_value);
+
+                // Send SOC CAN message
+                twai_message_t soc_message;
+                soc_message.identifier = SOC_CAN_ID;        // Set CAN ID for SOC
+                soc_message.data_length_code = 8;           // CAN message DLC is 8 bytes
+                memset(soc_message.data, 0, sizeof(soc_message.data)); // Clear data array
+                soc_message.data[0] = soc_value;            // SOC value in byte 0
+
+                if (twai_transmit(&soc_message, pdMS_TO_TICKS(1000)) == ESP_OK) {
+                    ESP_LOGI(GATTS_TAG, "SOC CAN message sent successfully: SOC=%d", soc_value);
+                } else {
+                    ESP_LOGE(GATTS_TAG, "Failed to send SOC CAN message");
                 }
             }
+
+            // Acknowledge the write
+            esp_gatt_rsp_t rsp;
+            memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
+            rsp.attr_value.handle = param->write.handle;
+            rsp.attr_value.len = 0; // No data sent back
+            esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, ESP_GATT_OK, &rsp);
+            ESP_LOGI(GATTS_TAG, "Write acknowledged.");
+        } else {
+            ESP_LOGW(GATTS_TAG, "Empty write received.");
         }
-        example_write_event_env(gatts_if, &a_prepare_write_env, param);
         break;
+
+
+
     case ESP_GATTS_EXEC_WRITE_EVT:
         ESP_LOGI(GATTS_TAG, "ESP_GATTS_EXEC_WRITE_EVT= %d", ESP_GATTS_EXEC_WRITE_EVT);
         ESP_LOGI(GATTS_TAG, "Execute write event.");
+
+        // Acknowledge the execute write operation
         esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, ESP_GATT_OK, NULL);
+
+        // Handle prepared writes (if needed)
         example_exec_write_event_env(&a_prepare_write_env, param);
         break;
+
     case ESP_GATTS_MTU_EVT:
         ESP_LOGI(GATTS_TAG, "ESP_GATTS_MTU_EVT= %d", ESP_GATTS_MTU_EVT);
         ESP_LOGI(GATTS_TAG, "MTU updated to %d", param->mtu.mtu);
@@ -435,7 +620,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         ESP_LOGI(GATTS_TAG, "Other event: %d", event);
         break;
     default:
-        ESP_LOGE(GATTS_TAG, "Unhandled event %d", event);
+        // ESP_LOGE(GATTS_TAG, "Unhandled event -------->JANANI %d", event);
         break;
     }
 }
@@ -470,17 +655,17 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     } while (0);
 }
 
-void app_main(void)
-{
+// Main application initialization
+void app_main(void) {
     esp_err_t ret;
 
-    // Initialize NVS.
+    // Initialize NVS
     ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
-    ESP_ERROR_CHECK( ret );
+    ESP_ERROR_CHECK(ret);
 
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
@@ -509,24 +694,29 @@ void app_main(void)
     }
 
     ret = esp_ble_gatts_register_callback(gatts_event_handler);
-    if (ret){
+    if (ret) {
         ESP_LOGE(GATTS_TAG, "gatts register error, error code = %x", ret);
         return;
     }
+
     ret = esp_ble_gap_register_callback(gap_event_handler);
-    if (ret){
+    if (ret) {
         ESP_LOGE(GATTS_TAG, "gap register error, error code = %x", ret);
         return;
     }
-    ret = esp_ble_gatts_app_register(PROFILE_A_APP_ID);
-    if (ret){
+
+    ret = esp_ble_gatts_app_register(0);  // Register app with app id 0
+    if (ret) {
         ESP_LOGE(GATTS_TAG, "gatts app register error, error code = %x", ret);
         return;
     }
+
     esp_err_t local_mtu_ret = esp_ble_gatt_set_local_mtu(500);
-    if (local_mtu_ret){
+    if (local_mtu_ret) {
         ESP_LOGE(GATTS_TAG, "set local MTU failed, error code = %x", local_mtu_ret);
     }
 
-    return;
+    // Initialize the CAN bus
+    can_init();
+    // transmit_task();
 }
