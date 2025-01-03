@@ -12,9 +12,8 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
 
 class MainApplication : Application(), ReactApplication {
-
     private val additionalPackages: List<ReactPackage> = listOf(
-        FileSavePackage()  // Add your custom package here
+        ActivityStarterPackage()  // Add your custom package here
     )
 
     override val reactNativeHost: ReactNativeHost =
@@ -40,7 +39,6 @@ class MainApplication : Application(), ReactApplication {
         super.onCreate()
         SoLoader.init(this, false)
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-            // If you opted-in for the New Architecture, we load the native entry point for this app.
             load()
         }
     }
