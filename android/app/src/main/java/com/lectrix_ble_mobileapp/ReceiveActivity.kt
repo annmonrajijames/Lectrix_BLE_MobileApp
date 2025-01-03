@@ -3,7 +3,6 @@ package com.lectrix_ble_mobileapp
 import android.bluetooth.*
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
@@ -14,12 +13,28 @@ class ReceiveActivity : AppCompatActivity() {
     private var bluetoothGatt: BluetoothGatt? = null
 
     private lateinit var dataReceivedView: TextView
+    private var lastValidCellVol01: Double? = null  // Variable to store the last valid value
 
     companion object {
         const val DEVICE_ADDRESS = "DEVICE_ADDRESS"
         val SERVICE_UUID: UUID = UUID.fromString("000000ff-0000-1000-8000-00805f9b34fb")
         val CHARACTERISTIC_UUID: UUID = UUID.fromString("0000ff01-0000-1000-8000-00805f9b34fb")
         const val TAG = "ReceiveActivity"
+
+        // Define the eightBytesDecode function within the companion object
+        fun eightBytesDecode(firstByteCheck: String, multiplier: Double, vararg positions: Int): (String) -> Double? {
+            return { data ->
+                if (data.length >= 2 * positions.size && data.substring(0, 2) == firstByteCheck) {
+                    val bytes = positions.map { pos -> data.substring(2 * pos, 2 * pos + 2) }.joinToString("")
+                    val decimalValue = bytes.toLong(16)
+                    decimalValue * multiplier
+                } else {
+                    null
+                }
+            }
+        }
+
+        val cellVol01Decoder = eightBytesDecode("07", 0.0001, 7, 8)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,11 +90,17 @@ class ReceiveActivity : AppCompatActivity() {
 
             override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
                 val rawData = characteristic.value
-                val hexString = rawData.joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
+                val hexString = rawData.joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
+                val decodedValue = cellVol01Decoder(hexString)
 
-                Log.d(TAG, "Data as hex: $hexString")
+                // Only update lastValidCellVol01 if decodedValue is not null
+                if (decodedValue != null) {
+                    lastValidCellVol01 = decodedValue
+                }
+
+                // Always display the last valid value
                 runOnUiThread {
-                    dataReceivedView.text = "Data Received: $hexString"
+                    dataReceivedView.text = "Cell Vol 01: ${lastValidCellVol01 ?: "Waiting for data..."}"
                 }
             }
         })
