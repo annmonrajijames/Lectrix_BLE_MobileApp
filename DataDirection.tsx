@@ -15,7 +15,7 @@ const { ActivityStarter } = NativeModules;
 
 const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
   const { device } = route.params;
-
+  console.log("MAC ID:"+device.id);
   const handleReceivePress = () => {
     // Call the native module to navigate to the ReceiveActivity in Android
     ActivityStarter.navigateToReceiveActivity({ address: device.id });
