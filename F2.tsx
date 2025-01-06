@@ -6,12 +6,12 @@ import { Buffer } from 'buffer';
 import Slider from '@react-native-community/slider';
 
 type RootStackParamList = {
-  F1: { device: Device };
+  F2: { device: Device };
 };
 
-type F1Props = NativeStackScreenProps<RootStackParamList, 'F1'>;
+type F2Props = NativeStackScreenProps<RootStackParamList, 'F2'>;
 
-const F1: React.FC<F1Props> = ({ route }) => {
+const F2: React.FC<F2Props> = ({ route }) => {
   const { device } = route.params;
   
   // Initialized with default values
@@ -63,7 +63,7 @@ const F1: React.FC<F1Props> = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>F1</Text>
+      <Text style={styles.title}>F2</Text>
       
       {/* Custom Mode */}
       <Text style={styles.label}>Custom Mode (0-255 Regen)</Text>
@@ -125,4 +125,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default F1;
+export default F2;

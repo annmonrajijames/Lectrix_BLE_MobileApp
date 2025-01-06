@@ -10,6 +10,7 @@ import AppToVCUFeatures from './App_to_VCU_features'; // Make sure this import i
 import CurrentLimit from './CurrentLimit';
 import RegenLimit from './RegenLimit';
 import F1 from './F1';
+import F2 from './F2';
 
 type RootStackParamList = {
   Home: undefined;
@@ -19,6 +20,7 @@ type RootStackParamList = {
   CurrentLimit: {device: Device};
   RegenLimit: {device: Device};
   F1: { device: Device };
+  F2: { device: Device };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -125,6 +127,7 @@ const App: React.FC = () => {
         <Stack.Screen name="CurrentLimit" component={CurrentLimit} options={{ title: 'Current Limit' }} />
         <Stack.Screen name="RegenLimit" component={RegenLimit} options={{ title: 'Regen Limit' }} />
         <Stack.Screen name="F1" component={F1} options={{ title: 'F1' }} />
+        <Stack.Screen name="F2" component={F2} options={{ title: 'F2' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
