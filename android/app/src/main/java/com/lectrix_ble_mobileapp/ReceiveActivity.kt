@@ -185,7 +185,7 @@ class ReceiveActivity : AppCompatActivity() {
                         writer.append("Timestamp,Cell Vol 01,Pack Curr\n")
                         headersWritten = true
                     }
-                    val timestamp = SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS", Locale.getDefault()).format(Date())
+                    val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault()).format(Date())
                     writer.append("$timestamp,${cellVol01 ?: ""},${packCurr ?: ""}\n")
                 }
             }
