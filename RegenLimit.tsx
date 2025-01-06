@@ -16,8 +16,6 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
   
   // Initialized with default values
   const [customModeCurrLimit, setCustomModeCurrLimit] = useState(105);
-  const [powerModeLimit, setPowerModeLimit] = useState(90);
-  const [ecoModeCurrLimit, setEcoModeCurrLimit] = useState(35);
   const [receivedData, setReceivedData] = useState('');
 
   const convertDecimalToHex = (decimal: string) => {
@@ -29,29 +27,27 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
     return decimalNumber.toString(16).padStart(2, '0').toUpperCase();
   };
 
-  const handleSliderChange = (value: number, setter: React.Dispatch<React.SetStateAction<number>>) => {
-    setter(value);
+  const handleSliderChange = (value: number) => {
+    setCustomModeCurrLimit(value);
     writeDataToCharacteristic(false);
   };
 
   const writeDataToCharacteristic = async (showAlert: boolean = true) => {
-    const serviceUUID = '1819';
-    const characteristicUUID = 'EE02';
+    const serviceUUID = '00FF';
+    const characteristicUUID = 'FF01';
 
     const customModeHex = convertDecimalToHex(customModeCurrLimit.toString());
-    const powerModeHex = convertDecimalToHex(powerModeLimit.toString());
-    const ecoModeHex = convertDecimalToHex(ecoModeCurrLimit.toString());
 
-    if (!customModeHex || !powerModeHex || !ecoModeHex) {
-      return; // Stops the process if any input is invalid
+    if (!customModeHex) {
+      return; // Stops the process if input is invalid
     }
 
     const SOF = 'AA';
     const Source = '01';
     const Destination = '02';
     const OpCode = '0B';
-    const Payload_Length = '0003';
-    const message = SOF + Source + Destination + OpCode + Payload_Length + customModeHex + powerModeHex + ecoModeHex;
+    const Payload_Length = '0001';
+    const message = SOF + Source + Destination + OpCode + Payload_Length + customModeHex;
 
     try {
       const base64Data = Buffer.from(message, 'hex').toString('base64');
@@ -86,47 +82,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
         maximumValue={255}
         step={1}
         value={customModeCurrLimit}
-        onValueChange={value => handleSliderChange(value, setCustomModeCurrLimit)}
-      />
-
-      {/* Power Mode */}
-      <Text style={styles.label}>Power Mode (0-255 Regen)</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="0-255"
-        placeholderTextColor="#808080"
-        value={powerModeLimit.toString()}
-        onChangeText={text => setPowerModeLimit(parseInt(text) || 0)}
-        keyboardType="numeric"
-        maxLength={5}
-      />
-      <Slider
-        style={styles.slider}
-        minimumValue={0}
-        maximumValue={255}
-        step={1}
-        value={powerModeLimit}
-        onValueChange={value => handleSliderChange(value, setPowerModeLimit)}
-      />
-
-      {/* Eco Mode */}
-      <Text style={styles.label}>Eco Mode (0-255 Regen)</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="0-255"
-        placeholderTextColor="#808080"
-        value={ecoModeCurrLimit.toString()}
-        onChangeText={text => setEcoModeCurrLimit(parseInt(text) || 0)}
-        keyboardType="numeric"
-        maxLength={5}
-      />
-      <Slider
-        style={styles.slider}
-        minimumValue={0}
-        maximumValue={255}
-        step={1}
-        value={ecoModeCurrLimit}
-        onValueChange={value => handleSliderChange(value, setEcoModeCurrLimit)}
+        onValueChange={handleSliderChange}
       />
       
       <Button title="WRITE" onPress={() => writeDataToCharacteristic(true)} />
