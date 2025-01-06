@@ -9,6 +9,7 @@ type RootStackParamList = {
   AppToVCUFeatures: { device: Device };
   CurrentLimit: {device: Device};
   RegenLimit: {device: Device};
+  F1: { device: Device };
 };
 
 type AppToVCUFeaturesProps = NativeStackScreenProps<RootStackParamList, 'AppToVCUFeatures'>;
@@ -31,6 +32,7 @@ const AppToVCUFeatures: React.FC<AppToVCUFeaturesProps> = ({ navigation, route }
       <Button title="Temperature limits-for cut off" onPress={() => console.log('Temperature limits-for cut off')} />
       <Button title="Alert" onPress={() => console.log('Alert')} />
       <Button title="Music interface" onPress={() => console.log('Music interface')} />
+      <Button title="F1" onPress={() => navigation.navigate('F1', { device })} />
     </ScrollView>
   );
 };
