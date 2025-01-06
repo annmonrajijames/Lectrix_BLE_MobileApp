@@ -12,6 +12,7 @@ type RootStackParamList = {
   F1: { device: Device };
   F2: { device: Device };
   F3: { device: Device };
+  F4: { device: Device };
 };
 
 type AppToVCUFeaturesProps = NativeStackScreenProps<RootStackParamList, 'AppToVCUFeatures'>;
@@ -37,6 +38,7 @@ const AppToVCUFeatures: React.FC<AppToVCUFeaturesProps> = ({ navigation, route }
       <Button title="F1" onPress={() => navigation.navigate('F1', { device })} />
       <Button title="F2" onPress={() => navigation.navigate('F2', { device })} />
       <Button title="F3" onPress={() => navigation.navigate('F3', { device })} />
+      <Button title="F4" onPress={() => navigation.navigate('F4', { device })} />
     </ScrollView>
   );
 };
