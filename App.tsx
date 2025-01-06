@@ -11,6 +11,7 @@ import CurrentLimit from './CurrentLimit';
 import RegenLimit from './RegenLimit';
 import F1 from './F1';
 import F2 from './F2';
+import F3 from './F3';
 
 type RootStackParamList = {
   Home: undefined;
@@ -21,6 +22,7 @@ type RootStackParamList = {
   RegenLimit: {device: Device};
   F1: { device: Device };
   F2: { device: Device };
+  F3: { device: Device };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -128,6 +130,7 @@ const App: React.FC = () => {
         <Stack.Screen name="RegenLimit" component={RegenLimit} options={{ title: 'Regen Limit' }} />
         <Stack.Screen name="F1" component={F1} options={{ title: 'F1' }} />
         <Stack.Screen name="F2" component={F2} options={{ title: 'F2' }} />
+        <Stack.Screen name="F3" component={F3} options={{ title: 'F3' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
