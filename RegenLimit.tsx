@@ -139,7 +139,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
     const Source = '01';
     const Destination = '02';
     const OpCode = '0D';
-    const Payload_Length = '0001';
+    const Payload_Length = '0002';
     const message = SOF + Source + Destination + OpCode + Payload_Length + customModeHex;
 
     try {
@@ -262,7 +262,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
         maximumValue={255}
         step={1}
         value={RegenLimit}
-        onValueChange={handleSliderChange}
+        onValueChange={(value) => setRegenLimit(value)}
       />
       
       <Button title="Regen Limit WRITE" onPress={() => regenwriteDataToCharacteristic(true)} />
@@ -284,7 +284,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
         maximumValue={255}
         step={1}
         value={customModeCurrLimit}
-        onValueChange={handleSliderChange}
+        onValueChange={(value) => setCustomModeCurrLimit(value)}
       />
       
       <Button title="Current Limit WRITE" onPress={() => CurrentlimitwriteDataToCharacteristic(true)} />
@@ -306,7 +306,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
         maximumValue={255}
         step={1}
         value={frequency}
-        onValueChange={handleSliderChange}
+        onValueChange={(value) => setFrequency(value)}
       />
       
       <Button title="Frequency WRITE" onPress={() => frequencywriteDataToCharacteristic(true)} />
@@ -329,7 +329,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
         maximumValue={255}
         step={1}
         value={torqe}
-        onValueChange={handleSliderChange}
+        onValueChange={(value) => setTorque(value)}
       />
       
       <Button title="Torqe WRITE" onPress={() => torqewriteDataToCharacteristic(true)} />
@@ -351,13 +351,13 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
         maximumValue={255}
         step={1}
         value={bufferSpeed}
-        onValueChange={handleSliderChange}
+        onValueChange={(value) => setBufferSpeed(value)}
       />
       
-      <Button title="Torqe WRITE" onPress={() => bufferSpeedwriteDataToCharacteristic(true)} />
+      <Button title="Buffer Speed" onPress={() => bufferSpeedwriteDataToCharacteristic(true)} />
 
       {/* Buffer Speed */}
-      <Text style={styles.label}>Buffer Speed</Text>
+      <Text style={styles.label}>Initial Profile</Text>
       <TextInput
         style={styles.input}
         placeholder="0-255"
@@ -373,10 +373,10 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
         maximumValue={255}
         step={1}
         value={initialProf}
-        onValueChange={handleSliderChange}
+        onValueChange={(value) => setInitialProf(value)}
       />
       
-      <Button title="Torqe WRITE" onPress={() => initialProfwriteDataToCharacteristic(true)} />
+      <Button title="Buffer Speed" onPress={() => initialProfwriteDataToCharacteristic(true)} />
 
       {/* Final Profile */}
       <Text style={styles.label}>Final Profile</Text>
@@ -395,10 +395,10 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
         maximumValue={255}
         step={1}
         value={finalProf}
-        onValueChange={handleSliderChange}
+        onValueChange={(value) => setFinalProf(value)}
       />
       
-      <Button title="Torqe WRITE" onPress={() => finalProfwriteDataToCharacteristic(true)} />
+      <Button title="Final Profile" onPress={() => finalProfwriteDataToCharacteristic(true)} />
 
 
       {receivedData ? <Text>Received Data: {receivedData}</Text> : null}
