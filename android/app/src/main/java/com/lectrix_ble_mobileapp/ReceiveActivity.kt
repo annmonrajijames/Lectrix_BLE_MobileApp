@@ -77,7 +77,6 @@ class ReceiveActivity : AppCompatActivity() {
     private var lastValidInternalFWVer: Double? = null
     private var lastValidInternalFWSubVer: Double? = null
     private var lastValidBHB_66049: Double? = null
-    private var lastValidPackCurr: Double? = null
     private var lastValidMaxTemp: Double? = null
     private var lastValidMinTemp: Double? = null
     private var lastValidFetTemp: Double? = null
@@ -199,7 +198,6 @@ class ReceiveActivity : AppCompatActivity() {
         val InternalFWVerDecoder = eightBytesDecode("14", 1.0, 5, 6, 7)
         val InternalFWSubVerDecoder = eightBytesDecode("14", 1.0, 8, 9)
         val BHB_66049Decoder = eightBytesDecode("14", 1.0, 3, 4, 5)
-        val PackCurrDecoder = signedEightBytesDecode("09", 0.001, 9, 10, 11, 12)
         val MaxTempDecoder = signedEightBytesDecode("07", 1.0, 17)
         val MinTempDecoder = signedEightBytesDecode("07", 1.0, 18)
         val FetTempDecoder = signedEightBytesDecode("09", 1.0, 19)
@@ -444,7 +442,6 @@ class ReceiveActivity : AppCompatActivity() {
                 val decodedInternalFWVer = InternalFWVerDecoder(hexString)
                 val decodedInternalFWSubVer = InternalFWSubVerDecoder(hexString)
                 val decodedBHB_66049 = BHB_66049Decoder(hexString)
-                val decodedPackCurr = PackCurrDecoder(hexString)
                 val decodedMaxTemp = MaxTempDecoder(hexString)
                 val decodedMinTemp = MinTempDecoder(hexString)
                 val decodedFetTemp = FetTempDecoder(hexString)
@@ -951,31 +948,118 @@ class ReceiveActivity : AppCompatActivity() {
         job = CoroutineScope(Dispatchers.IO).launch {
             while (isActive) {
                 if (lastValidCellVol01 != lastValidCellVol01_rep) {
-            
-                    saveDataToCSV(
-                        lastValidCellVol01, lastValidPackCurr, lastValidIgnitionStatus, lastValidMode_Ack, lastValidCellVol02, lastValidCellVol03, lastValidCellVol04, lastValidCellVol05, lastValidCellVol06,
-                        lastValidCellVol07, lastValidCellVol08, lastValidCellVol09, lastValidCellVol10, lastValidCellVol11,
-                        lastValidCellVol12, lastValidCellVol13, lastValidCellVol14, lastValidCellVol15, lastValidCellVol16,
-                        lastValidMaxCellVol, lastValidMinCellVol, lastValidAvgCellVol, lastValidMaxVoltId, lastValidMinVoltId,
-                        lastValidPackVol, lastValidCycleCount, lastValidCellVolMinMaxDev, lastValidSOC, lastValidSOCAh,
-                        lastValidSOH, lastValidBmsStatus, lastValidLedStatus, lastValidActiveCellBalStatus, lastValidBMS_Serial_No_MUX,
-                        lastValidBMS_Serial_No__1_7, lastValidLatchProtection, lastValidLatchType, lastValidChargerType,
-                        lastValidPcbTemp, lastValidAfeTemp, lastValidCellChemType, lastValidChg_Accumulative_Ah, lastValidDchg_Accumulative_Ah,
-                        lastValidRefVol, lastValid_3v3Vol, lastValid_5vVol, lastValid_12vVol, lastValidActual_SoC,
-                        lastValidUsable_Capacity_Ah, lastValidConfigVer, lastValidInternalFWVer, lastValidInternalFWSubVer,
-                        lastValidBHB_66049, lastValidPackCurr, lastValidMaxTemp, lastValidMinTemp, lastValidFetTemp,
-                        lastValidTemp1, lastValidTemp2, lastValidTemp3, lastValidTemp4, lastValidTemp5, lastValidTemp6,
-                        lastValidTemp7, lastValidTemp8, lastValidHwVer, lastValidFwVer, lastValidFWSubVer,
-                        lastValidBtStatus_NC0PSM1CC2CV3Finish4, lastValidBt_liveMsg1Temp, lastValidBt_liveMsg_soc, lastValidBMS_status,
-                        lastValidDemand_voltage, lastValidDemand_Current, lastValidMaxChgVoltgae, lastValidMaxChgCurrent,
-                        lastValidActualChgVoltage, lastValidActualChgCurrent, lastValidCharging_end_cutoff_Curr, lastValidCHB_258,
-                        lastValidChgrNC0PSM1CC2CV3Finsh4, lastValidchgr_msg_temp, lastValidchgStatus_chg_idle, lastValidchgrLiveMsgChgVolt,
-                        lastValidchgrLiveMsgChgCurrent, lastValidChargeSOP, lastValidDchgSOP, lastValidDrive_Error_Flag, lastValidSet_Regen,
-                        lastValidDCcurrentlimit, lastValidCustom_freq, lastValidCustom_torque, lastValidBuffer_speed, lastValidBase_speed,
-                        lastValidInitial_torque, lastValidFinal_torque, lastValidCluster_odo, lastValidMotorSpeed, lastValidBatteryVoltage,
-                        lastValidBatteryCurrent, lastValidAC_Current, lastValidAC_Voltage, lastValidThrottle, lastValidMCU_Temperature,
-                        lastValidMotor_Temperature, lastValidMCU_Fault_Code, lastValidMCU_ID, lastValidCluster_heartbeat, lastValidOdo_Cluster
-                    )                    
+                    val vehicleMetrics = VehicleMetrics(
+    CellVol01 = lastValidCellVol01,
+    PackCurr = lastValidPackCurr,
+    IgnitionStatus = lastValidIgnitionStatus,
+    Mode_Ack = lastValidMode_Ack,
+    CellVol02 = lastValidCellVol02,
+    CellVol03 = lastValidCellVol03,
+    CellVol04 = lastValidCellVol04,
+    CellVol05 = lastValidCellVol05,
+    CellVol06 = lastValidCellVol06,
+    CellVol07 = lastValidCellVol07,
+    CellVol08 = lastValidCellVol08,
+    CellVol09 = lastValidCellVol09,
+    CellVol10 = lastValidCellVol10,
+    CellVol11 = lastValidCellVol11,
+    CellVol12 = lastValidCellVol12,
+    CellVol13 = lastValidCellVol13,
+    CellVol14 = lastValidCellVol14,
+    CellVol15 = lastValidCellVol15,
+    CellVol16 = lastValidCellVol16,
+    MaxCellVol = lastValidMaxCellVol,
+    MinCellVol = lastValidMinCellVol,
+    AvgCellVol = lastValidAvgCellVol,
+    MaxVoltId = lastValidMaxVoltId,
+    MinVoltId = lastValidMinVoltId,
+    PackVol = lastValidPackVol,
+    CycleCount = lastValidCycleCount,
+    CellVolMinMaxDev = lastValidCellVolMinMaxDev,
+    SOC = lastValidSOC,
+    SOCAh = lastValidSOCAh,
+    SOH = lastValidSOH,
+    BmsStatus = lastValidBmsStatus,
+    LedStatus = lastValidLedStatus,
+    ActiveCellBalStatus = lastValidActiveCellBalStatus,
+    BMS_Serial_No_MUX = lastValidBMS_Serial_No_MUX,
+    BMS_Serial_No__1_7 = lastValidBMS_Serial_No__1_7,
+    LatchProtection = lastValidLatchProtection,
+    LatchType = lastValidLatchType,
+    ChargerType = lastValidChargerType,
+    PcbTemp = lastValidPcbTemp,
+    AfeTemp = lastValidAfeTemp,
+    CellChemType = lastValidCellChemType,
+    Chg_Accumulative_Ah = lastValidChg_Accumulative_Ah,
+    Dchg_Accumulative_Ah = lastValidDchg_Accumulative_Ah,
+    RefVol = lastValidRefVol,
+    _3v3Vol = lastValid_3v3Vol,
+    _5vVol = lastValid_5vVol,
+    _12vVol = lastValid_12vVol,
+    Actual_SoC = lastValidActual_SoC,
+    Usable_Capacity_Ah = lastValidUsable_Capacity_Ah,
+    ConfigVer = lastValidConfigVer,
+    InternalFWVer = lastValidInternalFWVer,
+    InternalFWSubVer = lastValidInternalFWSubVer,
+    BHB_66049 = lastValidBHB_66049,
+    MaxTemp = lastValidMaxTemp,
+    MinTemp = lastValidMinTemp,
+    FetTemp = lastValidFetTemp,
+    Temp1 = lastValidTemp1,
+    Temp2 = lastValidTemp2,
+    Temp3 = lastValidTemp3,
+    Temp4 = lastValidTemp4,
+    Temp5 = lastValidTemp5,
+    Temp6 = lastValidTemp6,
+    Temp7 = lastValidTemp7,
+    Temp8 = lastValidTemp8,
+    HwVer = lastValidHwVer,
+    FwVer = lastValidFwVer,
+    FWSubVer = lastValidFWSubVer,
+    BtStatus_NC0PSM1CC2CV3Finish4 = lastValidBtStatus_NC0PSM1CC2CV3Finish4,
+    Bt_liveMsg1Temp = lastValidBt_liveMsg1Temp,
+    Bt_liveMsg_soc = lastValidBt_liveMsg_soc,
+    BMS_status = lastValidBMS_status,
+    Demand_voltage = lastValidDemand_voltage,
+    Demand_Current = lastValidDemand_Current,
+    MaxChgVoltgae = lastValidMaxChgVoltgae,
+    MaxChgCurrent = lastValidMaxChgCurrent,
+    ActualChgVoltage = lastValidActualChgVoltage,
+    ActualChgCurrent = lastValidActualChgCurrent,
+    Charging_end_cutoff_Curr = lastValidCharging_end_cutoff_Curr,
+    CHB_258 = lastValidCHB_258,
+    ChgrNC0PSM1CC2CV3Finsh4 = lastValidChgrNC0PSM1CC2CV3Finsh4,
+    chgr_msg_temp = lastValidchgr_msg_temp,
+    chgStatus_chg_idle = lastValidchgStatus_chg_idle,
+    chgrLiveMsgChgVolt = lastValidchgrLiveMsgChgVolt,
+    chgrLiveMsgChgCurrent = lastValidchgrLiveMsgChgCurrent,
+    ChargeSOP = lastValidChargeSOP,
+    DchgSOP = lastValidDchgSOP,
+    Drive_Error_Flag = lastValidDrive_Error_Flag,
+    Set_Regen = lastValidSet_Regen,
+    DCcurrentlimit = lastValidDCcurrentlimit,
+    Custom_freq = lastValidCustom_freq,
+    Custom_torque = lastValidCustom_torque,
+    Buffer_speed = lastValidBuffer_speed,
+    Base_speed = lastValidBase_speed,
+    Initial_torque = lastValidInitial_torque,
+    Final_torque = lastValidFinal_torque,
+    Cluster_odo = lastValidCluster_odo,
+    MotorSpeed = lastValidMotorSpeed,
+    BatteryVoltage = lastValidBatteryVoltage,
+    BatteryCurrent = lastValidBatteryCurrent,
+    AC_Current = lastValidAC_Current,
+    AC_Voltage = lastValidAC_Voltage,
+    Throttle = lastValidThrottle,
+    MCU_Temperature = lastValidMCU_Temperature,
+    Motor_Temperature = lastValidMotor_Temperature,
+    MCU_Fault_Code = lastValidMCU_Fault_Code,
+    MCU_ID = lastValidMCU_ID,
+    Cluster_heartbeat = lastValidCluster_heartbeat,
+    Odo_Cluster = lastValidOdo_Cluster
+)
+                    saveDataToCSV(vehicleMetrics)
+                  
                 // delay(1000)  // Adjust based on how frequently you want to record data
                 }
                 lastValidCellVol01_rep = lastValidCellVol01
@@ -989,31 +1073,36 @@ class ReceiveActivity : AppCompatActivity() {
             dataReceivedView.text = "Recording stopped."
         }
     }
-
-    private fun saveDataToCSV(
-    CellVol01: Double?, PackCurr: Double?, IgnitionStatus: Int?, Mode_Ack: Int?, CellVol02: Double?, CellVol03: Double?, CellVol04: Double?, CellVol05: Double?,
-    CellVol06: Double?, CellVol07: Double?, CellVol08: Double?, CellVol09: Double?, CellVol10: Double?,
-    CellVol11: Double?, CellVol12: Double?, CellVol13: Double?, CellVol14: Double?, CellVol15: Double?,
-    CellVol16: Double?, MaxCellVol: Double?, MinCellVol: Double?, AvgCellVol: Double?, MaxVoltId: Double?,
-    MinVoltId: Double?, PackVol: Double?, CycleCount: Double?, CellVolMinMaxDev: Double?, SOC: Double?,
-    SOCAh: Double?, SOH: Double?, BmsStatus: Double?, LedStatus: Double?, ActiveCellBalStatus: Double?,
-    BMS_Serial_No_MUX: Double?, BMS_Serial_No__1_7: Double?, LatchProtection: Double?, LatchType: Double?,
-    ChargerType: Double?, PcbTemp: Double?, AfeTemp: Double?, CellChemType: Double?, Chg_Accumulative_Ah: Double?,
-    Dchg_Accumulative_Ah: Double?, RefVol: Double?, _3v3Vol: Double?, _5vVol: Double?, _12vVol: Double?,
-    Actual_SoC: Double?, Usable_Capacity_Ah: Double?, ConfigVer: Double?, InternalFWVer: Double?, InternalFWSubVer: Double?,
-    BHB_66049: Double?, PackCurr: Double?, MaxTemp: Double?, MinTemp: Double?, FetTemp: Double?,
-    Temp1: Double?, Temp2: Double?, Temp3: Double?, Temp4: Double?, Temp5: Double?,
-    Temp6: Double?, Temp7: Double?, Temp8: Double?, HwVer: Double?, FwVer: Double?,
-    FWSubVer: Double?, BtStatus_NC0PSM1CC2CV3Finish4: Double?, Bt_liveMsg1Temp: Double?, Bt_liveMsg_soc: Double?, BMS_status: Double?,
-    Demand_voltage: Double?, Demand_Current: Double?, MaxChgVoltgae: Double?, MaxChgCurrent: Double?, ActualChgVoltage: Double?,
-    ActualChgCurrent: Double?, Charging_end_cutoff_Curr: Double?, CHB_258: Double?, ChgrNC0PSM1CC2CV3Finsh4: Double?,
-    chgr_msg_temp: Double?, chgStatus_chg_idle: Double?, chgrLiveMsgChgVolt: Double?, chgrLiveMsgChgCurrent: Double?,
-    ChargeSOP: Double?, DchgSOP: Double?, Drive_Error_Flag: Double?, Set_Regen: Double?, DCcurrentlimit: Double?,
-    Custom_freq: Double?, Custom_torque: Double?, Buffer_speed: Double?, Base_speed: Double?, Initial_torque: Double?,
-    Final_torque: Double?, Cluster_odo: Double?, MotorSpeed: Double?, BatteryVoltage: Double?, BatteryCurrent: Double?,
-    AC_Current: Double?, AC_Voltage: Double?, Throttle: Double?, MCU_Temperature: Double?, Motor_Temperature: Double?,
-    MCU_Fault_Code: Double?, MCU_ID: Double?, Cluster_heartbeat: Double?, Odo_Cluster: Double?
-)
+    data class VehicleMetrics(
+        val CellVol01: Double?, val PackCurr: Double?, val IgnitionStatus: Int?, val Mode_Ack: Int?,
+        val CellVol02: Double?, val CellVol03: Double?, val CellVol04: Double?, val CellVol05: Double?,
+        val CellVol06: Double?, val CellVol07: Double?, val CellVol08: Double?, val CellVol09: Double?,
+        val CellVol10: Double?, val CellVol11: Double?, val CellVol12: Double?, val CellVol13: Double?,
+        val CellVol14: Double?, val CellVol15: Double?, val CellVol16: Double?, val MaxCellVol: Double?,
+        val MinCellVol: Double?, val AvgCellVol: Double?, val MaxVoltId: Double?, val MinVoltId: Double?,
+        val PackVol: Double?, val CycleCount: Double?, val CellVolMinMaxDev: Double?, val SOC: Double?,
+        val SOCAh: Double?, val SOH: Double?, val BmsStatus: Double?, val LedStatus: Double?,
+        val ActiveCellBalStatus: Double?, val BMS_Serial_No_MUX: Double?, val BMS_Serial_No__1_7: Double?,
+        val LatchProtection: Double?, val LatchType: Double?, val ChargerType: Double?, val PcbTemp: Double?,
+        val AfeTemp: Double?, val CellChemType: Double?, val Chg_Accumulative_Ah: Double?, val Dchg_Accumulative_Ah: Double?,
+        val RefVol: Double?, val _3v3Vol: Double?, val _5vVol: Double?, val _12vVol: Double?, val Actual_SoC: Double?,
+        val Usable_Capacity_Ah: Double?, val ConfigVer: Double?, val InternalFWVer: Double?, val InternalFWSubVer: Double?,
+        val BHB_66049: Double?, val MaxTemp: Double?, val MinTemp: Double?, val FetTemp: Double?,
+        val Temp1: Double?, val Temp2: Double?, val Temp3: Double?, val Temp4: Double?,
+        val Temp5: Double?, val Temp6: Double?, val Temp7: Double?, val Temp8: Double?, val HwVer: Double?,
+        val FwVer: Double?, val FWSubVer: Double?, val BtStatus_NC0PSM1CC2CV3Finish4: Double?, val Bt_liveMsg1Temp: Double?,
+        val Bt_liveMsg_soc: Double?, val BMS_status: Double?, val Demand_voltage: Double?, val Demand_Current: Double?,
+        val MaxChgVoltgae: Double?, val MaxChgCurrent: Double?, val ActualChgVoltage: Double?, val ActualChgCurrent: Double?,
+        val Charging_end_cutoff_Curr: Double?, val CHB_258: Double?, val ChgrNC0PSM1CC2CV3Finsh4: Double?,
+        val chgr_msg_temp: Double?, val chgStatus_chg_idle: Double?, val chgrLiveMsgChgVolt: Double?, val chgrLiveMsgChgCurrent: Double?,
+        val ChargeSOP: Double?, val DchgSOP: Double?, val Drive_Error_Flag: Double?, val Set_Regen: Double?,
+        val DCcurrentlimit: Double?, val Custom_freq: Double?, val Custom_torque: Double?, val Buffer_speed: Double?,
+        val Base_speed: Double?, val Initial_torque: Double?, val Final_torque: Double?, val Cluster_odo: Double?,
+        val MotorSpeed: Double?, val BatteryVoltage: Double?, val BatteryCurrent: Double?, val AC_Current: Double?,
+        val AC_Voltage: Double?, val Throttle: Double?, val MCU_Temperature: Double?, val Motor_Temperature: Double?,
+        val MCU_Fault_Code: Double?, val MCU_ID: Double?, val Cluster_heartbeat: Double?, val Odo_Cluster: Double?
+    )      
+    fun saveDataToCSV(metrics: VehicleMetrics)
  {
         saveFileUri?.let { uri ->
             contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
@@ -1023,7 +1112,11 @@ class ReceiveActivity : AppCompatActivity() {
                         headersWritten = true
                     }
                     val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault()).format(Date())
-                    writer.append("$timestamp,${CellVol01 ?: ""},${PackCurr ?: ""},${IgnitionStatus ?: ""},${Mode_Ack ?: ""},${CellVol02 ?: ""},${CellVol03 ?: ""},${CellVol04 ?: ""},${CellVol05 ?: ""},${CellVol06 ?: ""},${CellVol07 ?: ""},${CellVol08 ?: ""},${CellVol09 ?: ""},${CellVol10 ?: ""},${CellVol11 ?: ""},${CellVol12 ?: ""},${CellVol13 ?: ""},${CellVol14 ?: ""},${CellVol15 ?: ""},${CellVol16 ?: ""},${MaxCellVol ?: ""},${MinCellVol ?: ""},${AvgCellVol ?: ""},${MaxVoltId ?: ""},${MinVoltId ?: ""},${PackVol ?: ""},${CycleCount ?: ""},${CellVolMinMaxDev ?: ""},${SOC ?: ""},${SOCAh ?: ""},${SOH ?: ""},${BmsStatus ?: ""},${LedStatus ?: ""},${ActiveCellBalStatus ?: ""},${BMS_Serial_No_MUX ?: ""},${BMS_Serial_No__1_7 ?: ""},${LatchProtection ?: ""},${LatchType ?: ""},${ChargerType ?: ""},${PcbTemp ?: ""},${AfeTemp ?: ""},${CellChemType ?: ""},${Chg_Accumulative_Ah ?: ""},${Dchg_Accumulative_Ah ?: ""},${RefVol ?: ""},${_3v3Vol ?: ""},${_5vVol ?: ""},${_12vVol ?: ""},${Actual_SoC ?: ""},${Usable_Capacity_Ah ?: ""},${ConfigVer ?: ""},${InternalFWVer ?: ""},${InternalFWSubVer ?: ""},${BHB_66049 ?: ""},${PackCurr ?: ""},${MaxTemp ?: ""},${MinTemp ?: ""},${FetTemp ?: ""},${Temp1 ?: ""},${Temp2 ?: ""},${Temp3 ?: ""},${Temp4 ?: ""},${Temp5 ?: ""},${Temp6 ?: ""},${Temp7 ?: ""},${Temp8 ?: ""},${HwVer ?: ""},${FwVer ?: ""},${FWSubVer ?: ""},${BtStatus_NC0PSM1CC2CV3Finish4 ?: ""},${Bt_liveMsg1Temp ?: ""},${Bt_liveMsg_soc ?: ""},${BMS_status ?: ""},${Demand_voltage ?: ""},${Demand_Current ?: ""},${MaxChgVoltgae ?: ""},${MaxChgCurrent ?: ""},${ActualChgVoltage ?: ""},${ActualChgCurrent ?: ""},${Charging_end_cutoff_Curr ?: ""},${CHB_258 ?: ""},${ChgrNC0PSM1CC2CV3Finsh4 ?: ""},${chgr_msg_temp ?: ""},${chgStatus_chg_idle ?: ""},${chgrLiveMsgChgVolt ?: ""},${chgrLiveMsgChgCurrent ?: ""},${ChargeSOP ?: ""},${DchgSOP ?: ""},${Drive_Error_Flag ?: ""},${Set_Regen ?: ""},${DCcurrentlimit ?: ""},${Custom_freq ?: ""},${Custom_torque ?: ""},${Buffer_speed ?: ""},${Base_speed ?: ""},${Initial_torque ?: ""},${Final_torque ?: ""},${Cluster_odo ?: ""},${MotorSpeed ?: ""},${BatteryVoltage ?: ""},${BatteryCurrent ?: ""},${AC_Current ?: ""},${AC_Voltage ?: ""},${Throttle ?: ""},${MCU_Temperature ?: ""},${Motor_Temperature ?: ""},${MCU_Fault_Code ?: ""},${MCU_ID ?: ""},${Cluster_heartbeat ?: ""},${Odo_Cluster ?: ""}\n")
+
+                    writer.append(
+    "$timestamp,${metrics.CellVol01 ?: ""},${metrics.PackCurr ?: ""},${metrics.IgnitionStatus ?: ""},${metrics.Mode_Ack ?: ""},${metrics.CellVol02 ?: ""},${metrics.CellVol03 ?: ""},${metrics.CellVol04 ?: ""},${metrics.CellVol05 ?: ""},${metrics.CellVol06 ?: ""},${metrics.CellVol07 ?: ""},${metrics.CellVol08 ?: ""},${metrics.CellVol09 ?: ""},${metrics.CellVol10 ?: ""},${metrics.CellVol11 ?: ""},${metrics.CellVol12 ?: ""},${metrics.CellVol13 ?: ""},${metrics.CellVol14 ?: ""},${metrics.CellVol15 ?: ""},${metrics.CellVol16 ?: ""},${metrics.MaxCellVol ?: ""},${metrics.MinCellVol ?: ""},${metrics.AvgCellVol ?: ""},${metrics.MaxVoltId ?: ""},${metrics.MinVoltId ?: ""},${metrics.PackVol ?: ""},${metrics.CycleCount ?: ""},${metrics.CellVolMinMaxDev ?: ""},${metrics.SOC ?: ""},${metrics.SOCAh ?: ""},${metrics.SOH ?: ""},${metrics.BmsStatus ?: ""},${metrics.LedStatus ?: ""},${metrics.ActiveCellBalStatus ?: ""},${metrics.BMS_Serial_No_MUX ?: ""},${metrics.BMS_Serial_No__1_7 ?: ""},${metrics.LatchProtection ?: ""},${metrics.LatchType ?: ""},${metrics.ChargerType ?: ""},${metrics.PcbTemp ?: ""},${metrics.AfeTemp ?: ""},${metrics.CellChemType ?: ""},${metrics.Chg_Accumulative_Ah ?: ""},${metrics.Dchg_Accumulative_Ah ?: ""},${metrics.RefVol ?: ""},${metrics._3v3Vol ?: ""},${metrics._5vVol ?: ""},${metrics._12vVol ?: ""},${metrics.Actual_SoC ?: ""},${metrics.Usable_Capacity_Ah ?: ""},${metrics.ConfigVer ?: ""},${metrics.InternalFWVer ?: ""},${metrics.InternalFWSubVer ?: ""},${metrics.BHB_66049 ?: ""},${metrics.PackCurr ?: ""},${metrics.MaxTemp ?: ""},${metrics.MinTemp ?: ""},${metrics.FetTemp ?: ""},${metrics.Temp1 ?: ""},${metrics.Temp2 ?: ""},${metrics.Temp3 ?: ""},${metrics.Temp4 ?: ""},${metrics.Temp5 ?: ""},${metrics.Temp6 ?: ""},${metrics.Temp7 ?: ""},${metrics.Temp8 ?: ""},${metrics.HwVer ?: ""},${metrics.FwVer ?: ""},${metrics.FWSubVer ?: ""},${metrics.BtStatus_NC0PSM1CC2CV3Finish4 ?: ""},${metrics.Bt_liveMsg1Temp ?: ""},${metrics.Bt_liveMsg_soc ?: ""},${metrics.BMS_status ?: ""},${metrics.Demand_voltage ?: ""},${metrics.Demand_Current ?: ""},${metrics.MaxChgVoltgae ?: ""},${metrics.MaxChgCurrent ?: ""},${metrics.ActualChgVoltage ?: ""},${metrics.ActualChgCurrent ?: ""},${metrics.Charging_end_cutoff_Curr ?: ""},${metrics.CHB_258 ?: ""},${metrics.ChgrNC0PSM1CC2CV3Finsh4 ?: ""},${metrics.chgr_msg_temp ?: ""},${metrics.chgStatus_chg_idle ?: ""},${metrics.chgrLiveMsgChgVolt ?: ""},${metrics.chgrLiveMsgChgCurrent ?: ""},${metrics.ChargeSOP ?: ""},${metrics.DchgSOP ?: ""},${metrics.Drive_Error_Flag ?: ""},${metrics.Set_Regen ?: ""},${metrics.DCcurrentlimit ?: ""},${metrics.Custom_freq ?: ""},${metrics.Custom_torque ?: ""},${metrics.Buffer_speed ?: ""},${metrics.Base_speed ?: ""},${metrics.Initial_torque ?: ""},${metrics.Final_torque ?: ""},${metrics.Cluster_odo ?: ""},${metrics.MotorSpeed ?: ""},${metrics.BatteryVoltage ?: ""},${metrics.BatteryCurrent ?: ""},${metrics.AC_Current ?: ""},${metrics.AC_Voltage ?: ""},${metrics.Throttle ?: ""},${metrics.MCU_Temperature ?: ""},${metrics.Motor_Temperature ?: ""},${metrics.MCU_Fault_Code ?: ""},${metrics.MCU_ID ?: ""},${metrics.Cluster_heartbeat ?: ""},${metrics.Odo_Cluster ?: ""}\n"
+)
+
                 }
             }
         }
