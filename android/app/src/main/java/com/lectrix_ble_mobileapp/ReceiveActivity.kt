@@ -198,7 +198,7 @@ class ReceiveActivity : AppCompatActivity() {
                 }
 
                 runOnUiThread {
-                    dataReceivedView.text = "CellVol01: ${lastValidCellVol01 ?: "Waiting for data..."}\nPackCurr: ${lastValidPackCurr ?: "Waiting for data..."}\nIgnitionStatus: ${lastValidIgnitionStatus ?: "Waiting for data..."}\nMode_Ack: ${lastValidMode_Ack ?: "Waiting for data..."}"
+                    dataReceivedView.text = "CellVol01: ${lastValidCellVol01 ?: "N/A"}\nPackCurr: ${lastValidPackCurr ?: "N/A"}\nIgnitionStatus: ${lastValidIgnitionStatus ?: "N/A"}\nMode_Ack: ${lastValidMode_Ack ?: "N/A"}"
                 }
             }
         })

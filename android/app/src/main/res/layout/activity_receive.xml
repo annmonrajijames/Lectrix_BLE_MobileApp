@@ -4,21 +4,12 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/dataReceivedView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:gravity="center"
-        android:text="No data yet"
-        android:layout_alignParentTop="true" />
-
     <Button
         android:id="@+id/startRecordingButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Start Recording"
-        android:layout_below="@id/dataReceivedView"
+        android:layout_alignParentTop="true"
         android:layout_marginTop="20dp" />
 
     <Button
@@ -37,4 +28,28 @@
         android:layout_below="@id/stopRecordingButton"
         android:layout_marginTop="10dp" />
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/saveLocationButton"
+        android:layout_above="@+id/bottomLayout"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/dataReceivedView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:text="No data yet" />
+
+    </ScrollView>
+
+    <!-- Placeholder for potentially other controls at the bottom -->
+    <RelativeLayout
+        android:id="@+id/bottomLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true">
+    </RelativeLayout>
 </RelativeLayout>
