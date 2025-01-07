@@ -967,7 +967,31 @@ class ReceiveActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveDataToCSV(CellVol01: Double?, PackCurr: Double?, IgnitionStatus: Int?, Mode_Ack: Int?) {
+    private fun saveDataToCSV(
+    CellVol01: Double?, PackCurr: Double?, IgnitionStatus: Int?, Mode_Ack: Int?, CellVol02: Double?, CellVol03: Double?, CellVol04: Double?, CellVol05: Double?,
+    CellVol06: Double?, CellVol07: Double?, CellVol08: Double?, CellVol09: Double?, CellVol10: Double?,
+    CellVol11: Double?, CellVol12: Double?, CellVol13: Double?, CellVol14: Double?, CellVol15: Double?,
+    CellVol16: Double?, MaxCellVol: Double?, MinCellVol: Double?, AvgCellVol: Double?, MaxVoltId: Double?,
+    MinVoltId: Double?, PackVol: Double?, CycleCount: Double?, CellVolMinMaxDev: Double?, SOC: Double?,
+    SOCAh: Double?, SOH: Double?, BmsStatus: Double?, LedStatus: Double?, ActiveCellBalStatus: Double?,
+    BMS_Serial_No_MUX: Double?, BMS_Serial_No__1_7: Double?, LatchProtection: Double?, LatchType: Double?,
+    ChargerType: Double?, PcbTemp: Double?, AfeTemp: Double?, CellChemType: Double?, Chg_Accumulative_Ah: Double?,
+    Dchg_Accumulative_Ah: Double?, RefVol: Double?, _3v3Vol: Double?, _5vVol: Double?, _12vVol: Double?,
+    Actual_SoC: Double?, Usable_Capacity_Ah: Double?, ConfigVer: Double?, InternalFWVer: Double?, InternalFWSubVer: Double?,
+    BHB_66049: Double?, PackCurr: Double?, MaxTemp: Double?, MinTemp: Double?, FetTemp: Double?,
+    Temp1: Double?, Temp2: Double?, Temp3: Double?, Temp4: Double?, Temp5: Double?,
+    Temp6: Double?, Temp7: Double?, Temp8: Double?, HwVer: Double?, FwVer: Double?,
+    FWSubVer: Double?, BtStatus_NC0PSM1CC2CV3Finish4: Double?, Bt_liveMsg1Temp: Double?, Bt_liveMsg_soc: Double?, BMS_status: Double?,
+    Demand_voltage: Double?, Demand_Current: Double?, MaxChgVoltgae: Double?, MaxChgCurrent: Double?, ActualChgVoltage: Double?,
+    ActualChgCurrent: Double?, Charging_end_cutoff_Curr: Double?, CHB_258: Double?, ChgrNC0PSM1CC2CV3Finsh4: Double?,
+    chgr_msg_temp: Double?, chgStatus_chg_idle: Double?, chgrLiveMsgChgVolt: Double?, chgrLiveMsgChgCurrent: Double?,
+    ChargeSOP: Double?, DchgSOP: Double?, Drive_Error_Flag: Double?, Set_Regen: Double?, DCcurrentlimit: Double?,
+    Custom_freq: Double?, Custom_torque: Double?, Buffer_speed: Double?, Base_speed: Double?, Initial_torque: Double?,
+    Final_torque: Double?, Cluster_odo: Double?, MotorSpeed: Double?, BatteryVoltage: Double?, BatteryCurrent: Double?,
+    AC_Current: Double?, AC_Voltage: Double?, Throttle: Double?, MCU_Temperature: Double?, Motor_Temperature: Double?,
+    MCU_Fault_Code: Double?, MCU_ID: Double?, Cluster_heartbeat: Double?, Odo_Cluster: Double?
+)
+ {
         saveFileUri?.let { uri ->
             contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
                 OutputStreamWriter(outputStream).use { writer ->
