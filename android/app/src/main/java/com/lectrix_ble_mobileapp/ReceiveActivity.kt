@@ -952,7 +952,30 @@ class ReceiveActivity : AppCompatActivity() {
             while (isActive) {
                 if (lastValidCellVol01 != lastValidCellVol01_rep) {
             
-                saveDataToCSV(lastValidCellVol01, lastValidPackCurr, lastValidIgnitionStatus, lastValidMode_Ack)
+                    saveDataToCSV(
+                        lastValidCellVol01, lastValidPackCurr, lastValidIgnitionStatus, lastValidMode_Ack, lastValidCellVol02, lastValidCellVol03, lastValidCellVol04, lastValidCellVol05, lastValidCellVol06,
+                        lastValidCellVol07, lastValidCellVol08, lastValidCellVol09, lastValidCellVol10, lastValidCellVol11,
+                        lastValidCellVol12, lastValidCellVol13, lastValidCellVol14, lastValidCellVol15, lastValidCellVol16,
+                        lastValidMaxCellVol, lastValidMinCellVol, lastValidAvgCellVol, lastValidMaxVoltId, lastValidMinVoltId,
+                        lastValidPackVol, lastValidCycleCount, lastValidCellVolMinMaxDev, lastValidSOC, lastValidSOCAh,
+                        lastValidSOH, lastValidBmsStatus, lastValidLedStatus, lastValidActiveCellBalStatus, lastValidBMS_Serial_No_MUX,
+                        lastValidBMS_Serial_No__1_7, lastValidLatchProtection, lastValidLatchType, lastValidChargerType,
+                        lastValidPcbTemp, lastValidAfeTemp, lastValidCellChemType, lastValidChg_Accumulative_Ah, lastValidDchg_Accumulative_Ah,
+                        lastValidRefVol, lastValid_3v3Vol, lastValid_5vVol, lastValid_12vVol, lastValidActual_SoC,
+                        lastValidUsable_Capacity_Ah, lastValidConfigVer, lastValidInternalFWVer, lastValidInternalFWSubVer,
+                        lastValidBHB_66049, lastValidPackCurr, lastValidMaxTemp, lastValidMinTemp, lastValidFetTemp,
+                        lastValidTemp1, lastValidTemp2, lastValidTemp3, lastValidTemp4, lastValidTemp5, lastValidTemp6,
+                        lastValidTemp7, lastValidTemp8, lastValidHwVer, lastValidFwVer, lastValidFWSubVer,
+                        lastValidBtStatus_NC0PSM1CC2CV3Finish4, lastValidBt_liveMsg1Temp, lastValidBt_liveMsg_soc, lastValidBMS_status,
+                        lastValidDemand_voltage, lastValidDemand_Current, lastValidMaxChgVoltgae, lastValidMaxChgCurrent,
+                        lastValidActualChgVoltage, lastValidActualChgCurrent, lastValidCharging_end_cutoff_Curr, lastValidCHB_258,
+                        lastValidChgrNC0PSM1CC2CV3Finsh4, lastValidchgr_msg_temp, lastValidchgStatus_chg_idle, lastValidchgrLiveMsgChgVolt,
+                        lastValidchgrLiveMsgChgCurrent, lastValidChargeSOP, lastValidDchgSOP, lastValidDrive_Error_Flag, lastValidSet_Regen,
+                        lastValidDCcurrentlimit, lastValidCustom_freq, lastValidCustom_torque, lastValidBuffer_speed, lastValidBase_speed,
+                        lastValidInitial_torque, lastValidFinal_torque, lastValidCluster_odo, lastValidMotorSpeed, lastValidBatteryVoltage,
+                        lastValidBatteryCurrent, lastValidAC_Current, lastValidAC_Voltage, lastValidThrottle, lastValidMCU_Temperature,
+                        lastValidMotor_Temperature, lastValidMCU_Fault_Code, lastValidMCU_ID, lastValidCluster_heartbeat, lastValidOdo_Cluster
+                    )                    
                 // delay(1000)  // Adjust based on how frequently you want to record data
                 }
                 lastValidCellVol01_rep = lastValidCellVol01
