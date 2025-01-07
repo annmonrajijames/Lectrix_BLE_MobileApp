@@ -514,6 +514,322 @@ class ReceiveActivity : AppCompatActivity() {
                     lastValidMode_Ack = decodedMode_Ack
                 }
 
+                if (decodedCellVol02 != null) {
+                    lastValidCellVol02 = decodedCellVol02
+                }
+                if (decodedCellVol03 != null) {
+                    lastValidCellVol03 = decodedCellVol03
+                }
+                if (decodedCellVol04 != null) {
+                    lastValidCellVol04 = decodedCellVol04
+                }
+                if (decodedCellVol05 != null) {
+                    lastValidCellVol05 = decodedCellVol05
+                }
+                if (decodedCellVol06 != null) {
+                    lastValidCellVol06 = decodedCellVol06
+                }
+                if (decodedCellVol07 != null) {
+                    lastValidCellVol07 = decodedCellVol07
+                }
+                if (decodedCellVol08 != null) {
+                    lastValidCellVol08 = decodedCellVol08
+                }
+                if (decodedCellVol09 != null) {
+                    lastValidCellVol09 = decodedCellVol09
+                }
+                if (decodedCellVol10 != null) {
+                    lastValidCellVol10 = decodedCellVol10
+                }
+                if (decodedCellVol11 != null) {
+                    lastValidCellVol11 = decodedCellVol11
+                }
+                if (decodedCellVol12 != null) {
+                    lastValidCellVol12 = decodedCellVol12
+                }
+                if (decodedCellVol13 != null) {
+                    lastValidCellVol13 = decodedCellVol13
+                }
+                if (decodedCellVol14 != null) {
+                    lastValidCellVol14 = decodedCellVol14
+                }
+                if (decodedCellVol15 != null) {
+                    lastValidCellVol15 = decodedCellVol15
+                }
+                if (decodedCellVol16 != null) {
+                    lastValidCellVol16 = decodedCellVol16
+                }                      
+                if (decodedMaxCellVol != null) {
+                    lastValidMaxCellVol = decodedMaxCellVol
+                }
+                if (decodedMinCellVol != null) {
+                    lastValidMinCellVol = decodedMinCellVol
+                }
+                if (decodedAvgCellVol != null) {
+                    lastValidAvgCellVol = decodedAvgCellVol
+                }
+                if (decodedMaxVoltId != null) {
+                    lastValidMaxVoltId = decodedMaxVoltId
+                }
+                if (decodedMinVoltId != null) {
+                    lastValidMinVoltId = decodedMinVoltId
+                }
+                if (decodedPackVol != null) {
+                    lastValidPackVol = decodedPackVol
+                }
+                if (decodedCycleCount != null) {
+                    lastValidCycleCount = decodedCycleCount
+                }
+                if (decodedCellVolMinMaxDev != null) {
+                    lastValidCellVolMinMaxDev = decodedCellVolMinMaxDev
+                }
+                if (decodedSOC != null) {
+                    lastValidSOC = decodedSOC
+                }
+                if (decodedSOCAh != null) {
+                    lastValidSOCAh = decodedSOCAh
+                }
+                if (decodedSOH != null) {
+                    lastValidSOH = decodedSOH
+                }
+                if (decodedBmsStatus != null) {
+                    lastValidBmsStatus = decodedBmsStatus
+                }
+                if (decodedLedStatus != null) {
+                    lastValidLedStatus = decodedLedStatus
+                }
+                if (decodedActiveCellBalStatus != null) {
+                    lastValidActiveCellBalStatus = decodedActiveCellBalStatus
+                }
+                if (decodedBMS_Serial_No_MUX != null) {
+                    lastValidBMS_Serial_No_MUX = decodedBMS_Serial_No_MUX
+                }
+                if (decodedBMS_Serial_No__1_7 != null) {
+                    lastValidBMS_Serial_No__1_7 = decodedBMS_Serial_No__1_7
+                }
+                if (decodedLatchProtection != null) {
+                    lastValidLatchProtection = decodedLatchProtection
+                }
+                if (decodedLatchType != null) {
+                    lastValidLatchType = decodedLatchType
+                }
+                if (decodedChargerType != null) {
+                    lastValidChargerType = decodedChargerType
+                }
+                if (decodedPcbTemp != null) {
+                    lastValidPcbTemp = decodedPcbTemp
+                }
+                if (decodedAfeTemp != null) {
+                    lastValidAfeTemp = decodedAfeTemp
+                }
+                if (decodedCellChemType != null) {
+                    lastValidCellChemType = decodedCellChemType
+                }
+                if (decodedChg_Accumulative_Ah != null) {
+                    lastValidChg_Accumulative_Ah = decodedChg_Accumulative_Ah
+                }
+                if (decodedDchg_Accumulative_Ah != null) {
+                    lastValidDchg_Accumulative_Ah = decodedDchg_Accumulative_Ah
+                }
+                if (decodedRefVol != null) {
+                    lastValidRefVol = decodedRefVol
+                }
+                if (decoded_3v3Vol != null) {
+                    lastValid_3v3Vol = decoded_3v3Vol
+                }
+                if (decoded_5vVol != null) {
+                    lastValid_5vVol = decoded_5vVol
+                }
+                if (decoded_12vVol != null) {
+                    lastValid_12vVol = decoded_12vVol
+                }
+                if (decodedActual_SoC != null) {
+                    lastValidActual_SoC = decodedActual_SoC
+                }
+                if (decodedUsable_Capacity_Ah != null) {
+                    lastValidUsable_Capacity_Ah = decodedUsable_Capacity_Ah
+                }
+                if (decodedConfigVer != null) {
+                    lastValidConfigVer = decodedConfigVer
+                }
+                if (decodedInternalFWVer != null) {
+                    lastValidInternalFWVer = decodedInternalFWVer
+                }
+                if (decodedInternalFWSubVer != null) {
+                    lastValidInternalFWSubVer = decodedInternalFWSubVer
+                }
+                if (decodedBHB_66049 != null) {
+                    lastValidBHB_66049 = decodedBHB_66049
+                }
+                if (decodedPackCurr != null) {
+                    lastValidPackCurr = decodedPackCurr
+                }
+                if (decodedMaxTemp != null) {
+                    lastValidMaxTemp = decodedMaxTemp
+                }
+                if (decodedMinTemp != null) {
+                    lastValidMinTemp = decodedMinTemp
+                }
+                if (decodedFetTemp != null) {
+                    lastValidFetTemp = decodedFetTemp
+                }
+                if (decodedTemp1 != null) {
+                    lastValidTemp1 = decodedTemp1
+                }
+                if (decodedTemp2 != null) {
+                    lastValidTemp2 = decodedTemp2
+                }
+                if (decodedTemp3 != null) {
+                    lastValidTemp3 = decodedTemp3
+                }
+                if (decodedTemp4 != null) {
+                    lastValidTemp4 = decodedTemp4
+                }
+                if (decodedTemp5 != null) {
+                    lastValidTemp5 = decodedTemp5
+                }
+                if (decodedTemp6 != null) {
+                    lastValidTemp6 = decodedTemp6
+                }
+                if (decodedTemp7 != null) {
+                    lastValidTemp7 = decodedTemp7
+                }
+                if (decodedTemp8 != null) {
+                    lastValidTemp8 = decodedTemp8
+                }
+                if (decodedHwVer != null) {
+                    lastValidHwVer = decodedHwVer
+                }
+                if (decodedFwVer != null) {
+                    lastValidFwVer = decodedFwVer
+                }
+                if (decodedFWSubVer != null) {
+                    lastValidFWSubVer = decodedFWSubVer
+                }
+                if (decodedBtStatus_NC0PSM1CC2CV3Finish4 != null) {
+                    lastValidBtStatus_NC0PSM1CC2CV3Finish4 = decodedBtStatus_NC0PSM1CC2CV3Finish4
+                }
+                if (decodedBt_liveMsg1Temp != null) {
+                    lastValidBt_liveMsg1Temp = decodedBt_liveMsg1Temp
+                }
+                if (decodedBt_liveMsg_soc != null) {
+                    lastValidBt_liveMsg_soc = decodedBt_liveMsg_soc
+                }
+                if (decodedBMS_status != null) {
+                    lastValidBMS_status = decodedBMS_status
+                }
+                if (decodedDemand_voltage != null) {
+                    lastValidDemand_voltage = decodedDemand_voltage
+                }
+                if (decodedDemand_Current != null) {
+                    lastValidDemand_Current = decodedDemand_Current
+                }
+                if (decodedMaxChgVoltgae != null) {
+                    lastValidMaxChgVoltgae = decodedMaxChgVoltgae
+                }
+                if (decodedMaxChgCurrent != null) {
+                    lastValidMaxChgCurrent = decodedMaxChgCurrent
+                }
+                if (decodedActualChgVoltage != null) {
+                    lastValidActualChgVoltage = decodedActualChgVoltage
+                }
+                if (decodedActualChgCurrent != null) {
+                    lastValidActualChgCurrent = decodedActualChgCurrent
+                }
+                if (decodedCharging_end_cutoff_Curr != null) {
+                    lastValidCharging_end_cutoff_Curr = decodedCharging_end_cutoff_Curr
+                }
+                if (decodedCHB_258 != null) {
+                    lastValidCHB_258 = decodedCHB_258
+                }
+                if (decodedChgrNC0PSM1CC2CV3Finsh4 != null) {
+                    lastValidChgrNC0PSM1CC2CV3Finsh4 = decodedChgrNC0PSM1CC2CV3Finsh4
+                }
+                if (decodedchgr_msg_temp != null) {
+                    lastValidchgr_msg_temp = decodedchgr_msg_temp
+                }
+                if (decodedchgStatus_chg_idle != null) {
+                    lastValidchgStatus_chg_idle = decodedchgStatus_chg_idle
+                }
+                if (decodedchgrLiveMsgChgVolt != null) {
+                    lastValidchgrLiveMsgChgVolt = decodedchgrLiveMsgChgVolt
+                }
+                if (decodedchgrLiveMsgChgCurrent != null) {
+                    lastValidchgrLiveMsgChgCurrent = decodedchgrLiveMsgChgCurrent
+                }
+                if (decodedChargeSOP != null) {
+                    lastValidChargeSOP = decodedChargeSOP
+                }
+                if (decodedDchgSOP != null) {
+                    lastValidDchgSOP = decodedDchgSOP
+                }
+                if (decodedDrive_Error_Flag != null) {
+                    lastValidDrive_Error_Flag = decodedDrive_Error_Flag
+                }
+                if (decodedSet_Regen != null) {
+                    lastValidSet_Regen = decodedSet_Regen
+                }
+                if (decodedDCcurrentlimit != null) {
+                    lastValidDCcurrentlimit = decodedDCcurrentlimit
+                }
+                if (decodedCustom_freq != null) {
+                    lastValidCustom_freq = decodedCustom_freq
+                }
+                if (decodedCustom_torque != null) {
+                    lastValidCustom_torque = decodedCustom_torque
+                }
+                if (decodedBuffer_speed != null) {
+                    lastValidBuffer_speed = decodedBuffer_speed
+                }
+                if (decodedBase_speed != null) {
+                    lastValidBase_speed = decodedBase_speed
+                }
+                if (decodedInitial_torque != null) {
+                    lastValidInitial_torque = decodedInitial_torque
+                }
+                if (decodedFinal_torque != null) {
+                    lastValidFinal_torque = decodedFinal_torque
+                }
+                if (decodedCluster_odo != null) {
+                    lastValidCluster_odo = decodedCluster_odo
+                }
+                if (decodedMotorSpeed != null) {
+                    lastValidMotorSpeed = decodedMotorSpeed
+                }
+                if (decodedBatteryVoltage != null) {
+                    lastValidBatteryVoltage = decodedBatteryVoltage
+                }
+                if (decodedBatteryCurrent != null) {
+                    lastValidBatteryCurrent = decodedBatteryCurrent
+                }
+                if (decodedAC_Current != null) {
+                    lastValidAC_Current = decodedAC_Current
+                }
+                if (decodedAC_Voltage != null) {
+                    lastValidAC_Voltage = decodedAC_Voltage
+                }
+                if (decodedThrottle != null) {
+                    lastValidThrottle = decodedThrottle
+                }
+                if (decodedMCU_Temperature != null) {
+                    lastValidMCU_Temperature = decodedMCU_Temperature
+                }
+                if (decodedMotor_Temperature != null) {
+                    lastValidMotor_Temperature = decodedMotor_Temperature
+                }
+                if (decodedMCU_Fault_Code != null) {
+                    lastValidMCU_Fault_Code = decodedMCU_Fault_Code
+                }
+                if (decodedMCU_ID != null) {
+                    lastValidMCU_ID = decodedMCU_ID
+                }
+                if (decodedCluster_heartbeat != null) {
+                    lastValidCluster_heartbeat = decodedCluster_heartbeat
+                }
+                if (decodedOdo_Cluster != null) {
+                    lastValidOdo_Cluster = decodedOdo_Cluster
+                }                 
+
                 runOnUiThread {
                     dataReceivedView.text = "CellVol01: ${lastValidCellVol01 ?: "N/A"}\nPackCurr: ${lastValidPackCurr ?: "N/A"}\nIgnitionStatus: ${lastValidIgnitionStatus ?: "N/A"}\nMode_Ack: ${lastValidMode_Ack ?: "N/A"}"
                 }
