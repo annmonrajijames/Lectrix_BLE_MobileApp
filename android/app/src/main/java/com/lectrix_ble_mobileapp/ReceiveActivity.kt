@@ -25,6 +25,8 @@ class ReceiveActivity : AppCompatActivity() {
     private var lastValidCellVol01_rep: Double? = null
     
     private var lastValidPackCurr: Double? = null
+    private var lastValidIgnitionStatus: Int? = null
+    private var lastValidMode_Ack: Int? = null
     
     private var saveFileUri: Uri? = null
     private var headersWritten = false
@@ -37,8 +39,10 @@ class ReceiveActivity : AppCompatActivity() {
         const val TAG = "ReceiveActivity"
         const val CREATE_FILE_REQUEST_CODE = 1
 
-        val cellVol01Decoder = eightBytesDecode("07", 0.0001, 7, 8)
-        val packCurrDecoder = signedEightBytesDecode("09", 0.001, 9, 10, 11, 12)
+        val CellVol01Decoder = eightBytesDecode("07", 0.0001, 7, 8)
+        val PackCurrDecoder = signedEightBytesDecode("09", 0.001, 9, 10, 11, 12)
+        val IgnitionStatusDecoder = bitDecode("11", 18, 0)
+        val Mode_AckDecoder = threeBitDecode(2, 7, 2, 1, 0)
 
         fun eightBytesDecode(firstByteCheck: String, multiplier: Double, vararg positions: Int): (String) -> Double? {
             return { data ->
@@ -72,6 +76,33 @@ class ReceiveActivity : AppCompatActivity() {
                 }
             }
         }
+        // Define the bitDecode function
+        fun bitDecode(firstByteCheck: String, bytePosition: Int, bitPosition: Int): (String) -> Int? {
+            return { data ->
+                if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) == firstByteCheck) {
+                    val byte = data.substring(2 * bytePosition, 2 * bytePosition + 2)
+                    val bits = byte.toInt(16).toString(2).padStart(8, '0')
+                    if (bits[7 - bitPosition] == '1') 1 else 0
+                } else {
+                    null
+                }
+            }
+        }
+
+        // Define the threeBitDecode function
+        fun threeBitDecode(firstByteCheck: Int, bytePosition: Int, bit1: Int, bit2: Int, bit3: Int): (String) -> Int? {
+            return { data ->
+                if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) == firstByteCheck.toString().padStart(2, '0')) {
+                    val byte = data.substring(2 * bytePosition, 2 * bytePosition + 2)
+                    val bits = byte.toInt(16).toString(2).padStart(8, '0')
+                    val resultBits = "${bits[7 - bit1]}${bits[7 - bit2]}${bits[7 - bit3]}"
+                    resultBits.toInt(2)  // Converts the bit sequence directly to decimal
+                } else {
+                    null
+                }
+            }
+        }     
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -147,8 +178,11 @@ class ReceiveActivity : AppCompatActivity() {
             override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
                 val rawData = characteristic.value
                 val hexString = rawData.joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
-                val decodedCellVol01 = cellVol01Decoder(hexString)
-                val decodedPackCurr = packCurrDecoder(hexString)
+                val decodedCellVol01 = CellVol01Decoder(hexString)
+                val decodedPackCurr = PackCurrDecoder(hexString)
+                val decodedIgnitionStatus = IgnitionStatusDecoder(hexString)
+                val decodedMode_Ack = Mode_AckDecoder(hexString)
+
 
                 if (decodedCellVol01 != null) {
                     lastValidCellVol01 = decodedCellVol01
@@ -156,9 +190,15 @@ class ReceiveActivity : AppCompatActivity() {
                 if (decodedPackCurr != null) {
                     lastValidPackCurr = decodedPackCurr
                 }
+                if (decodedIgnitionStatus != null) {
+                    lastValidIgnitionStatus = decodedIgnitionStatus
+                }
+                if (decodedMode_Ack != null) {
+                    lastValidMode_Ack = decodedMode_Ack
+                }
 
                 runOnUiThread {
-                    dataReceivedView.text = "Cell Vol 01: ${lastValidCellVol01 ?: "Waiting for data..."}\nPack Curr: ${lastValidPackCurr ?: "Waiting for data..."}"
+                    dataReceivedView.text = "CellVol01: ${lastValidCellVol01 ?: "Waiting for data..."}\nPackCurr: ${lastValidPackCurr ?: "Waiting for data..."}\nIgnitionStatus: ${lastValidIgnitionStatus ?: "Waiting for data..."}\nMode_Ack: ${lastValidMode_Ack ?: "Waiting for data..."}"
                 }
             }
         })
@@ -169,7 +209,7 @@ class ReceiveActivity : AppCompatActivity() {
             while (isActive) {
                 if (lastValidCellVol01 != lastValidCellVol01_rep) {
             
-                saveDataToCSV(lastValidCellVol01, lastValidPackCurr)
+                saveDataToCSV(lastValidCellVol01, lastValidPackCurr, lastValidIgnitionStatus, lastValidMode_Ack)
                 // delay(1000)  // Adjust based on how frequently you want to record data
                 }
                 lastValidCellVol01_rep = lastValidCellVol01
@@ -184,16 +224,16 @@ class ReceiveActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveDataToCSV(cellVol01: Double?, packCurr: Double?) {
+    private fun saveDataToCSV(CellVol01: Double?, PackCurr: Double?, IgnitionStatus: Int?, Mode_Ack: Int?) {
         saveFileUri?.let { uri ->
             contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
                 OutputStreamWriter(outputStream).use { writer ->
                     if (!headersWritten) {
-                        writer.append("Timestamp,Cell Vol 01,Pack Curr\n")
+                        writer.append("Timestamp,CellVol01,PackCurr,IgnitionStatus,Mode_Ack\n")
                         headersWritten = true
                     }
                     val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault()).format(Date())
-                    writer.append("$timestamp,${cellVol01 ?: ""},${packCurr ?: ""}\n")
+                    writer.append("$timestamp,${CellVol01 ?: ""},${PackCurr ?: ""},${IgnitionStatus ?: ""},${Mode_Ack ?: ""}\n")
                 }
             }
         }
