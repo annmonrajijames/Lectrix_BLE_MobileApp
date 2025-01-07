@@ -26,6 +26,7 @@ class ReceiveActivity : AppCompatActivity() {
     private var saveFileUri: Uri? = null
     private var headersWritten = false
     private var job: Job? = null
+    private var lastCycleByte: String = "00"  // Initialize to 00 to handle the initial state
 
     companion object {
         const val DEVICE_ADDRESS = "DEVICE_ADDRESS"
@@ -144,6 +145,16 @@ class ReceiveActivity : AppCompatActivity() {
             override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
                 val rawData = characteristic.value
                 val hexString = rawData.joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
+
+                val currentCycleByte = hexString.take(2)  // Take the first byte from hexString
+
+                if (lastCycleByte == "20" && currentCycleByte == "01") {
+                    // New cycle has started
+                    startRecording()  // Trigger recording when cycle starts
+                }
+
+                lastCycleByte = currentCycleByte  // Update lastCycleByte for next comparison
+
                 val decodedCellVol01 = cellVol01Decoder(hexString)
                 val decodedPackCurr = packCurrDecoder(hexString)
 
@@ -162,12 +173,7 @@ class ReceiveActivity : AppCompatActivity() {
     }
 
     private fun startRecording() {
-        job = CoroutineScope(Dispatchers.IO).launch {
-            while (isActive) {
-                saveDataToCSV(lastValidCellVol01, lastValidPackCurr)
-                // delay(1000)  // Adjust based on how frequently you want to record data
-            }
-        }
+        saveDataToCSV(lastValidCellVol01, lastValidPackCurr)  // Record the current data immediately when a new cycle starts
     }
 
     private fun stopRecording() {
