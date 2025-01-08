@@ -21,6 +21,8 @@
 
 #define GATTS_TAG "GATTS_DEMO"
 #define ERROR_CHECK "SRIJANANI"
+#define VCU_MSG1 0x18f20309
+#define VCU_MSG2 0x18f20311
 
 // Declare the static function
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
@@ -37,9 +39,17 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 #define RESET_COMMAND "RESET"  // Command to reset
 #define CAN_COMMAND "SEND_CAN"  // Command to send CAN message
 #define SERVICE_RESET_CAN_ID 0x18F60001  // CAN ID for service reset
+#define REGEN_LIMIT_CAN_ID 0x18F20209
 #define PREPARE_BUF_MAX_SIZE 1024
-#define PREPARE_BUF_MAX_SIZE 512  // Adjust this buffer size as needed
-#define CHUNK_SIZE 20            // Adjust chunk size as needed
+
+static uint16_t frequency = 0;
+static int torque = 0x64;
+static uint16_t buffer_speed = 0;
+static uint16_t base_speed = 0;
+static int torque_limit_before_profile_speed = 0;
+static int torque_limit_after_profile_speed = 0;
+static int DC_current_limit = 0;
+static int regen_current_limit = 0;
 
 static uint8_t char1_str[] = {0x11,0x22,0x33};
 static esp_gatt_char_prop_t a_property = 0;
@@ -155,6 +165,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
             esp_ble_gap_start_advertising(&adv_params);
             ESP_LOGI(GATTS_TAG, "Starting advertising.");
         }
+        
         break;
     case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
         adv_config_done &= (~scan_rsp_config_flag);
@@ -194,7 +205,40 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     }
 }
 
-void transmit_task(uint8_t tenth_byte)
+void transmit_task1(uint8_t sixth_byte)
+{
+    uint8_t REGEN_LIMIT = sixth_byte;
+    ESP_LOGI(GATTS_TAG, "Sixth byte value: 0x%02X", sixth_byte);
+    ESP_LOGI(GATTS_TAG, "CAN ID: 0x%08X", REGEN_LIMIT_CAN_ID);
+
+    twai_message_t transmit_message_reset_high = {.identifier = REGEN_LIMIT_CAN_ID, .data_length_code = 8, .extd = 1, .data = {0x00, 0x00, 0x00, 0x00, 0x00, REGEN_LIMIT, 0x00, 0x00}};
+    if (twai_transmit(&transmit_message_reset_high, 1000) == ESP_OK)
+    {
+        printf("Message sent----------->");
+        ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+    else
+    {
+        ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+
+    twai_message_t transmit_message_reset_low = {.identifier = REGEN_LIMIT_CAN_ID, .data_length_code = 8, .extd = 1, .data = {0x00, 0x00, 0x00, 0x00, 0x00, REGEN_LIMIT, 0x00, 0x00}};
+    if (twai_transmit(&transmit_message_reset_low, 1000) == ESP_OK)
+    {
+        printf("Message sent----------->");
+        ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    else
+    {
+        ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+}
+
+void transmit_task2(uint8_t tenth_byte)
 {
     uint8_t Reset_bit_1;
     uint8_t Reset_bit_2;
@@ -294,15 +338,101 @@ static void send_can_message() {
     }
 }
 
+// static void twai_receive_task(void *arg)
+// {
+//   printf("Entered receive function------------------->\n");
+//       while (1)
+//         {
+//              twai_message_t message;
+//               ESP_LOGI(GATTS_TAG, "Before receive call");
+//               if (twai_receive(&message, pdMS_TO_TICKS(250)) == ESP_OK)
+//               {
+//                   ESP_LOGI(GATTS_TAG, "message id------> %lx",message.identifier);
+//                   printf("mtr decode =  %x , %x , %x, %x , %x, %x, %x, %x  \n", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
+//               }
+//               else
+//               {
+//                   ESP_LOGI(GATTS_TAG, "receive timeout");
+//               }
+
+//               if (message.identifier != VCU_MSG1 && message.identifier != VCU_MSG2)
+//               {
+//                 twai_transmit_task();
+//               }
+//         }
+// }
+
+static void twai_transmit_task(void *arg)
+{
+    printf("Inside the twai_transmit_task function");
+
+    // Debug statements to show initial values of variables
+    ESP_LOGI(GATTS_TAG, "Initial Values - Regen Current Limit: %d,\n DC Current Limit: %d,\n Frequency: %d,\n Torque: %d,\n Buffer Speed: %d,\n Base Speed: %d,\n Torque Limit Before Profile Speed: %d,\n Torque Limit After Profile Speed: %d\n",
+             regen_current_limit, DC_current_limit, frequency, torque, buffer_speed, base_speed, torque_limit_before_profile_speed, torque_limit_after_profile_speed);
+    
+    uint8_t frequency_1 = (uint8_t)(frequency & 0xFF);
+    uint8_t frequency_2 = (uint8_t)((frequency >> 8) & 0xFF);
+
+
+    while (1)
+    {
+        // Debug statements to show values before sending messages
+        ESP_LOGI(GATTS_TAG, "Before Sending - Regen Current Limit: %d,\n DC Current Limit: %d,\n Frequency: %d,\n Torque: %d,\n Buffer Speed: %d,\n Base Speed: %d,\n Torque Limit Before Profile Speed: %d,\n Torque Limit After Profile Speed: %d\n",
+                 regen_current_limit, DC_current_limit, frequency, torque, buffer_speed, base_speed, torque_limit_before_profile_speed, torque_limit_after_profile_speed);
+
+        ESP_LOGE(GATTS_TAG, "Message Sending in while loop");
+
+        // 18F20309 message
+        twai_message_t transmit_message_switch = {
+            .identifier = (0x18f20309),
+            .data_length_code = 8,
+            .extd = 1,
+            // .data = {0x25, 0x00, regen_current_limit, DC_current_limit, 0x00, 0x00, 0x00, torque}};
+            // .data = {0x25, 0x00, regen_current_limit, DC_current_limit, 0x00, (uint8_t)(frequency & 0xFF), (uint8_t)((frequency >> 8) & 0xFF), torque}};
+
+            .data = {0x25, 0x00, regen_current_limit, DC_current_limit, 0x00, frequency_1, frequency_2, torque}};
+        if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
+        {
+            ESP_LOGI(GATTS_TAG, "Message queued for transmission-------> Tramsmit----> 0x18f20309\n");
+            vTaskDelay(pdMS_TO_TICKS(50));
+        }
+        else
+        {
+            ESP_LOGE(GATTS_TAG, "Failed to queue message for transmission\n");
+        }
+        vTaskDelay(pdMS_TO_TICKS(50));
+
+        // 18F20311 message
+        twai_message_t transmit_message_switch_2 = {
+            .identifier = (0x18f20311),
+            .data_length_code = 8,
+            .extd = 1,
+            .data = {(uint8_t)(buffer_speed & 0xFF), (uint8_t)((buffer_speed >> 8) & 0xFF), (uint8_t)(base_speed & 0xFF), (uint8_t)((base_speed >> 8) & 0xFF), torque_limit_before_profile_speed, torque_limit_after_profile_speed, 0x00, 0x00}};
+        if (twai_transmit(&transmit_message_switch_2, 1000) == ESP_OK)
+        {
+            ESP_LOGI(GATTS_TAG, "Message queued for transmission-------> Tramsmit----> 0x18f20311\n");
+            vTaskDelay(pdMS_TO_TICKS(50));
+        }
+        else
+        {
+            ESP_LOGE(GATTS_TAG, "Failed to queue message for transmission\n");
+        }
+        vTaskDelay(pdMS_TO_TICKS(50));
+
+        // Debug statements to show values after sending messages
+        ESP_LOGI(GATTS_TAG, "After Sending - Regen Current Limit: %d,\n DC Current Limit: %d,\n Frequency: %d,\n Torque: %d,\n Buffer Speed: %d,\n Base Speed: %d,\n Torque Limit Before Profile Speed: %d,\n Torque Limit After Profile Speed: %d\n",
+                 regen_current_limit, DC_current_limit, frequency, torque, buffer_speed, base_speed, torque_limit_before_profile_speed, torque_limit_after_profile_speed);
+    }
+}
 
 
 
-void example_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param) {
+void example_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param){
     ESP_LOGI(GATTS_TAG, "Handling GATT write event: need_rsp=%d, is_prep=%d, offset=%d, len=%d",
              param->write.need_rsp, param->write.is_prep, param->write.offset, param->write.len);
 
     esp_gatt_status_t status = ESP_GATT_OK;
-    if (param->write.need_rsp) {
+    if (param->write.need_rsp){
         if (param->write.is_prep) {
             if (param->write.offset > PREPARE_BUF_MAX_SIZE) {
                 status = ESP_GATT_INVALID_OFFSET;
@@ -311,9 +441,8 @@ void example_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare
                 status = ESP_GATT_INVALID_ATTR_LEN;
                 ESP_LOGE(GATTS_TAG, "Invalid attribute length: offset=%d, len=%d", param->write.offset, param->write.len);
             }
-
             if (status == ESP_GATT_OK && prepare_write_env->prepare_buf == NULL) {
-                prepare_write_env->prepare_buf = (uint8_t *)malloc(PREPARE_BUF_MAX_SIZE * sizeof(uint8_t));
+                prepare_write_env->prepare_buf = (uint8_t *)malloc(PREPARE_BUF_MAX_SIZE*sizeof(uint8_t));
                 prepare_write_env->prepare_len = 0;
                 if (prepare_write_env->prepare_buf == NULL) {
                     ESP_LOGE(GATTS_TAG, "No memory for prepare write buffer");
@@ -328,9 +457,8 @@ void example_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare
                 gatt_rsp->attr_value.offset = param->write.offset;
                 gatt_rsp->attr_value.auth_req = ESP_GATT_AUTH_REQ_NONE;
                 memcpy(gatt_rsp->attr_value.value, param->write.value, param->write.len);
-
                 esp_err_t response_err = esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, status, gatt_rsp);
-                if (response_err != ESP_OK) {
+                if (response_err != ESP_OK){
                     ESP_LOGE(GATTS_TAG, "Send response error: %d", response_err);
                 }
                 free(gatt_rsp);
@@ -338,45 +466,13 @@ void example_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare
                 ESP_LOGE(GATTS_TAG, "Failed to allocate memory for GATT response");
                 status = ESP_GATT_NO_RESOURCES;
             }
-
-            if (status != ESP_GATT_OK) {
+            if (status != ESP_GATT_OK){
                 return;
             }
-
-            // Write data in chunks
-            uint16_t data_len = param->write.len;
-            uint16_t offset = param->write.offset;
-            uint8_t *data = param->write.value;
-
-            while (data_len > 0) {
-                uint16_t chunk_size = (data_len > CHUNK_SIZE) ? CHUNK_SIZE : data_len;
-
-                // Copy the chunk of data into the buffer
-                memcpy(prepare_write_env->prepare_buf + offset, data, chunk_size);
-                prepare_write_env->prepare_len += chunk_size;
-                offset += chunk_size;
-                data_len -= chunk_size;
-
-                // Send the response after each chunk
-                esp_gatt_rsp_t *gatt_rsp_chunk = (esp_gatt_rsp_t *)malloc(sizeof(esp_gatt_rsp_t));
-                if (gatt_rsp_chunk) {
-                    gatt_rsp_chunk->attr_value.len = chunk_size;
-                    gatt_rsp_chunk->attr_value.handle = param->write.handle;
-                    gatt_rsp_chunk->attr_value.offset = offset - chunk_size;
-                    gatt_rsp_chunk->attr_value.auth_req = ESP_GATT_AUTH_REQ_NONE;
-                    memcpy(gatt_rsp_chunk->attr_value.value, data, chunk_size);
-                    esp_err_t response_err_chunk = esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, status, gatt_rsp_chunk);
-                    if (response_err_chunk != ESP_OK) {
-                        ESP_LOGE(GATTS_TAG, "Send response error for chunk: %d", response_err_chunk);
-                    }
-                    free(gatt_rsp_chunk);
-                } else {
-                    ESP_LOGE(GATTS_TAG, "Failed to allocate memory for chunk GATT response");
-                    break;
-                }
-
-                data += chunk_size;  // Move to the next chunk of data
-            }
+            memcpy(prepare_write_env->prepare_buf + param->write.offset,
+                   param->write.value,
+                   param->write.len);
+            prepare_write_env->prepare_len += param->write.len;
         } else {
             esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, status, NULL);
         }
@@ -440,46 +536,83 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         rsp.attr_value.value[3] = 0xef;
         esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id, ESP_GATT_OK, &rsp);
         break;
+
     case ESP_GATTS_WRITE_EVT:
         ESP_LOGI(GATTS_TAG, "GATT_WRITE_EVT received, conn_id: %d, handle: %d", param->write.conn_id, param->write.handle);
 
-        // Ensure valid data length
+        // Ensure valid data length`
         if (param->write.len > 0) {
             ESP_LOGI(GATTS_TAG, "Received data:");
             esp_log_buffer_hex(GATTS_TAG, param->write.value, param->write.len);
 
-            // Extract the bytes from the received data
-            uint8_t byte1 = param->write.value[0];
-            uint8_t byte2 = param->write.value[1];
-            uint8_t byte3 = param->write.value[2];
-            uint8_t byte4 = param->write.value[3];
-            // uint8_t byte5 = param->write.value[4];
-            // uint8_t byte6 = param->write.value[5];
-            // uint8_t byte7 = param->write.value[6];
-            // uint8_t byte8 = param->write.value[7];
-            // uint8_t byte9 = param->write.value[8];
-            // uint8_t byte10 = param->write.value[9];  // Extract the 10th byte (index 9)
+            if (param->write.len >= 7) {
+                uint8_t sof = param->write.value[0];
+                uint8_t source = param->write.value[1];
+                uint8_t destination = param->write.value[2];
+                uint8_t opcode = param->write.value[3];
+                uint16_t payload_length = (param->write.value[4] << 8) | param->write.value[5];
+                uint8_t payload = param->write.value[6];
 
-            // ESP_LOGI(GATTS_TAG, "Extracted bytes: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
-                    // byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8, byte9, byte10);
+                ESP_LOGI(GATTS_TAG, "Decoded message:");
+                ESP_LOGI(GATTS_TAG, "SOF: 0x%02X", sof);
+                ESP_LOGI(GATTS_TAG, "Source: 0x%02X", source);
+                ESP_LOGI(GATTS_TAG, "Destination: 0x%02X", destination);
+                ESP_LOGI(GATTS_TAG, "OpCode: 0x%02X", opcode);
 
-            // Call the transmit_task function with the 10th byte
-            // transmit_task(byte10);
+                // Prepare CAN transmission based on the opcode
+                twai_message_t can_message;
+                can_message.extd = 1; // Extended frame
+                can_message.data_length_code = 8;
 
-            ESP_LOGI(GATTS_TAG, "Extracted bytes: %02X %02X %02X %02X", byte1, byte2, byte3, byte4);
-                     
+                switch (opcode) {
+                    case 0x0A: // RegenLimit
+                        ESP_LOGI(GATTS_TAG, "Message: RegenLimit");
+                        regen_current_limit = payload; // Regen current limit
+                        break;
+                    case 0x0B: // CustomModeCurrLimit
+                        ESP_LOGI(GATTS_TAG, "Message: customModeCurrLimit");
+                        DC_current_limit = payload; // DC current limit
+                        break;
+                    case 0x0C: // Frequency
+                        ESP_LOGI(GATTS_TAG, "Message: frequency");
+                        frequency = payload;
+                        break;
+                    case 0x0D: // Torque
+                        ESP_LOGI(GATTS_TAG, "Message: torque");
+                        torque = payload; // Torque
+                        break;
+                    case 0x0E: // BufferSpeed
+                        ESP_LOGI(GATTS_TAG, "Message: bufferSpeed");
+                        buffer_speed = payload;
+                        break;
+                    case 0x0F: // initialProf
+                        ESP_LOGI(GATTS_TAG, "Message: Torque_limit_before_profile_speed");
+                        torque_limit_before_profile_speed = payload;
+                        break;
+                    case 0x10: // finalProf
+                        ESP_LOGI(GATTS_TAG, "Message: Torque_limit_after_profile_speed");
+                        torque_limit_after_profile_speed = payload;
+                        break;
+                    case 0x11: // basespeed
+                        ESP_LOGI(GATTS_TAG, "Message: Base speed");
+                        base_speed = payload;
+                        break;
+                    default:
+                        ESP_LOGW(GATTS_TAG, "Unknown opcode. No CAN message prepared.");
+                        break;
+                }
 
-            // Example: Handle specific commands (RESET_COMMAND, CAN_COMMAND)
-            if (param->write.len == sizeof(RESET_COMMAND) - 1 &&
-                strncmp((char *)param->write.value, RESET_COMMAND, sizeof(RESET_COMMAND) - 1) == 0) {
-                ESP_LOGI(GATTS_TAG, "Reset command received");
-                send_service_reset_can_message();
-            }
+                // Transmit CAN message
+                if (twai_transmit(&can_message, 1000) == ESP_OK) {
+                    ESP_LOGI(GATTS_TAG, "CAN message transmitted successfully.");
+                } else {
+                    ESP_LOGE(GATTS_TAG, "Failed to transmit CAN message.");
+                }
 
-            if (param->write.len == sizeof(CAN_COMMAND) - 1 &&
-                strncmp((char *)param->write.value, CAN_COMMAND, sizeof(CAN_COMMAND) - 1) == 0) {
-                ESP_LOGI(GATTS_TAG, "CAN command received");
-                send_can_message();
+                ESP_LOGI(GATTS_TAG, "Payload Length: %d", payload_length);
+                ESP_LOGI(GATTS_TAG, "Payload (6th byte): 0x%02X", payload);
+            } else {
+                ESP_LOGW(GATTS_TAG, "Received data length is less than expected.");
             }
 
             // Acknowledge the write
@@ -493,6 +626,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
             ESP_LOGW(GATTS_TAG, "Empty write received.");
         }
         break;
+
 
 
     case ESP_GATTS_EXEC_WRITE_EVT:
@@ -699,4 +833,5 @@ void app_main(void) {
     // Initialize the CAN bus
     can_init();
     // transmit_task();
+    xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
 }
