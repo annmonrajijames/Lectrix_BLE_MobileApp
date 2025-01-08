@@ -22,7 +22,6 @@ class ReceiveActivity : AppCompatActivity() {
 
     private lateinit var dataReceivedView: TextView
     private var lastValidCellVol01: Double? = null
-    private var lastValidCellVol01_rep: Double? = null
     
     private var lastValidPackCurr: Double? = null
     private var lastValidIgnitionStatus: Int? = null
@@ -947,7 +946,6 @@ class ReceiveActivity : AppCompatActivity() {
     private fun startRecording() {
         job = CoroutineScope(Dispatchers.IO).launch {
             while (isActive) {
-                if (lastValidCellVol01 != lastValidCellVol01_rep) {
                     val vehicleMetrics = VehicleMetrics(
     CellVol01 = lastValidCellVol01,
     PackCurr = lastValidPackCurr,
@@ -1060,9 +1058,7 @@ class ReceiveActivity : AppCompatActivity() {
 )
                     saveDataToCSV(vehicleMetrics)
                   
-                // delay(1000)  // Adjust based on how frequently you want to record data
-                }
-                lastValidCellVol01_rep = lastValidCellVol01
+                delay(500)  // Adjust based on how frequently you want to record datas
             }
         }
     }
