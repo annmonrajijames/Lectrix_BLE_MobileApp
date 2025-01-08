@@ -131,6 +131,91 @@ class ReceiveActivity : AppCompatActivity() {
     private var lastValidMCU_ID: Double? = null
     private var lastValidCluster_heartbeat: Double? = null
     private var lastValidOdo_Cluster: Double? = null
+
+    private var lastValidLoadDetection: Int? = null
+    private var lastValidKeystatus: Int? = null
+    private var lastValidKeyevents: Int? = null
+    private var lastValidCellUnderVolProt: Int? = null
+    private var lastValidCellOverVolProt: Int? = null
+    private var lastValidPackUnderVolProt: Int? = null
+    private var lastValidPackOverVolProt: Int? = null
+    private var lastValidChgUnderTempProt: Int? = null
+    private var lastValidChgOverTempProt: Int? = null
+    private var lastValidDchgUnderTempProt: Int? = null
+    private var lastValidDchgOverTempProt: Int? = null
+    private var lastValidCellOverDevProt: Int? = null
+    private var lastValidBattLowSocWarn: Int? = null
+    private var lastValidChgOverCurrProt: Int? = null
+    private var lastValidDchgOverCurrProt: Int? = null
+    private var lastValidCellUnderVolWarn: Int? = null
+    private var lastValidCellOverVolWarn: Int? = null
+    private var lastValidFetTempProt: Int? = null
+    private var lastValidResSocProt: Int? = null
+    private var lastValidFetFailure: Int? = null
+    private var lastValidTempSenseFault: Int? = null
+    private var lastValidPackUnderVolWarn: Int? = null
+    private var lastValidPackOverVolWarn: Int? = null
+    private var lastValidChgUnderTempWarn: Int? = null
+    private var lastValidChgOverTempWarn: Int? = null
+    private var lastValidDchgUnderTempWarn: Int? = null
+    private var lastValidDchgOverTempWarn: Int? = null
+    private var lastValidPreChgFetStatus: Int? = null
+    private var lastValidChgFetStatus: Int? = null
+    private var lastValidDchgFetStatus: Int? = null
+    private var lastValidResStatus: Int? = null
+    private var lastValidShortCktProt: Int? = null
+    private var lastValidDschgPeakProt: Int? = null
+    private var lastValidChgAuth: Int? = null
+    private var lastValidChgPeakProt: Int? = null
+    private var lastValidDI1: Int? = null
+    private var lastValidDI2: Int? = null
+    private var lastValidDO1: Int? = null
+    private var lastValidDO2: Int? = null
+    private var lastValidChargerDetection: Int? = null
+    private var lastValidCanCommDetection: Int? = null
+    private var lastValidCellBalFeatureStatus: Int? = null
+    private var lastValidImmoChg: Int? = null
+    private var lastValidImmoDchg: Int? = null
+    private var lastValidBuzzerStatus: Int? = null
+    private var lastValidSide_Stand_Ack: Int? = null
+    private var lastValidDirection_Ack: Int? = null
+    private var lastValidRide_Ack: Int? = null
+    private var lastValidHill_hold_Ack: Int? = null
+    private var lastValidWakeup_Ack: Int? = null
+    private var lastValidDriveError_Motor_hall: Int? = null
+    private var lastValidMotor_Stalling: Int? = null
+    private var lastValidMotor_Phase_loss: Int? = null
+    private var lastValidController_Over_Temperature: Int? = null
+    private var lastValidMotor_Over_Temperature: Int? = null
+    private var lastValidThrottle_Error: Int? = null
+    private var lastValidMOSFET_Protection: Int? = null
+    private var lastValidDriveStatus_Regenerative_Braking: Int? = null
+    private var lastValidModeR_Pulse: Int? = null
+    private var lastValidModeL_Pulse: Int? = null
+    private var lastValidBrake_Pulse: Int? = null
+    private var lastValidPark_Pulse: Int? = null
+    private var lastValidReverse_Pulse: Int? = null
+    private var lastValidSideStand_Pulse: Int? = null
+    private var lastValidForwardParking_Mode_Ack: Int? = null
+    private var lastValidDriveError_Controller_OverVoltag: Int? = null
+    private var lastValidController_Undervoltage: Int? = null
+    private var lastValidOvercurrent_Fault: Int? = null
+    private var lastValidDriveStatus1_ride: Int? = null
+    private var lastValidWakeup_Request: Int? = null
+    private var lastValidHill_Hold: Int? = null
+    private var lastValidReverse_REQUEST: Int? = null
+    private var lastValidForward_parkingmode_REQUEST: Int? = null
+    private var lastValidSide_stand_Req: Int? = null
+    private var lastValidBattery_charge_logic: Int? = null
+    private var lastValidRemote_cutoff: Int? = null
+    private var lastValidmode_limit: Int? = null
+    private var lastValidGeo_fencebuzzer: Int? = null
+    private var lastValidHoliday_mode: Int? = null
+    private var lastValidService_request: Int? = null
+    private var lastValidLow_Mode_REQUEST: Int? = null
+    private var lastValidMedium_Mode_REQUEST: Int? = null
+    private var lastValidUser_defind_mode_High_REQUEST: Int? = null
+    private var lastValidLimp_mode_REQUEST: Int? = null
     
     private var saveFileUri: Uri? = null
     private var headersWritten = false
@@ -252,6 +337,91 @@ class ReceiveActivity : AppCompatActivity() {
         val MCU_IDDecoder = eightBytesDecode("02", 1.0, 19, 18)
         val Cluster_heartbeatDecoder = eightBytesDecode("05", 1.0, 5)
         val Odo_ClusterDecoder = eightBytesDecode("05", 1.0, 15, 14, 13)
+
+        val LoadDetectionDecoder = bitDecode("11", 18, 6)
+        val KeystatusDecoder = bitDecode("11", 19, 0)
+        val KeyeventsDecoder = bitDecode("06", 18, 1)
+        val CellUnderVolProtDecoder = bitDecode("10", 14, 0)
+        val CellOverVolProtDecoder = bitDecode("10", 14, 1)
+        val PackUnderVolProtDecoder = bitDecode("10", 14, 2)
+        val PackOverVolProtDecoder = bitDecode("10", 14, 3)
+        val ChgUnderTempProtDecoder = bitDecode("10", 14, 4)
+        val ChgOverTempProtDecoder = bitDecode("10", 14, 5)
+        val DchgUnderTempProtDecoder = bitDecode("10", 14, 6)
+        val DchgOverTempProtDecoder = bitDecode("10", 14, 7)
+        val CellOverDevProtDecoder = bitDecode("10", 15, 0)
+        val BattLowSocWarnDecoder = bitDecode("10", 15, 1)
+        val ChgOverCurrProtDecoder = bitDecode("10", 15, 2)
+        val DchgOverCurrProtDecoder = bitDecode("10", 15, 3)
+        val CellUnderVolWarnDecoder = bitDecode("10", 15, 4)
+        val CellOverVolWarnDecoder = bitDecode("10", 15, 5)
+        val FetTempProtDecoder = bitDecode("10", 15, 6)
+        val ResSocProtDecoder = bitDecode("10", 15, 7)
+        val FetFailureDecoder = bitDecode("10", 16, 0)
+        val TempSenseFaultDecoder = bitDecode("10", 16, 1)
+        val PackUnderVolWarnDecoder = bitDecode("10", 16, 2)
+        val PackOverVolWarnDecoder = bitDecode("10", 16, 3)
+        val ChgUnderTempWarnDecoder = bitDecode("10", 16, 4)
+        val ChgOverTempWarnDecoder = bitDecode("10", 16, 5)
+        val DchgUnderTempWarnDecoder = bitDecode("10", 16, 6)
+        val DchgOverTempWarnDecoder = bitDecode("10", 16, 7)
+        val PreChgFetStatusDecoder = bitDecode("11", 2, 0)
+        val ChgFetStatusDecoder = bitDecode("11", 2, 1)
+        val DchgFetStatusDecoder = bitDecode("11", 2, 2)
+        val ResStatusDecoder = bitDecode("11", 2, 3)
+        val ShortCktProtDecoder = bitDecode("11", 2, 7)
+        val DschgPeakProtDecoder = bitDecode("11", 2, 6)
+        val ChgAuthDecoder = bitDecode("11", 2, 4)
+        val ChgPeakProtDecoder = bitDecode("11", 2, 5)
+        val DI1Decoder = bitDecode("11", 18, 1)
+        val DI2Decoder = bitDecode("11", 18, 2)
+        val DO1Decoder = bitDecode("11", 18, 3)
+        val DO2Decoder = bitDecode("11", 18, 4)
+        val ChargerDetectionDecoder = bitDecode("11", 18, 5)
+        val CanCommDetectionDecoder = bitDecode("11", 18, 7)
+        val CellBalFeatureStatusDecoder = bitDecode("11", 16, 0)
+        val ImmoChgDecoder = bitDecode("11", 16, 1)
+        val ImmoDchgDecoder = bitDecode("11", 16, 2)
+        val BuzzerStatusDecoder = bitDecode("11", 16, 3)
+        val Side_Stand_AckDecoder = bitDecode("02", 7, 3)
+        val Direction_AckDecoder = bitDecode("02", 7, 4)
+        val Ride_AckDecoder = bitDecode("02", 7, 5)
+        val Hill_hold_AckDecoder = bitDecode("02", 7, 6)
+        val Wakeup_AckDecoder = bitDecode("02", 7, 7)
+        val DriveError_Motor_hallDecoder = bitDecode("02", 8, 0)
+        val Motor_StallingDecoder = bitDecode("02", 8, 1)
+        val Motor_Phase_lossDecoder = bitDecode("02", 8, 2)
+        val Controller_Over_TemperatureDecoder = bitDecode("02", 8, 3)
+        val Motor_Over_TemperatureDecoder = bitDecode("02", 8, 4)
+        val Throttle_ErrorDecoder = bitDecode("02", 8, 5)
+        val MOSFET_ProtectionDecoder = bitDecode("02", 8, 6)
+        val DriveStatus_Regenerative_BrakingDecoder = bitDecode("02", 9, 0)
+        val ModeR_PulseDecoder = bitDecode("02", 9, 1)
+        val ModeL_PulseDecoder = bitDecode("02", 9, 2)
+        val Brake_PulseDecoder = bitDecode("02", 9, 3)
+        val Park_PulseDecoder = bitDecode("02", 9, 4)
+        val Reverse_PulseDecoder = bitDecode("02", 9, 5)
+        val SideStand_PulseDecoder = bitDecode("02", 9, 6)
+        val ForwardParking_Mode_AckDecoder = bitDecode("02", 9, 7)
+        val DriveError_Controller_OverVoltagDecoder = bitDecode("02", 10, 0)
+        val Controller_UndervoltageDecoder = bitDecode("02", 10, 1)
+        val Overcurrent_FaultDecoder = bitDecode("02", 10, 2)
+        val DriveStatus1_rideDecoder = bitDecode("03", 11, 0)
+        val Wakeup_RequestDecoder = bitDecode("03", 11, 2)
+        val Hill_HoldDecoder = bitDecode("03", 11, 3)
+        val Reverse_REQUESTDecoder = bitDecode("03", 12, 0)
+        val Forward_parkingmode_REQUESTDecoder = bitDecode("03", 12, 1)
+        val Side_stand_ReqDecoder = bitDecode("03", 11, 1)
+        val Battery_charge_logicDecoder = bitDecode("05", 16, 1)
+        val Remote_cutoffDecoder = bitDecode("06", 2, 0)
+        val mode_limitDecoder = bitDecode("06", 2, 1)
+        val Geo_fencebuzzerDecoder = bitDecode("06", 2, 2)
+        val Holiday_modeDecoder = bitDecode("06", 2, 3)
+        val Service_requestDecoder = bitDecode("06", 2, 4)
+        val Low_Mode_REQUESTDecoder = bitDecode("03", 11, 4)
+        val Medium_Mode_REQUESTDecoder = bitDecode("03", 11, 5)
+        val User_defind_mode_High_REQUESTDecoder = bitDecode("03", 11, 6)
+        val Limp_mode_REQUESTDecoder = bitDecode("03", 11, 7)
 
         fun eightBytesDecode(firstByteCheck: String, multiplier: Double, vararg positions: Int): (String) -> Double? {
             return { data ->
@@ -496,6 +666,91 @@ class ReceiveActivity : AppCompatActivity() {
                 val decodedMCU_ID = MCU_IDDecoder(hexString)
                 val decodedCluster_heartbeat = Cluster_heartbeatDecoder(hexString)
                 val decodedOdo_Cluster = Odo_ClusterDecoder(hexString)
+
+                val decodedLoadDetection = LoadDetectionDecoder(hexString)
+                val decodedKeystatus = KeystatusDecoder(hexString)
+                val decodedKeyevents = KeyeventsDecoder(hexString)
+                val decodedCellUnderVolProt = CellUnderVolProtDecoder(hexString)
+                val decodedCellOverVolProt = CellOverVolProtDecoder(hexString)
+                val decodedPackUnderVolProt = PackUnderVolProtDecoder(hexString)
+                val decodedPackOverVolProt = PackOverVolProtDecoder(hexString)
+                val decodedChgUnderTempProt = ChgUnderTempProtDecoder(hexString)
+                val decodedChgOverTempProt = ChgOverTempProtDecoder(hexString)
+                val decodedDchgUnderTempProt = DchgUnderTempProtDecoder(hexString)
+                val decodedDchgOverTempProt = DchgOverTempProtDecoder(hexString)
+                val decodedCellOverDevProt = CellOverDevProtDecoder(hexString)
+                val decodedBattLowSocWarn = BattLowSocWarnDecoder(hexString)
+                val decodedChgOverCurrProt = ChgOverCurrProtDecoder(hexString)
+                val decodedDchgOverCurrProt = DchgOverCurrProtDecoder(hexString)
+                val decodedCellUnderVolWarn = CellUnderVolWarnDecoder(hexString)
+                val decodedCellOverVolWarn = CellOverVolWarnDecoder(hexString)
+                val decodedFetTempProt = FetTempProtDecoder(hexString)
+                val decodedResSocProt = ResSocProtDecoder(hexString)
+                val decodedFetFailure = FetFailureDecoder(hexString)
+                val decodedTempSenseFault = TempSenseFaultDecoder(hexString)
+                val decodedPackUnderVolWarn = PackUnderVolWarnDecoder(hexString)
+                val decodedPackOverVolWarn = PackOverVolWarnDecoder(hexString)
+                val decodedChgUnderTempWarn = ChgUnderTempWarnDecoder(hexString)
+                val decodedChgOverTempWarn = ChgOverTempWarnDecoder(hexString)
+                val decodedDchgUnderTempWarn = DchgUnderTempWarnDecoder(hexString)
+                val decodedDchgOverTempWarn = DchgOverTempWarnDecoder(hexString)
+                val decodedPreChgFetStatus = PreChgFetStatusDecoder(hexString)
+                val decodedChgFetStatus = ChgFetStatusDecoder(hexString)
+                val decodedDchgFetStatus = DchgFetStatusDecoder(hexString)
+                val decodedResStatus = ResStatusDecoder(hexString)
+                val decodedShortCktProt = ShortCktProtDecoder(hexString)
+                val decodedDschgPeakProt = DschgPeakProtDecoder(hexString)
+                val decodedChgAuth = ChgAuthDecoder(hexString)
+                val decodedChgPeakProt = ChgPeakProtDecoder(hexString)
+                val decodedDI1 = DI1Decoder(hexString)
+                val decodedDI2 = DI2Decoder(hexString)
+                val decodedDO1 = DO1Decoder(hexString)
+                val decodedDO2 = DO2Decoder(hexString)
+                val decodedChargerDetection = ChargerDetectionDecoder(hexString)
+                val decodedCanCommDetection = CanCommDetectionDecoder(hexString)
+                val decodedCellBalFeatureStatus = CellBalFeatureStatusDecoder(hexString)
+                val decodedImmoChg = ImmoChgDecoder(hexString)
+                val decodedImmoDchg = ImmoDchgDecoder(hexString)
+                val decodedBuzzerStatus = BuzzerStatusDecoder(hexString)
+                val decodedSide_Stand_Ack = Side_Stand_AckDecoder(hexString)
+                val decodedDirection_Ack = Direction_AckDecoder(hexString)
+                val decodedRide_Ack = Ride_AckDecoder(hexString)
+                val decodedHill_hold_Ack = Hill_hold_AckDecoder(hexString)
+                val decodedWakeup_Ack = Wakeup_AckDecoder(hexString)
+                val decodedDriveError_Motor_hall = DriveError_Motor_hallDecoder(hexString)
+                val decodedMotor_Stalling = Motor_StallingDecoder(hexString)
+                val decodedMotor_Phase_loss = Motor_Phase_lossDecoder(hexString)
+                val decodedController_Over_Temperature = Controller_Over_TemperatureDecoder(hexString)
+                val decodedMotor_Over_Temperature = Motor_Over_TemperatureDecoder(hexString)
+                val decodedThrottle_Error = Throttle_ErrorDecoder(hexString)
+                val decodedMOSFET_Protection = MOSFET_ProtectionDecoder(hexString)
+                val decodedDriveStatus_Regenerative_Braking = DriveStatus_Regenerative_BrakingDecoder(hexString)
+                val decodedModeR_Pulse = ModeR_PulseDecoder(hexString)
+                val decodedModeL_Pulse = ModeL_PulseDecoder(hexString)
+                val decodedBrake_Pulse = Brake_PulseDecoder(hexString)
+                val decodedPark_Pulse = Park_PulseDecoder(hexString)
+                val decodedReverse_Pulse = Reverse_PulseDecoder(hexString)
+                val decodedSideStand_Pulse = SideStand_PulseDecoder(hexString)
+                val decodedForwardParking_Mode_Ack = ForwardParking_Mode_AckDecoder(hexString)
+                val decodedDriveError_Controller_OverVoltag = DriveError_Controller_OverVoltagDecoder(hexString)
+                val decodedController_Undervoltage = Controller_UndervoltageDecoder(hexString)
+                val decodedOvercurrent_Fault = Overcurrent_FaultDecoder(hexString)
+                val decodedDriveStatus1_ride = DriveStatus1_rideDecoder(hexString)
+                val decodedWakeup_Request = Wakeup_RequestDecoder(hexString)
+                val decodedHill_Hold = Hill_HoldDecoder(hexString)
+                val decodedReverse_REQUEST = Reverse_REQUESTDecoder(hexString)
+                val decodedForward_parkingmode_REQUEST = Forward_parkingmode_REQUESTDecoder(hexString)
+                val decodedSide_stand_Req = Side_stand_ReqDecoder(hexString)
+                val decodedBattery_charge_logic = Battery_charge_logicDecoder(hexString)
+                val decodedRemote_cutoff = Remote_cutoffDecoder(hexString)
+                val decodedmode_limit = mode_limitDecoder(hexString)
+                val decodedGeo_fencebuzzer = Geo_fencebuzzerDecoder(hexString)
+                val decodedHoliday_mode = Holiday_modeDecoder(hexString)
+                val decodedService_request = Service_requestDecoder(hexString)
+                val decodedLow_Mode_REQUEST = Low_Mode_REQUESTDecoder(hexString)
+                val decodedMedium_Mode_REQUEST = Medium_Mode_REQUESTDecoder(hexString)
+                val decodedUser_defind_mode_High_REQUEST = User_defind_mode_High_REQUESTDecoder(hexString)
+                val decodedLimp_mode_REQUEST = Limp_mode_REQUESTDecoder(hexString)
 
                 if (decodedCellVol01 != null) {
                     lastValidCellVol01 = decodedCellVol01
@@ -824,7 +1079,259 @@ class ReceiveActivity : AppCompatActivity() {
                 }
                 if (decodedOdo_Cluster != null) {
                     lastValidOdo_Cluster = decodedOdo_Cluster
-                }                 
+                }
+                if (decodedLoadDetection != null) {
+                    lastValidLoadDetection = decodedLoadDetection
+                }
+                if (decodedKeystatus != null) {
+                    lastValidKeystatus = decodedKeystatus
+                }
+                if (decodedKeyevents != null) {
+                    lastValidKeyevents = decodedKeyevents
+                }
+                if (decodedCellUnderVolProt != null) {
+                    lastValidCellUnderVolProt = decodedCellUnderVolProt
+                }
+                if (decodedCellOverVolProt != null) {
+                    lastValidCellOverVolProt = decodedCellOverVolProt
+                }
+                if (decodedPackUnderVolProt != null) {
+                    lastValidPackUnderVolProt = decodedPackUnderVolProt
+                }
+                if (decodedPackOverVolProt != null) {
+                    lastValidPackOverVolProt = decodedPackOverVolProt
+                }
+                if (decodedChgUnderTempProt != null) {
+                    lastValidChgUnderTempProt = decodedChgUnderTempProt
+                }
+                if (decodedChgOverTempProt != null) {
+                    lastValidChgOverTempProt = decodedChgOverTempProt
+                }
+                if (decodedDchgUnderTempProt != null) {
+                    lastValidDchgUnderTempProt = decodedDchgUnderTempProt
+                }
+                if (decodedDchgOverTempProt != null) {
+                    lastValidDchgOverTempProt = decodedDchgOverTempProt
+                }
+                if (decodedCellOverDevProt != null) {
+                    lastValidCellOverDevProt = decodedCellOverDevProt
+                }
+                if (decodedBattLowSocWarn != null) {
+                    lastValidBattLowSocWarn = decodedBattLowSocWarn
+                }
+                if (decodedChgOverCurrProt != null) {
+                    lastValidChgOverCurrProt = decodedChgOverCurrProt
+                }
+                if (decodedDchgOverCurrProt != null) {
+                    lastValidDchgOverCurrProt = decodedDchgOverCurrProt
+                }
+                if (decodedCellUnderVolWarn != null) {
+                    lastValidCellUnderVolWarn = decodedCellUnderVolWarn
+                }
+                if (decodedCellOverVolWarn != null) {
+                    lastValidCellOverVolWarn = decodedCellOverVolWarn
+                }
+                if (decodedFetTempProt != null) {
+                    lastValidFetTempProt = decodedFetTempProt
+                }
+                if (decodedResSocProt != null) {
+                    lastValidResSocProt = decodedResSocProt
+                }
+                if (decodedFetFailure != null) {
+                    lastValidFetFailure = decodedFetFailure
+                }
+                if (decodedTempSenseFault != null) {
+                    lastValidTempSenseFault = decodedTempSenseFault
+                }
+                if (decodedPackUnderVolWarn != null) {
+                    lastValidPackUnderVolWarn = decodedPackUnderVolWarn
+                }
+                if (decodedPackOverVolWarn != null) {
+                    lastValidPackOverVolWarn = decodedPackOverVolWarn
+                }
+                if (decodedChgUnderTempWarn != null) {
+                    lastValidChgUnderTempWarn = decodedChgUnderTempWarn
+                }
+                if (decodedChgOverTempWarn != null) {
+                    lastValidChgOverTempWarn = decodedChgOverTempWarn
+                }
+                if (decodedDchgUnderTempWarn != null) {
+                    lastValidDchgUnderTempWarn = decodedDchgUnderTempWarn
+                }
+                if (decodedDchgOverTempWarn != null) {
+                    lastValidDchgOverTempWarn = decodedDchgOverTempWarn
+                }
+                if (decodedPreChgFetStatus != null) {
+                    lastValidPreChgFetStatus = decodedPreChgFetStatus
+                }
+                if (decodedChgFetStatus != null) {
+                    lastValidChgFetStatus = decodedChgFetStatus
+                }
+                if (decodedDchgFetStatus != null) {
+                    lastValidDchgFetStatus = decodedDchgFetStatus
+                }
+                if (decodedResStatus != null) {
+                    lastValidResStatus = decodedResStatus
+                }
+                if (decodedShortCktProt != null) {
+                    lastValidShortCktProt = decodedShortCktProt
+                }
+                if (decodedDschgPeakProt != null) {
+                    lastValidDschgPeakProt = decodedDschgPeakProt
+                }
+                if (decodedChgAuth != null) {
+                    lastValidChgAuth = decodedChgAuth
+                }
+                if (decodedChgPeakProt != null) {
+                    lastValidChgPeakProt = decodedChgPeakProt
+                }
+                if (decodedDI1 != null) {
+                    lastValidDI1 = decodedDI1
+                }
+                if (decodedDI2 != null) {
+                    lastValidDI2 = decodedDI2
+                }
+                if (decodedDO1 != null) {
+                    lastValidDO1 = decodedDO1
+                }
+                if (decodedDO2 != null) {
+                    lastValidDO2 = decodedDO2
+                }
+                if (decodedChargerDetection != null) {
+                    lastValidChargerDetection = decodedChargerDetection
+                }
+                if (decodedCanCommDetection != null) {
+                    lastValidCanCommDetection = decodedCanCommDetection
+                }
+                if (decodedCellBalFeatureStatus != null) {
+                    lastValidCellBalFeatureStatus = decodedCellBalFeatureStatus
+                }
+                if (decodedImmoChg != null) {
+                    lastValidImmoChg = decodedImmoChg
+                }
+                if (decodedImmoDchg != null) {
+                    lastValidImmoDchg = decodedImmoDchg
+                }
+                if (decodedBuzzerStatus != null) {
+                    lastValidBuzzerStatus = decodedBuzzerStatus
+                }
+                if (decodedSide_Stand_Ack != null) {
+                    lastValidSide_Stand_Ack = decodedSide_Stand_Ack
+                }
+                if (decodedDirection_Ack != null) {
+                    lastValidDirection_Ack = decodedDirection_Ack
+                }
+                if (decodedRide_Ack != null) {
+                    lastValidRide_Ack = decodedRide_Ack
+                }
+                if (decodedHill_hold_Ack != null) {
+                    lastValidHill_hold_Ack = decodedHill_hold_Ack
+                }
+                if (decodedWakeup_Ack != null) {
+                    lastValidWakeup_Ack = decodedWakeup_Ack
+                }
+                if (decodedDriveError_Motor_hall != null) {
+                    lastValidDriveError_Motor_hall = decodedDriveError_Motor_hall
+                }
+                if (decodedMotor_Stalling != null) {
+                    lastValidMotor_Stalling = decodedMotor_Stalling
+                }
+                if (decodedMotor_Phase_loss != null) {
+                    lastValidMotor_Phase_loss = decodedMotor_Phase_loss
+                }
+                if (decodedController_Over_Temperature != null) {
+                    lastValidController_Over_Temperature = decodedController_Over_Temperature
+                }
+                if (decodedMotor_Over_Temperature != null) {
+                    lastValidMotor_Over_Temperature = decodedMotor_Over_Temperature
+                }
+                if (decodedThrottle_Error != null) {
+                    lastValidThrottle_Error = decodedThrottle_Error
+                }
+                if (decodedMOSFET_Protection != null) {
+                    lastValidMOSFET_Protection = decodedMOSFET_Protection
+                }
+                if (decodedDriveStatus_Regenerative_Braking != null) {
+                    lastValidDriveStatus_Regenerative_Braking = decodedDriveStatus_Regenerative_Braking
+                }
+                if (decodedModeR_Pulse != null) {
+                    lastValidModeR_Pulse = decodedModeR_Pulse
+                }
+                if (decodedModeL_Pulse != null) {
+                    lastValidModeL_Pulse = decodedModeL_Pulse
+                }
+                if (decodedBrake_Pulse != null) {
+                    lastValidBrake_Pulse = decodedBrake_Pulse
+                }
+                if (decodedPark_Pulse != null) {
+                    lastValidPark_Pulse = decodedPark_Pulse
+                }
+                if (decodedReverse_Pulse != null) {
+                    lastValidReverse_Pulse = decodedReverse_Pulse
+                }
+                if (decodedSideStand_Pulse != null) {
+                    lastValidSideStand_Pulse = decodedSideStand_Pulse
+                }
+                if (decodedForwardParking_Mode_Ack != null) {
+                    lastValidForwardParking_Mode_Ack = decodedForwardParking_Mode_Ack
+                }
+                if (decodedDriveError_Controller_OverVoltag != null) {
+                    lastValidDriveError_Controller_OverVoltag = decodedDriveError_Controller_OverVoltag
+                }
+                if (decodedController_Undervoltage != null) {
+                    lastValidController_Undervoltage = decodedController_Undervoltage
+                }
+                if (decodedOvercurrent_Fault != null) {
+                    lastValidOvercurrent_Fault = decodedOvercurrent_Fault
+                }
+                if (decodedDriveStatus1_ride != null) {
+                    lastValidDriveStatus1_ride = decodedDriveStatus1_ride
+                }
+                if (decodedWakeup_Request != null) {
+                    lastValidWakeup_Request = decodedWakeup_Request
+                }
+                if (decodedHill_Hold != null) {
+                    lastValidHill_Hold = decodedHill_Hold
+                }
+                if (decodedReverse_REQUEST != null) {
+                    lastValidReverse_REQUEST = decodedReverse_REQUEST
+                }
+                if (decodedForward_parkingmode_REQUEST != null) {
+                    lastValidForward_parkingmode_REQUEST = decodedForward_parkingmode_REQUEST
+                }
+                if (decodedSide_stand_Req != null) {
+                    lastValidSide_stand_Req = decodedSide_stand_Req
+                }
+                if (decodedBattery_charge_logic != null) {
+                    lastValidBattery_charge_logic = decodedBattery_charge_logic
+                }
+                if (decodedRemote_cutoff != null) {
+                    lastValidRemote_cutoff = decodedRemote_cutoff
+                }
+                if (decodedmode_limit != null) {
+                    lastValidmode_limit = decodedmode_limit
+                }
+                if (decodedGeo_fencebuzzer != null) {
+                    lastValidGeo_fencebuzzer = decodedGeo_fencebuzzer
+                }
+                if (decodedHoliday_mode != null) {
+                    lastValidHoliday_mode = decodedHoliday_mode
+                }
+                if (decodedService_request != null) {
+                    lastValidService_request = decodedService_request
+                }
+                if (decodedLow_Mode_REQUEST != null) {
+                    lastValidLow_Mode_REQUEST = decodedLow_Mode_REQUEST
+                }
+                if (decodedMedium_Mode_REQUEST != null) {
+                    lastValidMedium_Mode_REQUEST = decodedMedium_Mode_REQUEST
+                }
+                if (decodedUser_defind_mode_High_REQUEST != null) {
+                    lastValidUser_defind_mode_High_REQUEST = decodedUser_defind_mode_High_REQUEST
+                }
+                if (decodedLimp_mode_REQUEST != null) {
+                    lastValidLimp_mode_REQUEST = decodedLimp_mode_REQUEST
+                }                                 
 
                 runOnUiThread {
                                 dataReceivedView.text = """
@@ -936,6 +1443,90 @@ class ReceiveActivity : AppCompatActivity() {
                 MCU_ID: ${lastValidMCU_ID ?: "N/A"}
                 Cluster_heartbeat: ${lastValidCluster_heartbeat ?: "N/A"}
                 Odo_Cluster: ${lastValidOdo_Cluster ?: "N/A"}
+                LoadDetection: ${lastValidLoadDetection ?: "N/A"}
+                Keystatus: ${lastValidKeystatus ?: "N/A"}
+                Keyevents: ${lastValidKeyevents ?: "N/A"}
+                CellUnderVolProt: ${lastValidCellUnderVolProt ?: "N/A"}
+                CellOverVolProt: ${lastValidCellOverVolProt ?: "N/A"}
+                PackUnderVolProt: ${lastValidPackUnderVolProt ?: "N/A"}
+                PackOverVolProt: ${lastValidPackOverVolProt ?: "N/A"}
+                ChgUnderTempProt: ${lastValidChgUnderTempProt ?: "N/A"}
+                ChgOverTempProt: ${lastValidChgOverTempProt ?: "N/A"}
+                DchgUnderTempProt: ${lastValidDchgUnderTempProt ?: "N/A"}
+                DchgOverTempProt: ${lastValidDchgOverTempProt ?: "N/A"}
+                CellOverDevProt: ${lastValidCellOverDevProt ?: "N/A"}
+                BattLowSocWarn: ${lastValidBattLowSocWarn ?: "N/A"}
+                ChgOverCurrProt: ${lastValidChgOverCurrProt ?: "N/A"}
+                DchgOverCurrProt: ${lastValidDchgOverCurrProt ?: "N/A"}
+                CellUnderVolWarn: ${lastValidCellUnderVolWarn ?: "N/A"}
+                CellOverVolWarn: ${lastValidCellOverVolWarn ?: "N/A"}
+                FetTempProt: ${lastValidFetTempProt ?: "N/A"}
+                ResSocProt: ${lastValidResSocProt ?: "N/A"}
+                FetFailure: ${lastValidFetFailure ?: "N/A"}
+                TempSenseFault: ${lastValidTempSenseFault ?: "N/A"}
+                PackUnderVolWarn: ${lastValidPackUnderVolWarn ?: "N/A"}
+                PackOverVolWarn: ${lastValidPackOverVolWarn ?: "N/A"}
+                ChgUnderTempWarn: ${lastValidChgUnderTempWarn ?: "N/A"}
+                ChgOverTempWarn: ${lastValidChgOverTempWarn ?: "N/A"}
+                DchgUnderTempWarn: ${lastValidDchgUnderTempWarn ?: "N/A"}
+                DchgOverTempWarn: ${lastValidDchgOverTempWarn ?: "N/A"}
+                PreChgFetStatus: ${lastValidPreChgFetStatus ?: "N/A"}
+                ChgFetStatus: ${lastValidChgFetStatus ?: "N/A"}
+                DchgFetStatus: ${lastValidDchgFetStatus ?: "N/A"}
+                ResStatus: ${lastValidResStatus ?: "N/A"}
+                ShortCktProt: ${lastValidShortCktProt ?: "N/A"}
+                DschgPeakProt: ${lastValidDschgPeakProt ?: "N/A"}
+                ChgAuth: ${lastValidChgAuth ?: "N/A"}
+                ChgPeakProt: ${lastValidChgPeakProt ?: "N/A"}
+                DI1: ${lastValidDI1 ?: "N/A"}
+                DI2: ${lastValidDI2 ?: "N/A"}
+                DO1: ${lastValidDO1 ?: "N/A"}
+                DO2: ${lastValidDO2 ?: "N/A"}
+                ChargerDetection: ${lastValidChargerDetection ?: "N/A"}
+                CanCommDetection: ${lastValidCanCommDetection ?: "N/A"}
+                CellBalFeatureStatus: ${lastValidCellBalFeatureStatus ?: "N/A"}
+                ImmoChg: ${lastValidImmoChg ?: "N/A"}
+                ImmoDchg: ${lastValidImmoDchg ?: "N/A"}
+                BuzzerStatus: ${lastValidBuzzerStatus ?: "N/A"}
+                Side_Stand_Ack: ${lastValidSide_Stand_Ack ?: "N/A"}
+                Direction_Ack: ${lastValidDirection_Ack ?: "N/A"}
+                Ride_Ack: ${lastValidRide_Ack ?: "N/A"}
+                Hill_hold_Ack: ${lastValidHill_hold_Ack ?: "N/A"}
+                Wakeup_Ack: ${lastValidWakeup_Ack ?: "N/A"}
+                DriveError_Motor_hall: ${lastValidDriveError_Motor_hall ?: "N/A"}
+                Motor_Stalling: ${lastValidMotor_Stalling ?: "N/A"}
+                Motor_Phase_loss: ${lastValidMotor_Phase_loss ?: "N/A"}
+                Controller_Over_Temperature: ${lastValidController_Over_Temperature ?: "N/A"}
+                Motor_Over_Temperature: ${lastValidMotor_Over_Temperature ?: "N/A"}
+                Throttle_Error: ${lastValidThrottle_Error ?: "N/A"}
+                MOSFET_Protection: ${lastValidMOSFET_Protection ?: "N/A"}
+                DriveStatus_Regenerative_Braking: ${lastValidDriveStatus_Regenerative_Braking ?: "N/A"}
+                ModeR_Pulse: ${lastValidModeR_Pulse ?: "N/A"}
+                ModeL_Pulse: ${lastValidModeL_Pulse ?: "N/A"}
+                Brake_Pulse: ${lastValidBrake_Pulse ?: "N/A"}
+                Park_Pulse: ${lastValidPark_Pulse ?: "N/A"}
+                Reverse_Pulse: ${lastValidReverse_Pulse ?: "N/A"}
+                SideStand_Pulse: ${lastValidSideStand_Pulse ?: "N/A"}
+                ForwardParking_Mode_Ack: ${lastValidForwardParking_Mode_Ack ?: "N/A"}
+                DriveError_Controller_OverVoltag: ${lastValidDriveError_Controller_OverVoltag ?: "N/A"}
+                Controller_Undervoltage: ${lastValidController_Undervoltage ?: "N/A"}
+                Overcurrent_Fault: ${lastValidOvercurrent_Fault ?: "N/A"}
+                DriveStatus1_ride: ${lastValidDriveStatus1_ride ?: "N/A"}
+                Wakeup_Request: ${lastValidWakeup_Request ?: "N/A"}
+                Hill_Hold: ${lastValidHill_Hold ?: "N/A"}
+                Reverse_REQUEST: ${lastValidReverse_REQUEST ?: "N/A"}
+                Forward_parkingmode_REQUEST: ${lastValidForward_parkingmode_REQUEST ?: "N/A"}
+                Side_stand_Req: ${lastValidSide_stand_Req ?: "N/A"}
+                Battery_charge_logic: ${lastValidBattery_charge_logic ?: "N/A"}
+                Remote_cutoff: ${lastValidRemote_cutoff ?: "N/A"}
+                mode_limit: ${lastValidmode_limit ?: "N/A"}
+                Geo_fencebuzzer: ${lastValidGeo_fencebuzzer ?: "N/A"}
+                Holiday_mode: ${lastValidHoliday_mode ?: "N/A"}
+                Service_request: ${lastValidService_request ?: "N/A"}
+                Low_Mode_REQUEST: ${lastValidLow_Mode_REQUEST ?: "N/A"}
+                Medium_Mode_REQUEST: ${lastValidMedium_Mode_REQUEST ?: "N/A"}
+                User_defind_mode_High_REQUEST: ${lastValidUser_defind_mode_High_REQUEST ?: "N/A"}
+                Limp_mode_REQUEST: ${lastValidLimp_mode_REQUEST ?: "N/A"}
             """.trimIndent()
 
                 }
@@ -1054,7 +1645,91 @@ class ReceiveActivity : AppCompatActivity() {
     MCU_Fault_Code = lastValidMCU_Fault_Code,
     MCU_ID = lastValidMCU_ID,
     Cluster_heartbeat = lastValidCluster_heartbeat,
-    Odo_Cluster = lastValidOdo_Cluster
+    Odo_Cluster = lastValidOdo_Cluster,
+    LoadDetection = lastValidLoadDetection,
+    Keystatus = lastValidKeystatus,
+    Keyevents = lastValidKeyevents,
+    CellUnderVolProt = lastValidCellUnderVolProt,
+    CellOverVolProt = lastValidCellOverVolProt,
+    PackUnderVolProt = lastValidPackUnderVolProt,
+    PackOverVolProt = lastValidPackOverVolProt,
+    ChgUnderTempProt = lastValidChgUnderTempProt,
+    ChgOverTempProt = lastValidChgOverTempProt,
+    DchgUnderTempProt = lastValidDchgUnderTempProt,
+    DchgOverTempProt = lastValidDchgOverTempProt,
+    CellOverDevProt = lastValidCellOverDevProt,
+    BattLowSocWarn = lastValidBattLowSocWarn,
+    ChgOverCurrProt = lastValidChgOverCurrProt,
+    DchgOverCurrProt = lastValidDchgOverCurrProt,
+    CellUnderVolWarn = lastValidCellUnderVolWarn,
+    CellOverVolWarn = lastValidCellOverVolWarn,
+    FetTempProt = lastValidFetTempProt,
+    ResSocProt = lastValidResSocProt,
+    FetFailure = lastValidFetFailure,
+    TempSenseFault = lastValidTempSenseFault,
+    PackUnderVolWarn = lastValidPackUnderVolWarn,
+    PackOverVolWarn = lastValidPackOverVolWarn,
+    ChgUnderTempWarn = lastValidChgUnderTempWarn,
+    ChgOverTempWarn = lastValidChgOverTempWarn,
+    DchgUnderTempWarn = lastValidDchgUnderTempWarn,
+    DchgOverTempWarn = lastValidDchgOverTempWarn,
+    PreChgFetStatus = lastValidPreChgFetStatus,
+    ChgFetStatus = lastValidChgFetStatus,
+    DchgFetStatus = lastValidDchgFetStatus,
+    ResStatus = lastValidResStatus,
+    ShortCktProt = lastValidShortCktProt,
+    DschgPeakProt = lastValidDschgPeakProt,
+    ChgAuth = lastValidChgAuth,
+    ChgPeakProt = lastValidChgPeakProt,
+    DI1 = lastValidDI1,
+    DI2 = lastValidDI2,
+    DO1 = lastValidDO1,
+    DO2 = lastValidDO2,
+    ChargerDetection = lastValidChargerDetection,
+    CanCommDetection = lastValidCanCommDetection,
+    CellBalFeatureStatus = lastValidCellBalFeatureStatus,
+    ImmoChg = lastValidImmoChg,
+    ImmoDchg = lastValidImmoDchg,
+    BuzzerStatus = lastValidBuzzerStatus,
+    Side_Stand_Ack = lastValidSide_Stand_Ack,
+    Direction_Ack = lastValidDirection_Ack,
+    Ride_Ack = lastValidRide_Ack,
+    Hill_hold_Ack = lastValidHill_hold_Ack,
+    Wakeup_Ack = lastValidWakeup_Ack,
+    DriveError_Motor_hall = lastValidDriveError_Motor_hall,
+    Motor_Stalling = lastValidMotor_Stalling,
+    Motor_Phase_loss = lastValidMotor_Phase_loss,
+    Controller_Over_Temperature = lastValidController_Over_Temperature,
+    Motor_Over_Temperature = lastValidMotor_Over_Temperature,
+    Throttle_Error = lastValidThrottle_Error,
+    MOSFET_Protection = lastValidMOSFET_Protection,
+    DriveStatus_Regenerative_Braking = lastValidDriveStatus_Regenerative_Braking,
+    ModeR_Pulse = lastValidModeR_Pulse,
+    ModeL_Pulse = lastValidModeL_Pulse,
+    Brake_Pulse = lastValidBrake_Pulse,
+    Park_Pulse = lastValidPark_Pulse,
+    Reverse_Pulse = lastValidReverse_Pulse,
+    SideStand_Pulse = lastValidSideStand_Pulse,
+    ForwardParking_Mode_Ack = lastValidForwardParking_Mode_Ack,
+    DriveError_Controller_OverVoltag = lastValidDriveError_Controller_OverVoltag,
+    Controller_Undervoltage = lastValidController_Undervoltage,
+    Overcurrent_Fault = lastValidOvercurrent_Fault,
+    DriveStatus1_ride = lastValidDriveStatus1_ride,
+    Wakeup_Request = lastValidWakeup_Request,
+    Hill_Hold = lastValidHill_Hold,
+    Reverse_REQUEST = lastValidReverse_REQUEST,
+    Forward_parkingmode_REQUEST = lastValidForward_parkingmode_REQUEST,
+    Side_stand_Req = lastValidSide_stand_Req,
+    Battery_charge_logic = lastValidBattery_charge_logic,
+    Remote_cutoff = lastValidRemote_cutoff,
+    mode_limit = lastValidmode_limit,
+    Geo_fencebuzzer = lastValidGeo_fencebuzzer,
+    Holiday_mode = lastValidHoliday_mode,
+    Service_request = lastValidService_request,
+    Low_Mode_REQUEST = lastValidLow_Mode_REQUEST,
+    Medium_Mode_REQUEST = lastValidMedium_Mode_REQUEST,
+    User_defind_mode_High_REQUEST = lastValidUser_defind_mode_High_REQUEST,
+    Limp_mode_REQUEST = lastValidLimp_mode_REQUEST
 )
                     saveDataToCSV(vehicleMetrics)
                   
@@ -1096,7 +1771,91 @@ class ReceiveActivity : AppCompatActivity() {
         val Base_speed: Double?, val Initial_torque: Double?, val Final_torque: Double?, val Cluster_odo: Double?,
         val MotorSpeed: Double?, val BatteryVoltage: Double?, val BatteryCurrent: Double?, val AC_Current: Double?,
         val AC_Voltage: Double?, val Throttle: Double?, val MCU_Temperature: Double?, val Motor_Temperature: Double?,
-        val MCU_Fault_Code: Double?, val MCU_ID: Double?, val Cluster_heartbeat: Double?, val Odo_Cluster: Double?
+        val MCU_Fault_Code: Double?, val MCU_ID: Double?, val Cluster_heartbeat: Double?, val Odo_Cluster: Double?,
+        val LoadDetection: Int?,
+        val Keystatus: Int?,
+        val Keyevents: Int?,
+        val CellUnderVolProt: Int?,
+        val CellOverVolProt: Int?,
+        val PackUnderVolProt: Int?,
+        val PackOverVolProt: Int?,
+        val ChgUnderTempProt: Int?,
+        val ChgOverTempProt: Int?,
+        val DchgUnderTempProt: Int?,
+        val DchgOverTempProt: Int?,
+        val CellOverDevProt: Int?,
+        val BattLowSocWarn: Int?,
+        val ChgOverCurrProt: Int?,
+        val DchgOverCurrProt: Int?,
+        val CellUnderVolWarn: Int?,
+        val CellOverVolWarn: Int?,
+        val FetTempProt: Int?,
+        val ResSocProt: Int?,
+        val FetFailure: Int?,
+        val TempSenseFault: Int?,
+        val PackUnderVolWarn: Int?,
+        val PackOverVolWarn: Int?,
+        val ChgUnderTempWarn: Int?,
+        val ChgOverTempWarn: Int?,
+        val DchgUnderTempWarn: Int?,
+        val DchgOverTempWarn: Int?,
+        val PreChgFetStatus: Int?,
+        val ChgFetStatus: Int?,
+        val DchgFetStatus: Int?,
+        val ResStatus: Int?,
+        val ShortCktProt: Int?,
+        val DschgPeakProt: Int?,
+        val ChgAuth: Int?,
+        val ChgPeakProt: Int?,
+        val DI1: Int?,
+        val DI2: Int?,
+        val DO1: Int?,
+        val DO2: Int?,
+        val ChargerDetection: Int?,
+        val CanCommDetection: Int?,
+        val CellBalFeatureStatus: Int?,
+        val ImmoChg: Int?,
+        val ImmoDchg: Int?,
+        val BuzzerStatus: Int?,
+        val Side_Stand_Ack: Int?,
+        val Direction_Ack: Int?,
+        val Ride_Ack: Int?,
+        val Hill_hold_Ack: Int?,
+        val Wakeup_Ack: Int?,
+        val DriveError_Motor_hall: Int?,
+        val Motor_Stalling: Int?,
+        val Motor_Phase_loss: Int?,
+        val Controller_Over_Temperature: Int?,
+        val Motor_Over_Temperature: Int?,
+        val Throttle_Error: Int?,
+        val MOSFET_Protection: Int?,
+        val DriveStatus_Regenerative_Braking: Int?,
+        val ModeR_Pulse: Int?,
+        val ModeL_Pulse: Int?,
+        val Brake_Pulse: Int?,
+        val Park_Pulse: Int?,
+        val Reverse_Pulse: Int?,
+        val SideStand_Pulse: Int?,
+        val ForwardParking_Mode_Ack: Int?,
+        val DriveError_Controller_OverVoltag: Int?,
+        val Controller_Undervoltage: Int?,
+        val Overcurrent_Fault: Int?,
+        val DriveStatus1_ride: Int?,
+        val Wakeup_Request: Int?,
+        val Hill_Hold: Int?,
+        val Reverse_REQUEST: Int?,
+        val Forward_parkingmode_REQUEST: Int?,
+        val Side_stand_Req: Int?,
+        val Battery_charge_logic: Int?,
+        val Remote_cutoff: Int?,
+        val mode_limit: Int?,
+        val Geo_fencebuzzer: Int?,
+        val Holiday_mode: Int?,
+        val Service_request: Int?,
+        val Low_Mode_REQUEST: Int?,
+        val Medium_Mode_REQUEST: Int?,
+        val User_defind_mode_High_REQUEST: Int?,
+        val Limp_mode_REQUEST: Int?
     )      
     fun saveDataToCSV(metrics: VehicleMetrics)
  {
@@ -1104,13 +1863,13 @@ class ReceiveActivity : AppCompatActivity() {
             contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
                 OutputStreamWriter(outputStream).use { writer ->
                     if (!headersWritten) {
-                        writer.append("Timestamp,CellVol01,PackCurr,IgnitionStatus,Mode_Ack,CellVol02,CellVol03,CellVol04,CellVol05,CellVol06,CellVol07,CellVol08,CellVol09,CellVol10,CellVol11,CellVol12,CellVol13,CellVol14,CellVol15,CellVol16,MaxCellVol,MinCellVol,AvgCellVol,MaxVoltId,MinVoltId,PackVol,CycleCount,CellVolMinMaxDev,SOC,SOCAh,SOH,BmsStatus,LedStatus,ActiveCellBalStatus,BMS_Serial_No_MUX,BMS_Serial_No__1_7,LatchProtection,LatchType,ChargerType,PcbTemp,AfeTemp,CellChemType,Chg_Accumulative_Ah,Dchg_Accumulative_Ah,RefVol,_3v3Vol,_5vVol,_12vVol,Actual_SoC,Usable_Capacity_Ah,ConfigVer,InternalFWVer,InternalFWSubVer,BHB_66049,PackCurr,MaxTemp,MinTemp,FetTemp,Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,Temp7,Temp8,HwVer,FwVer,FWSubVer,BtStatus_NC0PSM1CC2CV3Finish4,Bt_liveMsg1Temp,Bt_liveMsg_soc,BMS_status,Demand_voltage,Demand_Current,MaxChgVoltgae,MaxChgCurrent,ActualChgVoltage,ActualChgCurrent,Charging_end_cutoff_Curr,CHB_258,ChgrNC0PSM1CC2CV3Finsh4,chgr_msg_temp,chgStatus_chg_idle,chgrLiveMsgChgVolt,chgrLiveMsgChgCurrent,ChargeSOP,DchgSOP,Drive_Error_Flag,Set_Regen,DCcurrentlimit,Custom_freq,Custom_torque,Buffer_speed,Base_speed,Initial_torque,Final_torque,Cluster_odo,MotorSpeed,BatteryVoltage,BatteryCurrent,AC_Current,AC_Voltage,Throttle,MCU_Temperature,Motor_Temperature,MCU_Fault_Code,MCU_ID,Cluster_heartbeat,Odo_Cluster\n")
+                        writer.append("Timestamp,CellVol01,PackCurr,IgnitionStatus,Mode_Ack,CellVol02,CellVol03,CellVol04,CellVol05,CellVol06,CellVol07,CellVol08,CellVol09,CellVol10,CellVol11,CellVol12,CellVol13,CellVol14,CellVol15,CellVol16,MaxCellVol,MinCellVol,AvgCellVol,MaxVoltId,MinVoltId,PackVol,CycleCount,CellVolMinMaxDev,SOC,SOCAh,SOH,BmsStatus,LedStatus,ActiveCellBalStatus,BMS_Serial_No_MUX,BMS_Serial_No__1_7,LatchProtection,LatchType,ChargerType,PcbTemp,AfeTemp,CellChemType,Chg_Accumulative_Ah,Dchg_Accumulative_Ah,RefVol,_3v3Vol,_5vVol,_12vVol,Actual_SoC,Usable_Capacity_Ah,ConfigVer,InternalFWVer,InternalFWSubVer,BHB_66049,PackCurr,MaxTemp,MinTemp,FetTemp,Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,Temp7,Temp8,HwVer,FwVer,FWSubVer,BtStatus_NC0PSM1CC2CV3Finish4,Bt_liveMsg1Temp,Bt_liveMsg_soc,BMS_status,Demand_voltage,Demand_Current,MaxChgVoltgae,MaxChgCurrent,ActualChgVoltage,ActualChgCurrent,Charging_end_cutoff_Curr,CHB_258,ChgrNC0PSM1CC2CV3Finsh4,chgr_msg_temp,chgStatus_chg_idle,chgrLiveMsgChgVolt,chgrLiveMsgChgCurrent,ChargeSOP,DchgSOP,Drive_Error_Flag,Set_Regen,DCcurrentlimit,Custom_freq,Custom_torque,Buffer_speed,Base_speed,Initial_torque,Final_torque,Cluster_odo,MotorSpeed,BatteryVoltage,BatteryCurrent,AC_Current,AC_Voltage,Throttle,MCU_Temperature,Motor_Temperature,MCU_Fault_Code,MCU_ID,Cluster_heartbeat,Odo_Cluster,LoadDetection,Keystatus,Keyevents,CellUnderVolProt,CellOverVolProt,PackUnderVolProt,PackOverVolProt,ChgUnderTempProt,ChgOverTempProt,DchgUnderTempProt,DchgOverTempProt,CellOverDevProt,BattLowSocWarn,ChgOverCurrProt,DchgOverCurrProt,CellUnderVolWarn,CellOverVolWarn,FetTempProt,ResSocProt,FetFailure,TempSenseFault,PackUnderVolWarn,PackOverVolWarn,ChgUnderTempWarn,ChgOverTempWarn,DchgUnderTempWarn,DchgOverTempWarn,PreChgFetStatus,ChgFetStatus,DchgFetStatus,ResStatus,ShortCktProt,DschgPeakProt,ChgAuth,ChgPeakProt,DI1,DI2,DO1,DO2,ChargerDetection,CanCommDetection,CellBalFeatureStatus,ImmoChg,ImmoDchg,BuzzerStatus,Side_Stand_Ack,Direction_Ack,Ride_Ack,Hill_hold_Ack,Wakeup_Ack,DriveError_Motor_hall,Motor_Stalling,Motor_Phase_loss,Controller_Over_Temperature,Motor_Over_Temperature,Throttle_Error,MOSFET_Protection,DriveStatus_Regenerative_Braking,ModeR_Pulse,ModeL_Pulse,Brake_Pulse,Park_Pulse,Reverse_Pulse,SideStand_Pulse,ForwardParking_Mode_Ack,DriveError_Controller_OverVoltag,Controller_Undervoltage,Overcurrent_Fault,DriveStatus1_ride,Wakeup_Request,Hill_Hold,Reverse_REQUEST,Forward_parkingmode_REQUEST,Side_stand_Req,Battery_charge_logic,Remote_cutoff,mode_limit,Geo_fencebuzzer,Holiday_mode,Service_request,Low_Mode_REQUEST,Medium_Mode_REQUEST,User_defind_mode_High_REQUEST,Limp_mode_REQUEST\n")
                         headersWritten = true
                     }
                     val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault()).format(Date())
 
                     writer.append(
-    "$timestamp,${metrics.CellVol01 ?: ""},${metrics.PackCurr ?: ""},${metrics.IgnitionStatus ?: ""},${metrics.Mode_Ack ?: ""},${metrics.CellVol02 ?: ""},${metrics.CellVol03 ?: ""},${metrics.CellVol04 ?: ""},${metrics.CellVol05 ?: ""},${metrics.CellVol06 ?: ""},${metrics.CellVol07 ?: ""},${metrics.CellVol08 ?: ""},${metrics.CellVol09 ?: ""},${metrics.CellVol10 ?: ""},${metrics.CellVol11 ?: ""},${metrics.CellVol12 ?: ""},${metrics.CellVol13 ?: ""},${metrics.CellVol14 ?: ""},${metrics.CellVol15 ?: ""},${metrics.CellVol16 ?: ""},${metrics.MaxCellVol ?: ""},${metrics.MinCellVol ?: ""},${metrics.AvgCellVol ?: ""},${metrics.MaxVoltId ?: ""},${metrics.MinVoltId ?: ""},${metrics.PackVol ?: ""},${metrics.CycleCount ?: ""},${metrics.CellVolMinMaxDev ?: ""},${metrics.SOC ?: ""},${metrics.SOCAh ?: ""},${metrics.SOH ?: ""},${metrics.BmsStatus ?: ""},${metrics.LedStatus ?: ""},${metrics.ActiveCellBalStatus ?: ""},${metrics.BMS_Serial_No_MUX ?: ""},${metrics.BMS_Serial_No__1_7 ?: ""},${metrics.LatchProtection ?: ""},${metrics.LatchType ?: ""},${metrics.ChargerType ?: ""},${metrics.PcbTemp ?: ""},${metrics.AfeTemp ?: ""},${metrics.CellChemType ?: ""},${metrics.Chg_Accumulative_Ah ?: ""},${metrics.Dchg_Accumulative_Ah ?: ""},${metrics.RefVol ?: ""},${metrics._3v3Vol ?: ""},${metrics._5vVol ?: ""},${metrics._12vVol ?: ""},${metrics.Actual_SoC ?: ""},${metrics.Usable_Capacity_Ah ?: ""},${metrics.ConfigVer ?: ""},${metrics.InternalFWVer ?: ""},${metrics.InternalFWSubVer ?: ""},${metrics.BHB_66049 ?: ""},${metrics.PackCurr ?: ""},${metrics.MaxTemp ?: ""},${metrics.MinTemp ?: ""},${metrics.FetTemp ?: ""},${metrics.Temp1 ?: ""},${metrics.Temp2 ?: ""},${metrics.Temp3 ?: ""},${metrics.Temp4 ?: ""},${metrics.Temp5 ?: ""},${metrics.Temp6 ?: ""},${metrics.Temp7 ?: ""},${metrics.Temp8 ?: ""},${metrics.HwVer ?: ""},${metrics.FwVer ?: ""},${metrics.FWSubVer ?: ""},${metrics.BtStatus_NC0PSM1CC2CV3Finish4 ?: ""},${metrics.Bt_liveMsg1Temp ?: ""},${metrics.Bt_liveMsg_soc ?: ""},${metrics.BMS_status ?: ""},${metrics.Demand_voltage ?: ""},${metrics.Demand_Current ?: ""},${metrics.MaxChgVoltgae ?: ""},${metrics.MaxChgCurrent ?: ""},${metrics.ActualChgVoltage ?: ""},${metrics.ActualChgCurrent ?: ""},${metrics.Charging_end_cutoff_Curr ?: ""},${metrics.CHB_258 ?: ""},${metrics.ChgrNC0PSM1CC2CV3Finsh4 ?: ""},${metrics.chgr_msg_temp ?: ""},${metrics.chgStatus_chg_idle ?: ""},${metrics.chgrLiveMsgChgVolt ?: ""},${metrics.chgrLiveMsgChgCurrent ?: ""},${metrics.ChargeSOP ?: ""},${metrics.DchgSOP ?: ""},${metrics.Drive_Error_Flag ?: ""},${metrics.Set_Regen ?: ""},${metrics.DCcurrentlimit ?: ""},${metrics.Custom_freq ?: ""},${metrics.Custom_torque ?: ""},${metrics.Buffer_speed ?: ""},${metrics.Base_speed ?: ""},${metrics.Initial_torque ?: ""},${metrics.Final_torque ?: ""},${metrics.Cluster_odo ?: ""},${metrics.MotorSpeed ?: ""},${metrics.BatteryVoltage ?: ""},${metrics.BatteryCurrent ?: ""},${metrics.AC_Current ?: ""},${metrics.AC_Voltage ?: ""},${metrics.Throttle ?: ""},${metrics.MCU_Temperature ?: ""},${metrics.Motor_Temperature ?: ""},${metrics.MCU_Fault_Code ?: ""},${metrics.MCU_ID ?: ""},${metrics.Cluster_heartbeat ?: ""},${metrics.Odo_Cluster ?: ""}\n"
+    "$timestamp,${metrics.CellVol01 ?: ""},${metrics.PackCurr ?: ""},${metrics.IgnitionStatus ?: ""},${metrics.Mode_Ack ?: ""},${metrics.CellVol02 ?: ""},${metrics.CellVol03 ?: ""},${metrics.CellVol04 ?: ""},${metrics.CellVol05 ?: ""},${metrics.CellVol06 ?: ""},${metrics.CellVol07 ?: ""},${metrics.CellVol08 ?: ""},${metrics.CellVol09 ?: ""},${metrics.CellVol10 ?: ""},${metrics.CellVol11 ?: ""},${metrics.CellVol12 ?: ""},${metrics.CellVol13 ?: ""},${metrics.CellVol14 ?: ""},${metrics.CellVol15 ?: ""},${metrics.CellVol16 ?: ""},${metrics.MaxCellVol ?: ""},${metrics.MinCellVol ?: ""},${metrics.AvgCellVol ?: ""},${metrics.MaxVoltId ?: ""},${metrics.MinVoltId ?: ""},${metrics.PackVol ?: ""},${metrics.CycleCount ?: ""},${metrics.CellVolMinMaxDev ?: ""},${metrics.SOC ?: ""},${metrics.SOCAh ?: ""},${metrics.SOH ?: ""},${metrics.BmsStatus ?: ""},${metrics.LedStatus ?: ""},${metrics.ActiveCellBalStatus ?: ""},${metrics.BMS_Serial_No_MUX ?: ""},${metrics.BMS_Serial_No__1_7 ?: ""},${metrics.LatchProtection ?: ""},${metrics.LatchType ?: ""},${metrics.ChargerType ?: ""},${metrics.PcbTemp ?: ""},${metrics.AfeTemp ?: ""},${metrics.CellChemType ?: ""},${metrics.Chg_Accumulative_Ah ?: ""},${metrics.Dchg_Accumulative_Ah ?: ""},${metrics.RefVol ?: ""},${metrics._3v3Vol ?: ""},${metrics._5vVol ?: ""},${metrics._12vVol ?: ""},${metrics.Actual_SoC ?: ""},${metrics.Usable_Capacity_Ah ?: ""},${metrics.ConfigVer ?: ""},${metrics.InternalFWVer ?: ""},${metrics.InternalFWSubVer ?: ""},${metrics.BHB_66049 ?: ""},${metrics.PackCurr ?: ""},${metrics.MaxTemp ?: ""},${metrics.MinTemp ?: ""},${metrics.FetTemp ?: ""},${metrics.Temp1 ?: ""},${metrics.Temp2 ?: ""},${metrics.Temp3 ?: ""},${metrics.Temp4 ?: ""},${metrics.Temp5 ?: ""},${metrics.Temp6 ?: ""},${metrics.Temp7 ?: ""},${metrics.Temp8 ?: ""},${metrics.HwVer ?: ""},${metrics.FwVer ?: ""},${metrics.FWSubVer ?: ""},${metrics.BtStatus_NC0PSM1CC2CV3Finish4 ?: ""},${metrics.Bt_liveMsg1Temp ?: ""},${metrics.Bt_liveMsg_soc ?: ""},${metrics.BMS_status ?: ""},${metrics.Demand_voltage ?: ""},${metrics.Demand_Current ?: ""},${metrics.MaxChgVoltgae ?: ""},${metrics.MaxChgCurrent ?: ""},${metrics.ActualChgVoltage ?: ""},${metrics.ActualChgCurrent ?: ""},${metrics.Charging_end_cutoff_Curr ?: ""},${metrics.CHB_258 ?: ""},${metrics.ChgrNC0PSM1CC2CV3Finsh4 ?: ""},${metrics.chgr_msg_temp ?: ""},${metrics.chgStatus_chg_idle ?: ""},${metrics.chgrLiveMsgChgVolt ?: ""},${metrics.chgrLiveMsgChgCurrent ?: ""},${metrics.ChargeSOP ?: ""},${metrics.DchgSOP ?: ""},${metrics.Drive_Error_Flag ?: ""},${metrics.Set_Regen ?: ""},${metrics.DCcurrentlimit ?: ""},${metrics.Custom_freq ?: ""},${metrics.Custom_torque ?: ""},${metrics.Buffer_speed ?: ""},${metrics.Base_speed ?: ""},${metrics.Initial_torque ?: ""},${metrics.Final_torque ?: ""},${metrics.Cluster_odo ?: ""},${metrics.MotorSpeed ?: ""},${metrics.BatteryVoltage ?: ""},${metrics.BatteryCurrent ?: ""},${metrics.AC_Current ?: ""},${metrics.AC_Voltage ?: ""},${metrics.Throttle ?: ""},${metrics.MCU_Temperature ?: ""},${metrics.Motor_Temperature ?: ""},${metrics.MCU_Fault_Code ?: ""},${metrics.MCU_ID ?: ""},${metrics.Cluster_heartbeat ?: ""},${metrics.Odo_Cluster ?: ""},${metrics.LoadDetection ?: ""},${metrics.Keystatus ?: ""},${metrics.Keyevents ?: ""},${metrics.CellUnderVolProt ?: ""},${metrics.CellOverVolProt ?: ""},${metrics.PackUnderVolProt ?: ""},${metrics.PackOverVolProt ?: ""},${metrics.ChgUnderTempProt ?: ""},${metrics.ChgOverTempProt ?: ""},${metrics.DchgUnderTempProt ?: ""},${metrics.DchgOverTempProt ?: ""},${metrics.CellOverDevProt ?: ""},${metrics.BattLowSocWarn ?: ""},${metrics.ChgOverCurrProt ?: ""},${metrics.DchgOverCurrProt ?: ""},${metrics.CellUnderVolWarn ?: ""},${metrics.CellOverVolWarn ?: ""},${metrics.FetTempProt ?: ""},${metrics.ResSocProt ?: ""},${metrics.FetFailure ?: ""},${metrics.TempSenseFault ?: ""},${metrics.PackUnderVolWarn ?: ""},${metrics.PackOverVolWarn ?: ""},${metrics.ChgUnderTempWarn ?: ""},${metrics.ChgOverTempWarn ?: ""},${metrics.DchgUnderTempWarn ?: ""},${metrics.DchgOverTempWarn ?: ""},${metrics.PreChgFetStatus ?: ""},${metrics.ChgFetStatus ?: ""},${metrics.DchgFetStatus ?: ""},${metrics.ResStatus ?: ""},${metrics.ShortCktProt ?: ""},${metrics.DschgPeakProt ?: ""},${metrics.ChgAuth ?: ""},${metrics.ChgPeakProt ?: ""},${metrics.DI1 ?: ""},${metrics.DI2 ?: ""},${metrics.DO1 ?: ""},${metrics.DO2 ?: ""},${metrics.ChargerDetection ?: ""},${metrics.CanCommDetection ?: ""},${metrics.CellBalFeatureStatus ?: ""},${metrics.ImmoChg ?: ""},${metrics.ImmoDchg ?: ""},${metrics.BuzzerStatus ?: ""},${metrics.Side_Stand_Ack ?: ""},${metrics.Direction_Ack ?: ""},${metrics.Ride_Ack ?: ""},${metrics.Hill_hold_Ack ?: ""},${metrics.Wakeup_Ack ?: ""},${metrics.DriveError_Motor_hall ?: ""},${metrics.Motor_Stalling ?: ""},${metrics.Motor_Phase_loss ?: ""},${metrics.Controller_Over_Temperature ?: ""},${metrics.Motor_Over_Temperature ?: ""},${metrics.Throttle_Error ?: ""},${metrics.MOSFET_Protection ?: ""},${metrics.DriveStatus_Regenerative_Braking ?: ""},${metrics.ModeR_Pulse ?: ""},${metrics.ModeL_Pulse ?: ""},${metrics.Brake_Pulse ?: ""},${metrics.Park_Pulse ?: ""},${metrics.Reverse_Pulse ?: ""},${metrics.SideStand_Pulse ?: ""},${metrics.ForwardParking_Mode_Ack ?: ""},${metrics.DriveError_Controller_OverVoltag ?: ""},${metrics.Controller_Undervoltage ?: ""},${metrics.Overcurrent_Fault ?: ""},${metrics.DriveStatus1_ride ?: ""},${metrics.Wakeup_Request ?: ""},${metrics.Hill_Hold ?: ""},${metrics.Reverse_REQUEST ?: ""},${metrics.Forward_parkingmode_REQUEST ?: ""},${metrics.Side_stand_Req ?: ""},${metrics.Battery_charge_logic ?: ""},${metrics.Remote_cutoff ?: ""},${metrics.mode_limit ?: ""},${metrics.Geo_fencebuzzer ?: ""},${metrics.Holiday_mode ?: ""},${metrics.Service_request ?: ""},${metrics.Low_Mode_REQUEST ?: ""},${metrics.Medium_Mode_REQUEST ?: ""},${metrics.User_defind_mode_High_REQUEST ?: ""},${metrics.Limp_mode_REQUEST ?: ""}\n"
 )
 
                 }
