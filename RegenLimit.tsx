@@ -20,8 +20,9 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
   const [frequency, setFrequency] = useState(105);
   const [torqe, setTorque] = useState(105);
   const [bufferSpeed, setBufferSpeed] = useState(105);
-  const [initialProf, setInitialProf] = useState(105);
-  const [finalProf, setFinalProf] = useState(105);
+  const [baseSpeed, setBaseSpeed] = useState(105);
+  const [torque_limit_before_profile_speed, settorque_limit_before_profile_speed] = useState(105);
+  const [torque_limit_after_profile_speed, settorque_limit_after_profile_speed] = useState(105);
   const [receivedData, setReceivedData] = useState('');
 
   const convertDecimalToHex = (decimal: string) => {
@@ -183,11 +184,11 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
     }
   };
 
-  const initialProfwriteDataToCharacteristic = async (showAlert: boolean = true) => {
+  const baseSpeedwriteDataToCharacteristic = async (showAlert: boolean = true) => {
     const serviceUUID = '00FF';
     const characteristicUUID = 'FF01';
 
-    const customModeHex = convertDecimalToHex(initialProf.toString());
+    const customModeHex = convertDecimalToHex(baseSpeed.toString());
 
     if (!customModeHex) {
       return; // Stops the process if input is invalid
@@ -212,11 +213,12 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
     }
   };
 
-  const finalProfwriteDataToCharacteristic = async (showAlert: boolean = true) => {
+
+  const torque_limit_before_profile_speedwriteDataToCharacteristic = async (showAlert: boolean = true) => {
     const serviceUUID = '00FF';
     const characteristicUUID = 'FF01';
 
-    const customModeHex = convertDecimalToHex(initialProf.toString());
+    const customModeHex = convertDecimalToHex(torque_limit_before_profile_speed.toString());
 
     if (!customModeHex) {
       return; // Stops the process if input is invalid
@@ -226,6 +228,35 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
     const Source = '01';
     const Destination = '02';
     const OpCode = '10';
+    const Payload_Length = '0001';
+    const message = SOF + Source + Destination + OpCode + Payload_Length + customModeHex;
+
+    try {
+      const base64Data = Buffer.from(message, 'hex').toString('base64');
+      await device.writeCharacteristicWithResponseForService(serviceUUID, characteristicUUID, base64Data);
+      if (showAlert) {
+        Alert.alert("Success", "Data written to the device successfully.");
+      }
+    } catch (error: any) {
+      console.error("Write failed", error);
+      Alert.alert("Write Error", `Error writing data to device: ${error.message}`);
+    }
+  };
+
+  const torque_limit_after_profile_speedwriteDataToCharacteristic = async (showAlert: boolean = true) => {
+    const serviceUUID = '00FF';
+    const characteristicUUID = 'FF01';
+
+    const customModeHex = convertDecimalToHex(torque_limit_after_profile_speed.toString());
+
+    if (!customModeHex) {
+      return; // Stops the process if input is invalid
+    }
+
+    const SOF = 'AA';
+    const Source = '01';
+    const Destination = '02';
+    const OpCode = '11';
     const Payload_Length = '0001';
     const message = SOF + Source + Destination + OpCode + Payload_Length + customModeHex;
 
@@ -356,14 +387,14 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       
       <Button title="Buffer Speed" onPress={() => bufferSpeedwriteDataToCharacteristic(true)} />
 
-      {/* Buffer Speed */}
-      <Text style={styles.label}>Initial Profile</Text>
+      {/* Base Speed */}
+      <Text style={styles.label}>Base Speed</Text>
       <TextInput
         style={styles.input}
         placeholder="0-255"
         placeholderTextColor="#808080"
-        value={initialProf.toString()}
-        onChangeText={text => setInitialProf(parseInt(text) || 0)}
+        value={baseSpeed.toString()}
+        onChangeText={text => setBaseSpeed(parseInt(text) || 0)}
         keyboardType="numeric"
         maxLength={5}
       />
@@ -372,20 +403,20 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
         minimumValue={0}
         maximumValue={255}
         step={1}
-        value={initialProf}
-        onValueChange={(value) => setInitialProf(value)}
+        value={baseSpeed}
+        onValueChange={(value) => setBaseSpeed(value)}
       />
       
-      <Button title="Buffer Speed" onPress={() => initialProfwriteDataToCharacteristic(true)} />
+      <Button title="Base Speed" onPress={() => baseSpeedwriteDataToCharacteristic(true)} />
 
-      {/* Final Profile */}
-      <Text style={styles.label}>Final Profile</Text>
+      {/* torque_limit_before_profile_speed */}
+      <Text style={styles.label}>torque_limit_before_profile_speed</Text>
       <TextInput
         style={styles.input}
         placeholder="0-255"
         placeholderTextColor="#808080"
-        value={finalProf.toString()}
-        onChangeText={text => setFinalProf(parseInt(text) || 0)}
+        value={torque_limit_before_profile_speed.toString()}
+        onChangeText={text => settorque_limit_before_profile_speed(parseInt(text) || 0)}
         keyboardType="numeric"
         maxLength={5}
       />
@@ -394,11 +425,33 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
         minimumValue={0}
         maximumValue={255}
         step={1}
-        value={finalProf}
-        onValueChange={(value) => setFinalProf(value)}
+        value={torque_limit_before_profile_speed}
+        onValueChange={(value) => settorque_limit_before_profile_speed(value)}
       />
       
-      <Button title="Final Profile" onPress={() => finalProfwriteDataToCharacteristic(true)} />
+      <Button title="Torque_limit_before_profile_speed" onPress={() => torque_limit_before_profile_speedwriteDataToCharacteristic(true)} />
+
+      {/* torque_limit_after_profile_speed */}
+      <Text style={styles.label}>torque_limit_after_profile_speed</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="0-255"
+        placeholderTextColor="#808080"
+        value={torque_limit_after_profile_speed.toString()}
+        onChangeText={text => settorque_limit_after_profile_speed(parseInt(text) || 0)}
+        keyboardType="numeric"
+        maxLength={5}
+      />
+      <Slider
+        style={styles.slider}
+        minimumValue={0}
+        maximumValue={255}
+        step={1}
+        value={torque_limit_after_profile_speed}
+        onValueChange={(value) => settorque_limit_after_profile_speed(value)}
+      />
+      
+      <Button title="Torque_limit_after_profile_speed" onPress={() => torque_limit_after_profile_speedwriteDataToCharacteristic(true)} />
 
 
       {receivedData ? <Text>Received Data: {receivedData}</Text> : null}
