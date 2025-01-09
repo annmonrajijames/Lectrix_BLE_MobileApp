@@ -42,14 +42,14 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 #define REGEN_LIMIT_CAN_ID 0x18F20209
 #define PREPARE_BUF_MAX_SIZE 1024
 
-static uint16_t frequency = 0;
+static uint16_t frequency = 0x898;
 static int torque = 0x64;
-static uint16_t buffer_speed = 0;
-static uint16_t base_speed = 0;
-static int torque_limit_before_profile_speed = 0;
-static int torque_limit_after_profile_speed = 0;
-static int DC_current_limit = 0;
-static int regen_current_limit = 0;
+static uint16_t buffer_speed = 0x03E8;
+static uint16_t base_speed = 0x320;
+static int torque_limit_before_profile_speed = 0xC8;
+static int torque_limit_after_profile_speed = 0x55;
+static int DC_current_limit = 0x69;
+static int regen_current_limit = 0x0A;
 
 static uint8_t char1_str[] = {0x11,0x22,0x33};
 static esp_gatt_char_prop_t a_property = 0;
@@ -205,83 +205,83 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     }
 }
 
-void transmit_task1(uint8_t sixth_byte)
-{
-    uint8_t REGEN_LIMIT = sixth_byte;
-    ESP_LOGI(GATTS_TAG, "Sixth byte value: 0x%02X", sixth_byte);
-    ESP_LOGI(GATTS_TAG, "CAN ID: 0x%08X", REGEN_LIMIT_CAN_ID);
+// void transmit_task1(uint8_t sixth_byte)
+// {
+//     uint8_t REGEN_LIMIT = sixth_byte;
+//     ESP_LOGI(GATTS_TAG, "Sixth byte value: 0x%02X", sixth_byte);
+//     ESP_LOGI(GATTS_TAG, "CAN ID: 0x%08X", REGEN_LIMIT_CAN_ID);
 
-    twai_message_t transmit_message_reset_high = {.identifier = REGEN_LIMIT_CAN_ID, .data_length_code = 8, .extd = 1, .data = {0x00, 0x00, 0x00, 0x00, 0x00, REGEN_LIMIT, 0x00, 0x00}};
-    if (twai_transmit(&transmit_message_reset_high, 1000) == ESP_OK)
-    {
-        printf("Message sent----------->");
-        ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-    else
-    {
-        ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
-    }
-    vTaskDelay(pdMS_TO_TICKS(100));
+//     twai_message_t transmit_message_reset_high = {.identifier = REGEN_LIMIT_CAN_ID, .data_length_code = 8, .extd = 1, .data = {0x00, 0x00, 0x00, 0x00, 0x00, REGEN_LIMIT, 0x00, 0x00}};
+//     if (twai_transmit(&transmit_message_reset_high, 1000) == ESP_OK)
+//     {
+//         printf("Message sent----------->");
+//         ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
+//         vTaskDelay(pdMS_TO_TICKS(1000));
+//     }
+//     else
+//     {
+//         ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
+//     }
+//     vTaskDelay(pdMS_TO_TICKS(100));
 
-    twai_message_t transmit_message_reset_low = {.identifier = REGEN_LIMIT_CAN_ID, .data_length_code = 8, .extd = 1, .data = {0x00, 0x00, 0x00, 0x00, 0x00, REGEN_LIMIT, 0x00, 0x00}};
-    if (twai_transmit(&transmit_message_reset_low, 1000) == ESP_OK)
-    {
-        printf("Message sent----------->");
-        ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
-    else
-    {
-        ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
-    }
-    vTaskDelay(pdMS_TO_TICKS(100));
-}
+//     twai_message_t transmit_message_reset_low = {.identifier = REGEN_LIMIT_CAN_ID, .data_length_code = 8, .extd = 1, .data = {0x00, 0x00, 0x00, 0x00, 0x00, REGEN_LIMIT, 0x00, 0x00}};
+//     if (twai_transmit(&transmit_message_reset_low, 1000) == ESP_OK)
+//     {
+//         printf("Message sent----------->");
+//         ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
+//         vTaskDelay(pdMS_TO_TICKS(100));
+//     }
+//     else
+//     {
+//         ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
+//     }
+//     vTaskDelay(pdMS_TO_TICKS(100));
+// }
 
-void transmit_task2(uint8_t tenth_byte)
-{
-    uint8_t Reset_bit_1;
-    uint8_t Reset_bit_2;
+// void transmit_task2(uint8_t tenth_byte)
+// {
+//     uint8_t Reset_bit_1;
+//     uint8_t Reset_bit_2;
     
-    if(tenth_byte == 0x01)
-    {
-        Reset_bit_1= 8 ;
-        printf("Reset ON------------------------------------------------->");
-        Reset_bit_2=0;
-    }
-    else
-    {
-        Reset_bit_1= 0;
-        printf("Reset OFF------------------------------------------------->");
-        Reset_bit_2=0;
-    }
-    twai_message_t transmit_message_reset_high = {.identifier = (0x18f60001), .data_length_code = 8, .extd = 1, .data = {Reset_bit_1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-        if (twai_transmit(&transmit_message_reset_high, 1000) == ESP_OK)
-        {
-        printf("Message sent----------->");
-        ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
-        vTaskDelay(pdMS_TO_TICKS(1000));
-        }
-        else
-        {
-        ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
-        }
-        vTaskDelay(pdMS_TO_TICKS(100));
+//     if(tenth_byte == 0x01)
+//     {
+//         Reset_bit_1= 8 ;
+//         printf("Reset ON------------------------------------------------->");
+//         Reset_bit_2=0;
+//     }
+//     else
+//     {
+//         Reset_bit_1= 0;
+//         printf("Reset OFF------------------------------------------------->");
+//         Reset_bit_2=0;
+//     }
+//     twai_message_t transmit_message_reset_high = {.identifier = (0x18f60001), .data_length_code = 8, .extd = 1, .data = {Reset_bit_1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+//         if (twai_transmit(&transmit_message_reset_high, 1000) == ESP_OK)
+//         {
+//         printf("Message sent----------->");
+//         ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
+//         vTaskDelay(pdMS_TO_TICKS(1000));
+//         }
+//         else
+//         {
+//         ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
+//         }
+//         vTaskDelay(pdMS_TO_TICKS(100));
 
-    twai_message_t transmit_message_reset_low = {.identifier = (0x18f60001), .data_length_code = 8, .extd = 1, .data = {Reset_bit_2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-        if (twai_transmit(&transmit_message_reset_low, 1000) == ESP_OK)
-        {
-        printf("Message sent----------->");
-        ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
-        vTaskDelay(pdMS_TO_TICKS(100));
-        }
-        else
-        {
-        ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
-        }
-        vTaskDelay(pdMS_TO_TICKS(100));
+//     twai_message_t transmit_message_reset_low = {.identifier = (0x18f60001), .data_length_code = 8, .extd = 1, .data = {Reset_bit_2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+//         if (twai_transmit(&transmit_message_reset_low, 1000) == ESP_OK)
+//         {
+//         printf("Message sent----------->");
+//         ESP_LOGI(GATTS_TAG, "Message queued for transmission\n");
+//         vTaskDelay(pdMS_TO_TICKS(100));
+//         }
+//         else
+//         {
+//         ESP_LOGI(GATTS_TAG, "Failed to queue message for transmission\n");
+//         }
+//         vTaskDelay(pdMS_TO_TICKS(100));
  
-}
+// }
 
 void can_init() {
     // Initialize CAN bus with TWAI configuration
@@ -304,39 +304,39 @@ void can_init() {
     ESP_LOGI(GATTS_TAG, "CAN bus initialized");
 }
 
-// Function to send a service reset CAN message
-static void send_service_reset_can_message() {
-    // Initialize a message to send for service reset
-    twai_message_t tx_message = {
-        .identifier = SERVICE_RESET_CAN_ID,  // Service reset CAN ID
-        .data_length_code = 1,  // Data length
-        .data = {0x01}  // Data representing reset (could be a flag or status)
-    };
+// // Function to send a service reset CAN message
+// static void send_service_reset_can_message() {
+//     // Initialize a message to send for service reset
+//     twai_message_t tx_message = {
+//         .identifier = SERVICE_RESET_CAN_ID,  // Service reset CAN ID
+//         .data_length_code = 1,  // Data length
+//         .data = {0x01}  // Data representing reset (could be a flag or status)
+//     };
 
-    esp_err_t ret = twai_transmit(&tx_message, pdMS_TO_TICKS(1000));
-    if (ret == ESP_OK) {
-        ESP_LOGI(GATTS_TAG, "Service reset CAN message sent successfully.");
-    } else {
-        ESP_LOGE(GATTS_TAG, "Failed to send service reset CAN message, error code = %x", ret);
-    }
-}
+//     esp_err_t ret = twai_transmit(&tx_message, pdMS_TO_TICKS(1000));
+//     if (ret == ESP_OK) {
+//         ESP_LOGI(GATTS_TAG, "Service reset CAN message sent successfully.");
+//     } else {
+//         ESP_LOGE(GATTS_TAG, "Failed to send service reset CAN message, error code = %x", ret);
+//     }
+// }
 
-// Function to send a regular CAN message
-static void send_can_message() {
-    // Example of sending a regular CAN message
-    twai_message_t tx_message = {
-        .identifier = 0x100,  // Example CAN ID
-        .data_length_code = 8,
-        .data = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}
-    };
+// // Function to send a regular CAN message
+// static void send_can_message() {
+//     // Example of sending a regular CAN message
+//     twai_message_t tx_message = {
+//         .identifier = 0x100,  // Example CAN ID
+//         .data_length_code = 8,
+//         .data = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}
+//     };
 
-    esp_err_t ret = twai_transmit(&tx_message, pdMS_TO_TICKS(1000));
-    if (ret == ESP_OK) {
-        ESP_LOGI(GATTS_TAG, "CAN message sent successfully.");
-    } else {
-        ESP_LOGE(GATTS_TAG, "Failed to send CAN message, error code = %x", ret);
-    }
-}
+//     esp_err_t ret = twai_transmit(&tx_message, pdMS_TO_TICKS(1000));
+//     if (ret == ESP_OK) {
+//         ESP_LOGI(GATTS_TAG, "CAN message sent successfully.");
+//     } else {
+//         ESP_LOGE(GATTS_TAG, "Failed to send CAN message, error code = %x", ret);
+//     }
+// }
 
 // static void twai_receive_task(void *arg)
 // {
@@ -364,25 +364,28 @@ static void send_can_message() {
 
 static void twai_transmit_task(void *arg)
 {
-    printf("Inside the twai_transmit_task function");
-
+    ESP_LOGI(GATTS_TAG, "Inside the twai_transmit_task function");
     // Debug statements to show initial values of variables
     ESP_LOGI(GATTS_TAG, "Initial Values - Regen Current Limit: %d,\n DC Current Limit: %d,\n Frequency: %d,\n Torque: %d,\n Buffer Speed: %d,\n Base Speed: %d,\n Torque Limit Before Profile Speed: %d,\n Torque Limit After Profile Speed: %d\n",
-             regen_current_limit, DC_current_limit, frequency, torque, buffer_speed, base_speed, torque_limit_before_profile_speed, torque_limit_after_profile_speed);
-    
+                        regen_current_limit, DC_current_limit, frequency, torque, buffer_speed, base_speed, torque_limit_before_profile_speed, torque_limit_after_profile_speed);
+
     uint8_t frequency_1 = (uint8_t)(frequency & 0xFF);
     uint8_t frequency_2 = (uint8_t)((frequency >> 8) & 0xFF);
+    uint8_t buffer_speed_1 = (uint8_t)(buffer_speed & 0xFF);
+    uint8_t buffer_speed_2 = (uint8_t)((buffer_speed >> 8) & 0xFF);
 
+    uint8_t base_speed_1 = (uint8_t)(base_speed & 0xFF);
+    uint8_t base_speed_2 = (uint8_t)((base_speed >> 8) & 0xFF);
 
     while (1)
     {
         // Debug statements to show values before sending messages
         ESP_LOGI(GATTS_TAG, "Before Sending - Regen Current Limit: %d,\n DC Current Limit: %d,\n Frequency: %d,\n Torque: %d,\n Buffer Speed: %d,\n Base Speed: %d,\n Torque Limit Before Profile Speed: %d,\n Torque Limit After Profile Speed: %d\n",
-                 regen_current_limit, DC_current_limit, frequency, torque, buffer_speed, base_speed, torque_limit_before_profile_speed, torque_limit_after_profile_speed);
-
+                 regen_current_limit, DC_current_limit, frequency, torque, buffer_speed, base_speed, torque_limit_before_profile_speed,torque_limit_after_profile_speed);
         ESP_LOGE(GATTS_TAG, "Message Sending in while loop");
 
-        // 18F20309 message
+
+        //18f20309      
         twai_message_t transmit_message_switch = {
             .identifier = (0x18f20309),
             .data_length_code = 8,
@@ -390,38 +393,46 @@ static void twai_transmit_task(void *arg)
             // .data = {0x25, 0x00, regen_current_limit, DC_current_limit, 0x00, 0x00, 0x00, torque}};
             // .data = {0x25, 0x00, regen_current_limit, DC_current_limit, 0x00, (uint8_t)(frequency & 0xFF), (uint8_t)((frequency >> 8) & 0xFF), torque}};
 
-            .data = {0x25, 0x00, regen_current_limit, DC_current_limit, 0x00, frequency_1, frequency_2, torque}};
-        if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
-        {
+            .data = {0x35, 0x00, regen_current_limit, DC_current_limit, 0x00, frequency_1, frequency_2, torque}};
+
+            // .data = {0x45, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+
+            if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
+            {
             ESP_LOGI(GATTS_TAG, "Message queued for transmission-------> Tramsmit----> 0x18f20309\n");
             vTaskDelay(pdMS_TO_TICKS(50));
-        }
-        else
-        {
-            ESP_LOGE(GATTS_TAG, "Failed to queue message for transmission\n");
-        }
-        vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else
+            {
+            
+            ESP_LOGE(GATTS_TAG, "Failed to queue message for transmission-------> Failed to Tramsmit----> 0x18f20309\n");
+            }
+            vTaskDelay(pdMS_TO_TICKS(50));
 
-        // 18F20311 message
+
+        //18f20311
         twai_message_t transmit_message_switch_2 = {
             .identifier = (0x18f20311),
             .data_length_code = 8,
             .extd = 1,
-            .data = {(uint8_t)(buffer_speed & 0xFF), (uint8_t)((buffer_speed >> 8) & 0xFF), (uint8_t)(base_speed & 0xFF), (uint8_t)((base_speed >> 8) & 0xFF), torque_limit_before_profile_speed, torque_limit_after_profile_speed, 0x00, 0x00}};
-        if (twai_transmit(&transmit_message_switch_2, 1000) == ESP_OK)
-        {
+            .data = {buffer_speed_1, buffer_speed_2, base_speed_1, base_speed_2, torque_limit_before_profile_speed, torque_limit_after_profile_speed, 0x00, 0x00}};
+            // .data = {0x45, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+
+            if (twai_transmit(&transmit_message_switch_2, 1000) == ESP_OK)
+            {
             ESP_LOGI(GATTS_TAG, "Message queued for transmission-------> Tramsmit----> 0x18f20311\n");
             vTaskDelay(pdMS_TO_TICKS(50));
-        }
-        else
-        {
-            ESP_LOGE(GATTS_TAG, "Failed to queue message for transmission\n");
-        }
-        vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else
+            {
+            ESP_LOGE(GATTS_TAG, "Failed to queue message for transmission------->Failed to Tramsmit----> 0x18f20311\n");
+            }
+            vTaskDelay(pdMS_TO_TICKS(50));
 
-        // Debug statements to show values after sending messages
+            // Debug statements to show values after sending messages
         ESP_LOGI(GATTS_TAG, "After Sending - Regen Current Limit: %d,\n DC Current Limit: %d,\n Frequency: %d,\n Torque: %d,\n Buffer Speed: %d,\n Base Speed: %d,\n Torque Limit Before Profile Speed: %d,\n Torque Limit After Profile Speed: %d\n",
                  regen_current_limit, DC_current_limit, frequency, torque, buffer_speed, base_speed, torque_limit_before_profile_speed, torque_limit_after_profile_speed);
+
     }
 }
 
@@ -602,12 +613,12 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
                         break;
                 }
 
-                // Transmit CAN message
-                if (twai_transmit(&can_message, 1000) == ESP_OK) {
-                    ESP_LOGI(GATTS_TAG, "CAN message transmitted successfully.");
-                } else {
-                    ESP_LOGE(GATTS_TAG, "Failed to transmit CAN message.");
-                }
+                // // Transmit CAN message
+                // if (twai_transmit(&can_message, 1000) == ESP_OK) {
+                //     ESP_LOGI(GATTS_TAG, "CAN message transmitted successfully.");
+                // } else {
+                //     ESP_LOGE(GATTS_TAG, "Failed to transmit CAN message.");
+                // }
 
                 ESP_LOGI(GATTS_TAG, "Payload Length: %d", payload_length);
                 ESP_LOGI(GATTS_TAG, "Payload (6th byte): 0x%02X", payload);
@@ -833,5 +844,5 @@ void app_main(void) {
     // Initialize the CAN bus
     can_init();
     // transmit_task();
-    xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
+    xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 20, NULL);
 }
