@@ -6,8 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.*
@@ -35,6 +39,13 @@ class ReceiveActivity : AppCompatActivity() {
     private var lastdatarecordMode_Ack : Int? = null
     private var lastdatarecordSOC : Double? = null
     private var lastdatarecordSOCAh : Double? = null
+
+    private lateinit var tvCellVol01: TextView
+    private lateinit var tvPackCurr: TextView
+    private lateinit var tvIgnitionStatus: TextView
+    private lateinit var tvMode_Ack: TextView
+    private lateinit var tvSOC: TextView
+    private lateinit var tvSOCAh: TextView
 
     private var saveFileUri: Uri? = null
     private var headersWritten = false
@@ -121,6 +132,40 @@ class ReceiveActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receive)
 
+        tvCellVol01 = findViewById(R.id.tvCellVol01)
+        tvPackCurr = findViewById(R.id.tvPackCurr)
+        tvIgnitionStatus = findViewById(R.id.tvIgnitionStatus)
+        tvMode_Ack = findViewById(R.id.tvMode_Ack)
+        tvSOC = findViewById(R.id.tvSOC)
+        tvSOCAh = findViewById(R.id.tvSOCAh)
+
+        // Setup EditText for search
+        val searchEditText: EditText = findViewById(R.id.searchEditText)
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val searchQuery = s.toString().lowercase(Locale.getDefault())
+        
+                // Map parameter names to their respective TextViews
+                val parameterViews = listOf(
+                    "cellvol01" to tvCellVol01,
+                    "packcurr" to tvPackCurr,
+                    "ignitionstatus" to tvIgnitionStatus,
+                    "mode_ack" to tvMode_Ack,
+                    "soc" to tvSOC,
+                    "socah" to tvSOCAh
+                )
+        
+                // Update visibility for each TextView based on the search query
+                parameterViews.forEach { (paramName, textView) ->
+                    textView.visibility = if (paramName.contains(searchQuery)) View.VISIBLE else View.GONE
+                }
+            }
+        
+            override fun afterTextChanged(s: Editable?) {}
+        })        
+
         dataReceivedView = findViewById(R.id.dataReceivedView)
         val startRecordingButton: Button = findViewById(R.id.startRecordingButton)
         val stopRecordingButton: Button = findViewById(R.id.stopRecordingButton)
@@ -194,10 +239,9 @@ class ReceiveActivity : AppCompatActivity() {
                 val decodedPackCurr = PackCurrDecoder(hexString)
                 val decodedIgnitionStatus = IgnitionStatusDecoder(hexString)
                 val decodedMode_Ack = Mode_AckDecoder(hexString)
-
                 val decodedSOC = SOCDecoder(hexString)
                 val decodedSOCAh = SOCAhDecoder(hexString)
-
+            
                 if (decodedCellVol01 != null) {
                     lastValidCellVol01 = decodedCellVol01
                     lastdatarecordCellVol01 = decodedCellVol01
@@ -214,7 +258,6 @@ class ReceiveActivity : AppCompatActivity() {
                     lastValidMode_Ack = decodedMode_Ack
                     lastdatarecordMode_Ack = decodedMode_Ack
                 }
-
                 if (decodedSOC != null) {
                     lastValidSOC = decodedSOC
                     lastdatarecordSOC = decodedSOC
@@ -222,20 +265,18 @@ class ReceiveActivity : AppCompatActivity() {
                 if (decodedSOCAh != null) {
                     lastValidSOCAh = decodedSOCAh
                     lastdatarecordSOCAh = decodedSOCAh
-                }                          
-
-                runOnUiThread {
-                    dataReceivedView.text = """
-                        CellVol01: ${lastValidCellVol01 ?: "N/A"}
-                        SOC: ${lastValidSOC ?: "N/A"}
-                        PackCurr: ${lastValidPackCurr ?: "N/A"}
-                        IgnitionStatus: ${lastValidIgnitionStatus ?: "N/A"}
-                        Mode_Ack: ${lastValidMode_Ack ?: "N/A"}
-                        SOCAh: ${lastValidSOCAh ?: "N/A"}
-                    """.trimIndent()
                 }
-                
-            }
+            
+                // Update each TextView individually on the UI thread
+                runOnUiThread {
+                    tvCellVol01.text = "CellVol01: ${lastValidCellVol01 ?: "N/A"}"
+                    tvPackCurr.text = "PackCurr: ${lastValidPackCurr ?: "N/A"}"
+                    tvIgnitionStatus.text = "IgnitionStatus: ${lastValidIgnitionStatus ?: "N/A"}"
+                    tvMode_Ack.text = "Mode_Ack: ${lastValidMode_Ack ?: "N/A"}"
+                    tvSOC.text = "SOC: ${lastValidSOC ?: "N/A"}"
+                    tvSOCAh.text = "SOCAh: ${lastValidSOCAh ?: "N/A"}"
+                }
+            }            
         })
     }
 

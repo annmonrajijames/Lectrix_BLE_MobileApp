@@ -4,13 +4,20 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <EditText
+        android:id="@+id/searchEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search parameters" />
+
     <Button
         android:id="@+id/startRecordingButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Start Recording"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="20dp"
+        android:alpha="0" />
 
     <Button
         android:id="@+id/stopRecordingButton"
@@ -18,7 +25,8 @@
         android:layout_height="wrap_content"
         android:text="Stop Recording"
         android:layout_below="@id/startRecordingButton"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:alpha="0" />
 
     <Button
         android:id="@+id/saveLocationButton"
@@ -26,23 +34,71 @@
         android:layout_height="wrap_content"
         android:text="Choose Save Location"
         android:layout_below="@id/stopRecordingButton"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:alpha="0" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/saveLocationButton"
-        android:layout_above="@+id/bottomLayout"
-        android:layout_marginTop="20dp">
+        android:layout_below="@id/searchEditText">
 
-        <TextView
-            android:id="@+id/dataReceivedView"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:text="No data yet" />
+            android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/dataReceivedView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No data yet"
+                android:layout_below="@id/searchEditText"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:id="@+id/tvCellVol01"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CellVol01: N/A"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvPackCurr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PackCurr: N/A"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvIgnitionStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="IgnitionStatus: N/A"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvMode_Ack"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mode_Ack: N/A"
+                android:visibility="gone" />
+            
+            <TextView
+                android:id="@+id/tvSOC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SOC: N/A"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvSOCAh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SOCAh: N/A"
+                android:visibility="gone" />
+
+            <!-- Additional TextViews for each parameter -->
+        </LinearLayout>
     </ScrollView>
 
     <!-- Placeholder for potentially other controls at the bottom -->
