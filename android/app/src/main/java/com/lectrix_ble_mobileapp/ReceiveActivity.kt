@@ -23,14 +23,19 @@ class ReceiveActivity : AppCompatActivity() {
     private lateinit var dataReceivedView: TextView
 
     private var lastValidCellVol01: Double? = null
-    
     private var lastValidPackCurr: Double? = null
     private var lastValidIgnitionStatus: Int? = null
     private var lastValidMode_Ack: Int? = null
-
     private var lastValidSOC: Double? = null
     private var lastValidSOCAh: Double? = null
-    
+
+    private var lastdatarecordCellVol01 : Double? = null
+    private var lastdatarecordPackCurr : Double? = null
+    private var lastdatarecordIgnitionStatus : Int? = null
+    private var lastdatarecordMode_Ack : Int? = null
+    private var lastdatarecordSOC : Double? = null
+    private var lastdatarecordSOCAh : Double? = null
+
     private var saveFileUri: Uri? = null
     private var headersWritten = false
     private var job: Job? = null
@@ -195,22 +200,28 @@ class ReceiveActivity : AppCompatActivity() {
 
                 if (decodedCellVol01 != null) {
                     lastValidCellVol01 = decodedCellVol01
+                    lastdatarecordCellVol01 = decodedCellVol01
                 }
                 if (decodedPackCurr != null) {
                     lastValidPackCurr = decodedPackCurr
+                    lastdatarecordPackCurr = decodedPackCurr
                 }
                 if (decodedIgnitionStatus != null) {
                     lastValidIgnitionStatus = decodedIgnitionStatus
+                    lastdatarecordIgnitionStatus = decodedIgnitionStatus
                 }
                 if (decodedMode_Ack != null) {
                     lastValidMode_Ack = decodedMode_Ack
+                    lastdatarecordMode_Ack = decodedMode_Ack
                 }
 
                 if (decodedSOC != null) {
                     lastValidSOC = decodedSOC
+                    lastdatarecordSOC = decodedSOC
                 }
                 if (decodedSOCAh != null) {
                     lastValidSOCAh = decodedSOCAh
+                    lastdatarecordSOCAh = decodedSOCAh
                 }                          
 
                 runOnUiThread {
@@ -232,12 +243,12 @@ class ReceiveActivity : AppCompatActivity() {
         job = CoroutineScope(Dispatchers.IO).launch {
             while (isActive) {
                     val vehicleMetrics = VehicleMetrics(
-    CellVol01 = lastValidCellVol01,
-    PackCurr = lastValidPackCurr,
-    IgnitionStatus = lastValidIgnitionStatus,
-    Mode_Ack = lastValidMode_Ack,
-    SOC = lastValidSOC,
-    SOCAh = lastValidSOCAh
+    CellVol01 = lastdatarecordCellVol01,
+    PackCurr = lastdatarecordPackCurr,
+    IgnitionStatus = lastdatarecordIgnitionStatus,
+    Mode_Ack = lastdatarecordMode_Ack,
+    SOC = lastdatarecordSOC,
+    SOCAh = lastdatarecordSOCAh
 )
                     saveDataToCSV(vehicleMetrics)
                   
