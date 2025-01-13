@@ -16,8 +16,7 @@
         android:layout_height="wrap_content"
         android:text="Start Recording"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="20dp"
-        android:alpha="0" />
+        android:layout_marginTop="20dp" />
 
     <Button
         android:id="@+id/stopRecordingButton"
@@ -25,8 +24,7 @@
         android:layout_height="wrap_content"
         android:text="Stop Recording"
         android:layout_below="@id/startRecordingButton"
-        android:layout_marginTop="10dp"
-        android:alpha="0" />
+        android:layout_marginTop="10dp" />
 
     <Button
         android:id="@+id/saveLocationButton"
@@ -34,8 +32,7 @@
         android:layout_height="wrap_content"
         android:text="Choose Save Location"
         android:layout_below="@id/stopRecordingButton"
-        android:layout_marginTop="10dp"
-        android:alpha="0" />
+        android:layout_marginTop="10dp" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -46,14 +43,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/dataReceivedView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="No data yet"
-                android:layout_below="@id/searchEditText"
-                android:layout_marginTop="8dp" />
 
             <TextView
                 android:id="@+id/tvCellVol01"

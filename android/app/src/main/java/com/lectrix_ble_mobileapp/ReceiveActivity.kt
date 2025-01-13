@@ -24,8 +24,6 @@ class ReceiveActivity : AppCompatActivity() {
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private var bluetoothGatt: BluetoothGatt? = null
 
-    private lateinit var dataReceivedView: TextView
-
     private var lastValidCellVol01: Double? = null
     private var lastValidPackCurr: Double? = null
     private var lastValidIgnitionStatus: Int? = null
@@ -166,7 +164,6 @@ class ReceiveActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {}
         })        
 
-        dataReceivedView = findViewById(R.id.dataReceivedView)
         val startRecordingButton: Button = findViewById(R.id.startRecordingButton)
         val stopRecordingButton: Button = findViewById(R.id.stopRecordingButton)
         val saveLocationButton: Button = findViewById(R.id.saveLocationButton)
@@ -175,14 +172,14 @@ class ReceiveActivity : AppCompatActivity() {
         if (deviceAddress != null) {
             setupBluetooth(deviceAddress)
         } else {
-            dataReceivedView.text = "Device address not provided"
+            Log.d("Log", "Device address not provided")
         }
 
         startRecordingButton.setOnClickListener {
             if (saveFileUri != null) {
                 startRecording()
             } else {
-                dataReceivedView.text = "Please select a location to save the file first."
+                Log.d("Log", "Please select a location to save the file first.")
             }
         }
 
@@ -209,7 +206,8 @@ class ReceiveActivity : AppCompatActivity() {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     gatt.discoverServices()
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    runOnUiThread { dataReceivedView.text = "Disconnected" }
+                    Log.d("Log", "Disconnected")
+                    
                 }
             }
 
@@ -225,10 +223,10 @@ class ReceiveActivity : AppCompatActivity() {
                         }
                         gatt.writeDescriptor(descriptor)
                     } else {
-                        runOnUiThread { dataReceivedView.text = "Service/Characteristic not found" }
+                        Log.d("Log", "Service/Characteristic not found")
                     }
                 } else {
-                    runOnUiThread { dataReceivedView.text = "Service discovery failed" }
+                    Log.d("Log", "Service discovery failed")
                 }
             }
 
@@ -301,7 +299,7 @@ class ReceiveActivity : AppCompatActivity() {
     private fun stopRecording() {
         job?.cancel()
         runOnUiThread {
-            dataReceivedView.text = "Recording stopped."
+            Log.d("Log", "Recording stopped.")
         }
     }
     data class VehicleMetrics(
@@ -346,7 +344,7 @@ class ReceiveActivity : AppCompatActivity() {
                     uri,
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-                dataReceivedView.text = "File save location selected."
+                Log.d("Log", "File save location selected.")
             }
         }
     }
