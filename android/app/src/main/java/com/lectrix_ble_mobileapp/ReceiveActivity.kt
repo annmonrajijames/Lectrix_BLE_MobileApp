@@ -129,22 +129,23 @@ class ReceiveActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receive)
-
-        tvCellVol01 = findViewById(R.id.tvCellVol01)
-        tvPackCurr = findViewById(R.id.tvPackCurr)
-        tvIgnitionStatus = findViewById(R.id.tvIgnitionStatus)
-        tvMode_Ack = findViewById(R.id.tvMode_Ack)
-        tvSOC = findViewById(R.id.tvSOC)
-        tvSOCAh = findViewById(R.id.tvSOCAh)
-
+    
+        // Initialize and set all TextViews to be visible
+        tvCellVol01 = findViewById<TextView>(R.id.tvCellVol01).apply { visibility = View.VISIBLE }
+        tvPackCurr = findViewById<TextView>(R.id.tvPackCurr).apply { visibility = View.VISIBLE }
+        tvIgnitionStatus = findViewById<TextView>(R.id.tvIgnitionStatus).apply { visibility = View.VISIBLE }
+        tvMode_Ack = findViewById<TextView>(R.id.tvMode_Ack).apply { visibility = View.VISIBLE }
+        tvSOC = findViewById<TextView>(R.id.tvSOC).apply { visibility = View.VISIBLE }
+        tvSOCAh = findViewById<TextView>(R.id.tvSOCAh).apply { visibility = View.VISIBLE }
+    
         // Setup EditText for search
         val searchEditText: EditText = findViewById(R.id.searchEditText)
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-        
+    
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val searchQuery = s.toString().lowercase(Locale.getDefault())
-        
+    
                 // Map parameter names to their respective TextViews
                 val parameterViews = listOf(
                     "cellvol01" to tvCellVol01,
@@ -154,43 +155,43 @@ class ReceiveActivity : AppCompatActivity() {
                     "soc" to tvSOC,
                     "socah" to tvSOCAh
                 )
-        
+    
                 // Update visibility for each TextView based on the search query
                 parameterViews.forEach { (paramName, textView) ->
-                    textView.visibility = if (paramName.contains(searchQuery)) View.VISIBLE else View.GONE
+                    textView.visibility = if (searchQuery.isEmpty() || paramName.contains(searchQuery)) View.VISIBLE else View.GONE
                 }
             }
-        
+    
             override fun afterTextChanged(s: Editable?) {}
-        })        
-
+        })
+    
         val startRecordingButton: Button = findViewById(R.id.startRecordingButton)
         val stopRecordingButton: Button = findViewById(R.id.stopRecordingButton)
         val saveLocationButton: Button = findViewById(R.id.saveLocationButton)
-
+    
         val deviceAddress = intent.getStringExtra(DEVICE_ADDRESS)
         if (deviceAddress != null) {
             setupBluetooth(deviceAddress)
         } else {
-            Log.d("Log", "Device address not provided")
+            Log.d(TAG, "Device address not provided")
         }
-
+    
         startRecordingButton.setOnClickListener {
             if (saveFileUri != null) {
                 startRecording()
             } else {
-                Log.d("Log", "Please select a location to save the file first.")
+                Log.d(TAG, "Please select a location to save the file first.")
             }
         }
-
+    
         stopRecordingButton.setOnClickListener {
             stopRecording()
         }
-
+    
         saveLocationButton.setOnClickListener {
             openDirectoryChooser()
         }
-    }
+    }    
 
     private fun setupBluetooth(deviceAddress: String) {
         bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
