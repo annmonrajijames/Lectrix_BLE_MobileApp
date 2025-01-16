@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <!-- Search box -->
     <EditText
         android:id="@+id/searchEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Search parameters" />
 
+    <!-- Start/Stop/Save Location buttons -->
     <Button
         android:id="@+id/startRecordingButton"
         android:layout_width="match_parent"
@@ -34,59 +37,176 @@
         android:layout_below="@id/stopRecordingButton"
         android:layout_marginTop="10dp" />
 
+    <!-- New buttons: Enable Selection, Show Selected Parameters -->
+    <Button
+        android:id="@+id/enableSelectionButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enable Selection"
+        android:layout_below="@id/saveLocationButton"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        android:id="@+id/showSelectedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Show Selected Parameters"
+        android:layout_below="@id/enableSelectionButton"
+        android:layout_marginTop="10dp" />
+
+    <!-- ScrollView for parameter rows (below the new buttons) -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/searchEditText">
+        android:layout_below="@id/showSelectedButton"
+        android:layout_marginTop="20dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvCellVol01"
+            <!-- Row for CellVol01 -->
+            <LinearLayout
+                android:id="@+id/rowCellVol01"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="CellVol01: N/A"
-                android:visibility="gone" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tvPackCurr"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="PackCurr: N/A"
-                android:visibility="gone" />
+                <!-- CheckBox hidden by default -->
+                <CheckBox
+                    android:id="@+id/cbCellVol01"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/tvIgnitionStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="IgnitionStatus: N/A"
-                android:visibility="gone" />
+                <!-- TextView visible by default -->
+                <TextView
+                    android:id="@+id/tvCellVol01"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="CellVol01: N/A"
+                    android:visibility="visible"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvMode_Ack"
+            <!-- Row for PackCurr -->
+            <LinearLayout
+                android:id="@+id/rowPackCurr"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Mode_Ack: N/A"
-                android:visibility="gone" />
-            
-            <TextView
-                android:id="@+id/tvSOC"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="SOC: N/A"
-                android:visibility="gone" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tvSOCAh"
+                <CheckBox
+                    android:id="@+id/cbPackCurr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvPackCurr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="PackCurr: N/A"
+                    android:visibility="visible"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
+
+            <!-- Row for IgnitionStatus -->
+            <LinearLayout
+                android:id="@+id/rowIgnitionStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="SOCAh: N/A"
-                android:visibility="gone" />
+                android:orientation="horizontal">
 
-            <!-- Additional TextViews for each parameter -->
+                <CheckBox
+                    android:id="@+id/cbIgnitionStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvIgnitionStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="IgnitionStatus: N/A"
+                    android:visibility="visible"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
+
+            <!-- Row for Mode_Ack -->
+            <LinearLayout
+                android:id="@+id/rowModeAck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/cbModeAck"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvMode_Ack"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Mode_Ack: N/A"
+                    android:visibility="visible"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
+
+            <!-- Row for SOC -->
+            <LinearLayout
+                android:id="@+id/rowSOC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/cbSOC"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvSOC"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="SOC: N/A"
+                    android:visibility="visible"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
+
+            <!-- Row for SOCAh -->
+            <LinearLayout
+                android:id="@+id/rowSOCAh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/cbSOCAh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvSOCAh"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="SOCAh: N/A"
+                    android:visibility="visible"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
+
+            <!-- Additional rows for other parameters, if needed -->
         </LinearLayout>
     </ScrollView>
 
