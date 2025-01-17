@@ -1137,11 +1137,26 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 static void twai_receive_task(void *arg) {
     ESP_LOGI("TWAI Receiver", "Starting TWAI receive task");
     twai_message_t message;
+
+    static TickType_t last_received_0x08 = 0;
+    static TickType_t last_received_0x0C = 0;
+
+    // Initialize last-received timestamps to "now"
+    TickType_t now = xTaskGetTickCount();
+    last_received_0x08 = now;
+    last_received_0x0C = now;
+
+    // Define your timeouts in ticks (e.g., 300 ms => 300 ms worth of ticks)
+    const TickType_t TIMEOUT_0x08 = pdMS_TO_TICKS(400);
+    const TickType_t TIMEOUT_0x0C = pdMS_TO_TICKS(400);
+
     while (1) {
+        // Wait up to 50 ms for ANY message
         if (twai_receive(&message, pdMS_TO_TICKS(50)) == ESP_OK) {
             ESP_LOGI("TWAI Receiver", "CAN ID : 0x%08" PRIx32, message.identifier);
             switch (message.identifier) {
                 case 0x8: // CAN #22
+                    last_received_0x08 = xTaskGetTickCount();
                     byte_178 = message.data[0]; // SOC
                     byte_179 = message.data[5]; // SOH
                     byte_180 = message.data[6]; // FetTemp
@@ -1153,6 +1168,7 @@ static void twai_receive_task(void *arg) {
                     byte_186 = message.data[7];
                     break;
                 case 0xC: // CAN #26
+                    last_received_0x0C = xTaskGetTickCount();
                     byte_212 = message.data[0];
                     byte_213 = message.data[1];
                     byte_214 = message.data[2];
@@ -1170,6 +1186,23 @@ static void twai_receive_task(void *arg) {
         } else {
             ESP_LOGE("TWAI Receiver", "Failed to receive message");
         }
+
+        // After attempting to receive, check if we timed out on 0x08
+        TickType_t current_time = xTaskGetTickCount();
+
+        // For ID 0x08
+        if ((current_time - last_received_0x08) > TIMEOUT_0x08) {
+            ESP_LOGE("TWAI Receiver", "CAN ID 0x08 not received in last 400 ms!");
+            // Optionally, do something else (set a flag, notify another task, etc.)
+        }
+
+        // For ID 0x0C
+        if ((current_time - last_received_0x0C) > TIMEOUT_0x0C) {
+            ESP_LOGE("TWAI Receiver", "CAN ID 0x0C not received in last 400 ms!");
+        }
+
+        // Optional: A small delay to avoid spinning the CPU too hard
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 
