@@ -43,7 +43,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
     const serviceUUID = '00FF';
     const characteristicUUID = 'FF01';
 
-    const customModeHex = convertDecimalToHex(customModeCurrLimit.toString());
+    const customModeHex = convertDecimalToHex(RegenLimit.toString());
 
     if (!customModeHex) {
       return; // Stops the process if input is invalid
@@ -101,7 +101,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
     const serviceUUID = '00FF';
     const characteristicUUID = 'FF01';
 
-    const customModeHex = convertDecimalToHex(customModeCurrLimit.toString());
+    const customModeHex = convertDecimalToHex(frequency.toString());
 
     if (!customModeHex) {
       return; // Stops the process if input is invalid
@@ -280,7 +280,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Text style={styles.label}>Custom Mode (0-255 Regen)</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-255"
+        placeholder="0-40"
         placeholderTextColor="#808080"
         value={RegenLimit.toString()}
         onChangeText={text => setRegenLimit(parseInt(text) || 0)}
@@ -290,7 +290,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={40}
         step={1}
         value={RegenLimit}
         onValueChange={(value) => setRegenLimit(value)}
@@ -302,7 +302,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Text style={styles.label}>Current Limit</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-255"
+        placeholder="0-110"
         placeholderTextColor="#808080"
         value={customModeCurrLimit.toString()}
         onChangeText={text => setCustomModeCurrLimit(parseInt(text) || 0)}
@@ -312,7 +312,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={110}
         step={1}
         value={customModeCurrLimit}
         onValueChange={(value) => setCustomModeCurrLimit(value)}
@@ -324,7 +324,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Text style={styles.label}>Frequency</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-255"
+        placeholder="0-400"
         placeholderTextColor="#808080"
         value={frequency.toString()}
         onChangeText={text => setFrequency(parseInt(text) || 0)}
@@ -334,7 +334,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={400}
         step={1}
         value={frequency}
         onValueChange={(value) => setFrequency(value)}
@@ -347,7 +347,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Text style={styles.label}>Torque</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-255"
+        placeholder="0-100"
         placeholderTextColor="#808080"
         value={torqe.toString()}
         onChangeText={text => setTorque(parseInt(text) || 0)}
@@ -357,7 +357,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={100}
         step={1}
         value={torqe}
         onValueChange={(value) => setTorque(value)}
@@ -369,7 +369,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Text style={styles.label}>Buffer Speed</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-255"
+        placeholder="0-1000"
         placeholderTextColor="#808080"
         value={bufferSpeed.toString()}
         onChangeText={text => setBufferSpeed(parseInt(text) || 0)}
@@ -379,7 +379,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={1000}
         step={1}
         value={bufferSpeed}
         onValueChange={(value) => setBufferSpeed(value)}
@@ -391,7 +391,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Text style={styles.label}>Base Speed</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-255"
+        placeholder="0-1000"
         placeholderTextColor="#808080"
         value={baseSpeed.toString()}
         onChangeText={text => setBaseSpeed(parseInt(text) || 0)}
@@ -401,7 +401,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={1000}
         step={1}
         value={baseSpeed}
         onValueChange={(value) => setBaseSpeed(value)}
@@ -413,7 +413,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Text style={styles.label}>torque_limit_before_profile_speed</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-255"
+        placeholder="0-200"
         placeholderTextColor="#808080"
         value={torque_limit_before_profile_speed.toString()}
         onChangeText={text => settorque_limit_before_profile_speed(parseInt(text) || 0)}
@@ -423,7 +423,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={200}
         step={1}
         value={torque_limit_before_profile_speed}
         onValueChange={(value) => settorque_limit_before_profile_speed(value)}
@@ -435,7 +435,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Text style={styles.label}>torque_limit_after_profile_speed</Text>
       <TextInput
         style={styles.input}
-        placeholder="0-255"
+        placeholder="0-100"
         placeholderTextColor="#808080"
         value={torque_limit_after_profile_speed.toString()}
         onChangeText={text => settorque_limit_after_profile_speed(parseInt(text) || 0)}
@@ -445,7 +445,7 @@ const RegenLimit: React.FC<RegenLimitProps> = ({ route }) => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={100}
         step={1}
         value={torque_limit_after_profile_speed}
         onValueChange={(value) => settorque_limit_after_profile_speed(value)}
