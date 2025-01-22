@@ -1902,6 +1902,7 @@ static void twai_receive_task(void *arg) {
 
         // For ID 0x18530902 // MCU CAN loss
         if ((current_time - last_received_0x18530902) > TIMEOUT_0x018530902) {
+            // CAN 0x18530902
             byte_27 = 0;
             byte_28 = 0;
             byte_29 = 0;
@@ -1910,6 +1911,50 @@ static void twai_receive_task(void *arg) {
             byte_32 = 0;
             byte_33 = 0;
             byte_34 = 0;
+
+            // CAN 0x14520902
+            // byte_01=0x1; is to identify the packet number
+            byte_02 = 0;
+            byte_03 = 0;
+            byte_04 = 0;
+            byte_05 = 0;
+            byte_06 = 0;
+            byte_07 = 0;
+            byte_08 = 0;
+            byte_09 = 0;
+
+            // CAN 0x14520903
+            byte_10 = 0;
+            byte_11 = 0;
+            byte_12 = 0;
+            byte_13 = 0;
+            byte_14 = 0;
+            byte_15 = 0;
+            byte_16 = 0;
+            byte_17 = 0;
+
+            // CAN 0x14520904
+            byte_18 = 0;
+            byte_19 = 0;
+            byte_20 = 0;
+         // byte_21=0x2; is to identify the packet number
+            byte_22 = 0;
+            byte_23 = 0;
+            byte_24 = 0;
+            byte_25 = 0;
+            byte_26 = 0;
+
+            // CAN 0x18530903
+            byte_35 = 0; // MCU_Temperature
+            byte_36 = 0; // MCU_Temperature
+            byte_37 = 0; // Motor_Temperature
+            byte_38 = 0; // MCU_Fault_Code
+            byte_39 = 0; // MCU_ID
+            byte_40 = 0; // MCU_ID
+            // byte_41=0x3; is to identify the packet number
+            byte_42 = 0;
+            byte_43 = 0;
+
             ESP_LOGE("TWAI Receiver", "CAN ID 0x18530902 not received in last 400 ms!");
         }
 
