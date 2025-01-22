@@ -1668,6 +1668,7 @@ static void twai_receive_task(void *arg) {
 
         // For ID 0x01 // battery CAN loss
         if ((current_time - last_received_0x01) > TIMEOUT_0x01) {
+            // CAN 0x1
             byte_128 = 0;
             byte_129 = 0;
             byte_130 = 0;
@@ -1676,6 +1677,225 @@ static void twai_receive_task(void *arg) {
             byte_133 = 0;
             byte_134 = 0;
             byte_135 = 0;
+
+            // CAN 0x2
+            byte_187 = 0;
+            byte_188 = 0;
+            byte_189 = 0;
+            byte_190 = 0;
+            byte_191 = 0;
+            byte_192 = 0;
+            byte_193 = 0;
+            byte_194 = 0;
+
+            // CAN 0x3
+            byte_145 = 0;
+            byte_146 = 0;
+            byte_147 = 0;
+            byte_148 = 0;
+            byte_149 = 0;
+            byte_150 = 0;
+            byte_151 = 0;
+            byte_152 = 0;
+
+            // CAN 0x4
+            byte_153 = 0;
+            byte_154 = 0;
+            byte_155 = 0;
+            byte_156 = 0;
+            byte_157 = 0;
+            byte_158 = 0;
+            byte_159 = 0;
+            byte_160 = 0;
+
+            // CAN 0x5
+            // byte_161=0x9; is to identify the packet number
+            byte_162 = 0;
+            byte_163 = 0;
+            byte_164 = 0;
+            byte_165 = 0;
+            byte_166 = 0;
+            byte_167 = 0;
+            byte_168 = 0;
+            byte_169 = 0;
+
+            // CAN 0x6
+            byte_170 = 0;
+            byte_171 = 0;
+            byte_172 = 0;
+            byte_173 = 0;
+            byte_174 = 0;
+            byte_175 = 0;
+            byte_176 = 0;
+            byte_177 = 0;
+
+            // CAN 0x8
+            byte_178 = 0; // SOC
+            byte_179 = 0; // SOH
+            byte_180 = 0; // FetTemp
+            // byte_181=0x10; is to identify the packet number
+            byte_182 = 0; // SOCAh
+            byte_183 = 0; // SOCAh
+            byte_184 = 0; // SOCAh
+            byte_185 = 0; // SOCAh
+            byte_186 = 0;
+
+            // CAN 0x7
+            byte_136 = 0;
+            byte_137 = 0;
+            byte_138 = 0;
+            byte_139 = 0;
+            byte_140 = 0;
+            // byte_141=0x8; is to identify the packet number
+            byte_142 = 0;
+            byte_143 = 0;
+            byte_144 = 0;
+
+            // CAN 0x9
+            byte_195 = 0;
+            byte_196 = 0;
+            byte_197 = 0;
+            byte_198 = 0;
+            byte_199 = 0;
+            byte_200 = 0;
+            // byte_201=0x11; is to identify the packet number
+            byte_202 = 0;
+            byte_203 = 0;
+
+            // CAN 0xA
+            byte_204 = 0;
+            byte_205 = 0;
+            byte_206 = 0;
+            byte_207 = 0;
+            byte_208 = 0;
+            byte_209 = 0;
+            byte_210 = 0;
+            byte_211 = 0;
+
+            // CAN 0xC
+            byte_212 = 0;
+            byte_213 = 0;
+            byte_214 = 0;
+            byte_215 = 0;
+            byte_216 = 0;
+            byte_217 = 0;
+            byte_218 = 0;
+            byte_219 = 0;
+
+            // CAN 0xD
+            byte_111 = 0;
+            byte_112 = 0;
+            byte_113 = 0;
+            byte_114 = 0;
+            byte_115 = 0;
+            byte_116 = 0;
+            byte_117 = 0;
+            byte_118 = 0;
+
+            // CAN 0xE
+            byte_229 = 0;
+            byte_230 = 0;
+            byte_231 = 0;
+            byte_232 = 0;
+            byte_233 = 0;
+            byte_234 = 0;
+            byte_235 = 0;
+            byte_236 = 0;
+
+            // CAN 0xF
+            byte_237 = 0;
+            byte_238 = 0;
+            byte_239 = 0;
+            byte_240 = 0;
+            // byte_241=0x13; is to identify the packet number
+            byte_242 = 0;
+            byte_243 = 0;
+            byte_244 = 0;
+            byte_245 = 0;
+
+            // CAN 0x10
+            byte_246 = 0;
+            byte_247 = 0;
+            byte_248 = 0;
+            byte_249 = 0;
+            byte_250 = 0;
+            byte_251 = 0;
+            byte_252 = 0;
+            byte_253 = 0;
+
+            // CAN 0x12
+            byte_271 = 0;
+            byte_272 = 0;
+            byte_273 = 0;
+            byte_274 = 0;
+            byte_275 = 0;
+            byte_276 = 0;
+            byte_277 = 0;
+            byte_278 = 0;
+
+            // CAN 0x15
+            byte_263 = 0;
+            byte_264 = 0;
+            byte_265 = 0;
+            byte_266 = 0;
+            byte_267 = 0;
+            byte_268 = 0;
+            byte_269 = 0;
+            byte_270 = 0;
+
+            // CAN 0xBB
+            byte_254 = 0;
+            byte_255 = 0;
+            byte_256 = 0;
+            byte_257 = 0;
+            byte_258 = 0;
+            byte_259 = 0;
+            byte_260 = 0;
+            // byte_261=0x14; is to identify the packet number
+            byte_262 = 0;
+
+            // CAN 0xBE
+            byte_279 = 0;
+            byte_280 = 0;
+            // byte_281=0x15; is to identify the packet number
+            byte_282 = 0;
+            byte_283 = 0;
+            byte_284 = 0;
+            byte_285 = 0;
+            byte_286 = 0;
+            byte_287 = 0;
+
+            // CAN 0xC3
+            byte_288 = 0;
+            byte_289 = 0;
+            byte_290 = 0;
+            byte_291 = 0;
+            byte_292 = 0;
+            byte_293 = 0;
+            byte_294 = 0;
+            byte_295 = 0;
+
+            // CAN 0x601
+            byte_296 = 0;
+            byte_297 = 0;
+            byte_298 = 0;
+            byte_299 = 0;
+            byte_300 = 0;
+            // byte_301=0x16; is to identify the packet number
+            byte_302 = 0;
+            byte_303 = 0;
+            byte_304 = 0;
+
+            // CAN 0xB
+            byte_305 = 0;
+            byte_306 = 0;
+            byte_307 = 0;
+            byte_308 = 0;
+            byte_309 = 0;
+            byte_310 = 0;
+            byte_311 = 0;
+            byte_312 = 0;
+
             ESP_LOGE("TWAI Receiver", "CAN ID 0x01 not received in last 400 ms!");
             // Optionally, do something else (set a flag, notify another task, etc.)
         }
