@@ -1139,17 +1139,17 @@ static void twai_receive_task(void *arg) {
     ESP_LOGI("TWAI Receiver", "Starting TWAI receive task");
     twai_message_t message;
 
-    static TickType_t last_received_0x08 = 0;
-    static TickType_t last_received_0x0C = 0;
+    static TickType_t last_received_0x01 = 0;
+    static TickType_t last_received_0x18530902 = 0;
 
     // Initialize last-received timestamps to "now"
     TickType_t now = xTaskGetTickCount();
-    last_received_0x08 = now;
-    last_received_0x0C = now;
+    last_received_0x01 = now;
+    last_received_0x18530902 = now;
 
-    // Define your timeouts in ticks (e.g., 300 ms => 300 ms worth of ticks)
-    const TickType_t TIMEOUT_0x08 = pdMS_TO_TICKS(400);
-    const TickType_t TIMEOUT_0x0C = pdMS_TO_TICKS(400);
+    // Define your timeouts in ticks (e.g., 400 ms => 400 ms worth of ticks)
+    const TickType_t TIMEOUT_0x01 = pdMS_TO_TICKS(400);
+    const TickType_t TIMEOUT_0x018530902 = pdMS_TO_TICKS(400);
 
     while (1) {
         // Wait up to 50 ms for ANY message
@@ -1189,7 +1189,8 @@ static void twai_receive_task(void *arg) {
                     byte_25 = message.data[6];
                     byte_26 = message.data[7];
                     break;
-                case 0x18530902: // CAN #4
+                case 0x18530902: // CAN #4 // Take this for MCU CAN LOSS
+                    last_received_0x18530902 = xTaskGetTickCount();
                     byte_27 = message.data[0];
                     byte_28 = message.data[1];
                     byte_29 = message.data[2];
@@ -1314,7 +1315,8 @@ static void twai_receive_task(void *arg) {
                     byte_126 = message.data[6];
                     byte_127 = message.data[7];
                     break;
-                case 0x1: // CAN #16
+                case 0x1: // CAN #16 // Take this ID for CAN loss for Battery
+                    last_received_0x01 = xTaskGetTickCount();
                     byte_128 = message.data[0];
                     byte_129 = message.data[1];
                     byte_130 = message.data[2];
@@ -1376,8 +1378,7 @@ static void twai_receive_task(void *arg) {
                     byte_176 = message.data[6];
                     byte_177 = message.data[7];
                     break;
-                case 0x8: // CAN #22
-                    last_received_0x08 = xTaskGetTickCount();
+                case 0x8: // CAN #22            
                     byte_178 = message.data[0]; // SOC
                     byte_179 = message.data[5]; // SOH
                     byte_180 = message.data[6]; // FetTemp
@@ -1422,7 +1423,6 @@ static void twai_receive_task(void *arg) {
                     break;
 
                 case 0xC: // CAN #26
-                    last_received_0x0C = xTaskGetTickCount();
                     byte_212 = message.data[0];
                     byte_213 = message.data[1];
                     byte_214 = message.data[2];
@@ -1663,27 +1663,34 @@ static void twai_receive_task(void *arg) {
             ESP_LOGE("TWAI Receiver", "Failed to receive message");
         }
 
-        // After attempting to receive, check if we timed out on 0x08
+        // After attempting to receive, check if we timed out on 0x01
         TickType_t current_time = xTaskGetTickCount();
 
-        // For ID 0x08
-        if ((current_time - last_received_0x08) > TIMEOUT_0x08) {
-            byte_178 = 0; // SOC
-            byte_179 = 0; // SOH
-            byte_180 = 0; // FetTemp
-            // byte_181=0x10; is to identify the packet number
-            byte_182 = 0; // SOCAh
-            byte_183 = 0; // SOCAh
-            byte_184 = 0; // SOCAh
-            byte_185 = 0; // SOCAh
-            byte_186 = 0;
-            ESP_LOGE("TWAI Receiver", "CAN ID 0x08 not received in last 400 ms!");
+        // For ID 0x01 // battery CAN loss
+        if ((current_time - last_received_0x01) > TIMEOUT_0x01) {
+            byte_128 = 0;
+            byte_129 = 0;
+            byte_130 = 0;
+            byte_131 = 0;
+            byte_132 = 0;
+            byte_133 = 0;
+            byte_134 = 0;
+            byte_135 = 0;
+            ESP_LOGE("TWAI Receiver", "CAN ID 0x01 not received in last 400 ms!");
             // Optionally, do something else (set a flag, notify another task, etc.)
         }
 
-        // For ID 0x0C
-        if ((current_time - last_received_0x0C) > TIMEOUT_0x0C) {
-            ESP_LOGE("TWAI Receiver", "CAN ID 0x0C not received in last 400 ms!");
+        // For ID 0x18530902 // MCU CAN loss
+        if ((current_time - last_received_0x18530902) > TIMEOUT_0x018530902) {
+            byte_27 = 0;
+            byte_28 = 0;
+            byte_29 = 0;
+            byte_30 = 0;
+            byte_31 = 0;
+            byte_32 = 0;
+            byte_33 = 0;
+            byte_34 = 0;
+            ESP_LOGE("TWAI Receiver", "CAN ID 0x18530902 not received in last 400 ms!");
         }
 
         // Optional: A small delay to avoid spinning the CPU too hard
