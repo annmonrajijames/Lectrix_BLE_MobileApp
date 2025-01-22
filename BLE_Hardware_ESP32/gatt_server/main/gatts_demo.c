@@ -1153,8 +1153,9 @@ static void twai_receive_task(void *arg) {
 
     while (1) {
         // Wait up to 50 ms for ANY message
-        if (twai_receive(&message, pdMS_TO_TICKS(50)) == ESP_OK) {
+        if (twai_receive(&message, pdMS_TO_TICKS(400)) == ESP_OK) {
             ESP_LOGI("TWAI Receiver", "CAN ID : 0x%08" PRIx32, message.identifier);
+            while (twai_receive(&message, 0) == ESP_OK) {
             switch (message.identifier) {
                 case 0x14520902: // CAN #1
                  // byte_01=0x1; is to identify the packet number
@@ -1656,6 +1657,7 @@ static void twai_receive_task(void *arg) {
                 default:
                     ESP_LOGI("TWAI Receiver", "Unknown CAN ID: 0x%08" PRIx32, message.identifier);
                     break;
+            }
             }
         } else {
             ESP_LOGE("TWAI Receiver", "Failed to receive message");
