@@ -1142,17 +1142,20 @@ static void twai_receive_task(void *arg) {
     static TickType_t last_received_0x01 = 0;
     static TickType_t last_received_0x18530902 = 0;
     static TickType_t last_received_0x400 = 0;
+    static TickType_t last_received_0x18F20315 = 0;
 
     // Initialize last-received timestamps to "now"
     TickType_t now = xTaskGetTickCount();
     last_received_0x01 = now;
     last_received_0x18530902 = now;
     last_received_0x400 = now;
+    last_received_0x18F20315 = now;
 
     // Define your timeouts in ticks (e.g., 400 ms => 400 ms worth of ticks)
     const TickType_t TIMEOUT_0x01 = pdMS_TO_TICKS(400);
     const TickType_t TIMEOUT_0x18530902 = pdMS_TO_TICKS(400);
     const TickType_t TIMEOUT_0x400 = pdMS_TO_TICKS(400);
+    const TickType_t TIMEOUT_0x18F20315 = pdMS_TO_TICKS(400);
 
     while (1) {
         // Wait up to 50 ms for ANY message
@@ -1266,7 +1269,8 @@ static void twai_receive_task(void *arg) {
                     byte_84 = message.data[6];
                     byte_85 = message.data[7];
                     break;
-                case 0x18F20315: // CAN #11
+                case 0x18F20315: // CAN #11 // Take this ID for CAN loss for Cluster
+                    last_received_0x18F20315 = xTaskGetTickCount();
                     byte_86 = message.data[0];
                     byte_87 = message.data[1];
                     byte_88 = message.data[2];
@@ -2056,6 +2060,32 @@ static void twai_receive_task(void *arg) {
             byte_395 = 0;
             byte_396 = 0;
 
+            ESP_LOGE("TWAI Receiver", "CAN ID 0x01 not received in last 400 ms!");
+            // Optionally, do something else (set a flag, notify another task, etc.)
+        }
+
+        // For ID 0x18F20315 // Cluster CAN loss
+        if ((current_time - last_received_0x18F20315) > TIMEOUT_0x18F20315) {
+            // CAN 0x18F20315
+            byte_86 = 0;
+            byte_87 = 0;
+            byte_88 = 0;
+            byte_89 = 0;
+            byte_90 = 0;
+            byte_91 = 0;
+            byte_92 = 0;
+            byte_93 = 0;
+
+            // CAN 0x18F20316
+            byte_94 = 0;
+            byte_95 = 0;
+            byte_96 = 0;
+            byte_97 = 0;
+            byte_98 = 0;
+            byte_99 = 0;
+            byte_100 = 0;
+         // byte_101=0x6; is to identify the packet number
+            byte_102 = 0;
             ESP_LOGE("TWAI Receiver", "CAN ID 0x01 not received in last 400 ms!");
             // Optionally, do something else (set a flag, notify another task, etc.)
         }
