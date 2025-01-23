@@ -1217,7 +1217,7 @@ static void twai_receive_task(void *arg) {
                     byte_42 = message.data[6]; 
                     byte_43 = message.data[7]; 
                     break;
-                case 0x19A: // CAN #6
+                case 0x19A: // CAN #6 // MISSED // Broadcasting
                     byte_44 = message.data[0];
                     byte_45 = message.data[1];
                     byte_46 = message.data[2];
@@ -1227,7 +1227,7 @@ static void twai_receive_task(void *arg) {
                     byte_50 = message.data[6];
                     byte_51 = message.data[7];
                     break;
-                case 0x18F20309: // CAN #7
+                case 0x18F20309: // CAN #7 // MISSED // VCU
                     byte_52 = message.data[0];
                     byte_53 = message.data[1];
                     byte_54 = message.data[2];
@@ -1237,7 +1237,7 @@ static void twai_receive_task(void *arg) {
                     byte_58 = message.data[6];
                     byte_59 = message.data[7];
                     break;
-                case 0x18F20311: // CAN #8
+                case 0x18F20311: // CAN #8 // MISSED //VCU
                     byte_60 = message.data[4]; // Initial Torque
                  // byte_61=0x4; is to identify the packet number
                     byte_62 = message.data[5]; // Final Torque
@@ -1248,7 +1248,7 @@ static void twai_receive_task(void *arg) {
                     byte_67 = message.data[6];
                     byte_68 = message.data[7];
                     break;
-                case 0x18F20312: // CAN #9
+                case 0x18F20312: // CAN #9 // MISSED
                     byte_69 = message.data[0];
                     byte_70 = message.data[1];
                     byte_71 = message.data[2];
@@ -1258,7 +1258,7 @@ static void twai_receive_task(void *arg) {
                     byte_75 = message.data[6];
                     byte_76 = message.data[7];
                     break;
-                case 0x18F20313: // CAN #10
+                case 0x18F20313: // CAN #10 // MISSED
                     byte_77 = message.data[0];
                     byte_78 = message.data[1];
                     byte_79 = message.data[2];
@@ -1311,7 +1311,7 @@ static void twai_receive_task(void *arg) {
                     byte_117 = message.data[6];
                     byte_118 = message.data[7];
                     break;
-                case 0x18F20314: // CAN #15
+                case 0x18F20314: // CAN #15 // MISSED // VCU
                     byte_119 = message.data[0];
                     byte_120 = message.data[1];
                  // byte_121=0x7; is to identify the packet number
@@ -1556,7 +1556,7 @@ static void twai_receive_task(void *arg) {
                     byte_311 = message.data[6];
                     byte_312 = message.data[7];
                     break;
-                case 0x712: // CAN #38
+                case 0x712: // CAN #38 // MISSED // Broadcasting
                     byte_313 = message.data[0];
                     byte_314 = message.data[1];
                     byte_315 = message.data[2];
@@ -1566,7 +1566,7 @@ static void twai_receive_task(void *arg) {
                     byte_319 = message.data[6];
                     byte_320 = message.data[7];
                     break;
-                case 0x713: // CAN #39
+                case 0x713: // CAN #39 MISSED // Broadcasting
                  // byte_321=0x17; is to identify the packet number
                     byte_322 = message.data[0];
                     byte_323 = message.data[1];
@@ -1821,7 +1821,7 @@ static void twai_receive_task(void *arg) {
             byte_244 = 0;
             byte_245 = 0;
 
-            // CAN 0x10
+            // CAN 0x10 
             byte_246 = 0;
             byte_247 = 0;
             byte_248 = 0;
@@ -1903,6 +1903,27 @@ static void twai_receive_task(void *arg) {
             byte_310 = 0;
             byte_311 = 0;
             byte_312 = 0;
+
+            // CAN 0x18F20310
+            byte_220 = 0;
+         // byte_221=0x12; is to identify the packet number
+            byte_222 = 0;
+            byte_223 = 0;
+            byte_224 = 0;
+            byte_225 = 0;
+            byte_226 = 0;
+            byte_227 = 0;
+            byte_228 = 0;
+
+            // CAN 0x18F60101
+            byte_103 = 0;
+            byte_104 = 0;
+            byte_105 = 0;
+            byte_106 = 0;
+            byte_107 = 0;
+            byte_108 = 0;
+            byte_109 = 0;
+            byte_110 = 0;
 
             ESP_LOGE("TWAI Receiver", "CAN ID 0x01 not received in last 400 ms!");
             // Optionally, do something else (set a flag, notify another task, etc.)
