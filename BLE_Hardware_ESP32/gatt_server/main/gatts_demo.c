@@ -1248,7 +1248,7 @@ static void twai_receive_task(void *arg) {
                     byte_67 = message.data[6];
                     byte_68 = message.data[7];
                     break;
-                case 0x18F20312: // CAN #9 // MISSED
+                case 0x18F20312: // CAN #9 // MISSED // WRONG
                     byte_69 = message.data[0];
                     byte_70 = message.data[1];
                     byte_71 = message.data[2];
@@ -1258,7 +1258,7 @@ static void twai_receive_task(void *arg) {
                     byte_75 = message.data[6];
                     byte_76 = message.data[7];
                     break;
-                case 0x18F20313: // CAN #10 // MISSED
+                case 0x18F20313: // CAN #10 // MISSED // WRONG
                     byte_77 = message.data[0];
                     byte_78 = message.data[1];
                     byte_79 = message.data[2];
@@ -2081,7 +2081,7 @@ static void twai_receive_task(void *arg) {
             byte_395 = 0;
             byte_396 = 0;
 
-            ESP_LOGE("TWAI Receiver", "CAN ID 0x01 not received in last 400 ms!");
+            ESP_LOGE("TWAI Receiver", "CAN ID 0x400 not received in last 400 ms!");
             // Optionally, do something else (set a flag, notify another task, etc.)
         }
 
@@ -2107,7 +2107,7 @@ static void twai_receive_task(void *arg) {
             byte_100 = 0;
          // byte_101=0x6; is to identify the packet number
             byte_102 = 0;
-            ESP_LOGE("TWAI Receiver", "CAN ID 0x01 not received in last 400 ms!");
+            ESP_LOGE("TWAI Receiver", "CAN ID 0x18F20315 not received in last 400 ms!");
             // Optionally, do something else (set a flag, notify another task, etc.)
         }
 
