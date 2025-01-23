@@ -1141,15 +1141,18 @@ static void twai_receive_task(void *arg) {
 
     static TickType_t last_received_0x01 = 0;
     static TickType_t last_received_0x18530902 = 0;
+    static TickType_t last_received_0x400 = 0;
 
     // Initialize last-received timestamps to "now"
     TickType_t now = xTaskGetTickCount();
     last_received_0x01 = now;
     last_received_0x18530902 = now;
+    last_received_0x400 = now;
 
     // Define your timeouts in ticks (e.g., 400 ms => 400 ms worth of ticks)
     const TickType_t TIMEOUT_0x01 = pdMS_TO_TICKS(400);
-    const TickType_t TIMEOUT_0x018530902 = pdMS_TO_TICKS(400);
+    const TickType_t TIMEOUT_0x18530902 = pdMS_TO_TICKS(400);
+    const TickType_t TIMEOUT_0x400 = pdMS_TO_TICKS(400);
 
     while (1) {
         // Wait up to 50 ms for ANY message
@@ -1612,7 +1615,8 @@ static void twai_receive_task(void *arg) {
                     byte_362 = message.data[6];
                     byte_363 = message.data[7];
                     break;
-                case 0x400: // CAN #44
+                case 0x400: // CAN #44 // Take this ID for CAN loss for Charger
+                    last_received_0x400 = xTaskGetTickCount();
                     byte_364 = message.data[0];
                     byte_365 = message.data[1];
                     byte_366 = message.data[2];
@@ -1901,7 +1905,7 @@ static void twai_receive_task(void *arg) {
         }
 
         // For ID 0x18530902 // MCU CAN loss
-        if ((current_time - last_received_0x18530902) > TIMEOUT_0x018530902) {
+        if ((current_time - last_received_0x18530902) > TIMEOUT_0x18530902) {
             // CAN 0x18530902
             byte_27 = 0;
             byte_28 = 0;
@@ -1956,6 +1960,104 @@ static void twai_receive_task(void *arg) {
             byte_43 = 0;
 
             ESP_LOGE("TWAI Receiver", "CAN ID 0x18530902 not received in last 400 ms!");
+        }
+
+        // For ID 0x400 // Charger CAN loss
+        if ((current_time - last_received_0x400) > TIMEOUT_0x400) {
+            // CAN 0x400
+            byte_364 = 0;
+            byte_365 = 0;
+            byte_366 = 0;
+            byte_367 = 0;
+            byte_368 = 0;
+            byte_369 = 0;
+            byte_370 = 0;
+            byte_371 = 0;
+
+            // CAN 0x401
+            byte_330 = 0;
+            byte_331 = 0;
+            byte_332 = 0;
+            byte_333 = 0;
+            byte_334 = 0;
+            byte_335 = 0;
+            byte_336 = 0;
+            byte_337 = 0;
+
+            // CAN 0x401
+            byte_330 = 0;
+            byte_331 = 0;
+            byte_332 = 0;
+            byte_333 = 0;
+            byte_334 = 0;
+            byte_335 = 0;
+            byte_336 = 0;
+            byte_337 = 0;
+
+            // CAN 0x402
+            byte_355 = 0;
+            byte_356 = 0;
+            byte_357 = 0;
+            byte_358 = 0;
+            byte_359 = 0;
+            byte_360 = 0;
+            byte_362 = 0;
+            byte_363 = 0;
+
+            // CAN 0x403
+            byte_347 = 0;
+            byte_348 = 0;
+            byte_349 = 0;
+            byte_350 = 0;
+            byte_351 = 0;
+            byte_352 = 0;
+            byte_353 = 0;
+            byte_354 = 0;
+
+            // CAN 0x405
+            byte_338 = 0;
+            byte_339 = 0;
+            byte_340 = 0;
+         // byte_341=0x18; is to identify the packet number
+            byte_342 = 0;
+            byte_343 = 0;
+            byte_344 = 0;
+            byte_345 = 0;
+            byte_346 = 0;
+
+            // CAN 0x411
+            byte_372 = 0;
+            byte_373 = 0;
+            byte_374 = 0;
+            byte_375 = 0;
+            byte_376 = 0;
+            byte_377 = 0;
+            byte_378 = 0;
+            byte_379 = 0;
+
+            // CAN 0x412
+            byte_380 = 0;
+         // byte_381=0x20 is to identify the packet number
+            byte_382 = 0;
+            byte_383 = 0;
+            byte_384 = 0;
+            byte_385 = 0;
+            byte_386 = 0;
+            byte_387 = 0;
+            byte_388 = 0;
+
+            // CAN 0x410
+            byte_389 = 0;
+            byte_390 = 0;
+            byte_391 = 0;
+            byte_392 = 0;
+            byte_393 = 0;
+            byte_394 = 0;
+            byte_395 = 0;
+            byte_396 = 0;
+
+            ESP_LOGE("TWAI Receiver", "CAN ID 0x01 not received in last 400 ms!");
+            // Optionally, do something else (set a flag, notify another task, etc.)
         }
 
         // Optional: A small delay to avoid spinning the CPU too hard
