@@ -37,7 +37,8 @@ const All_Parameters: React.FC<All_ParametersProps> = ({ route }) => {
     parameterValue: number,
     opCode: string,
     payloadLength: string,
-    showAlert: boolean = true
+    canId: string,
+    showAlert: boolean = true // Make showAlert optional with a default value of true
   ) => {
     const serviceUUID = '00FF';
     const characteristicUUID = 'FF01';
@@ -55,8 +56,9 @@ const All_Parameters: React.FC<All_ParametersProps> = ({ route }) => {
     try {
       const base64Data = Buffer.from(message, 'hex').toString('base64');
       await device.writeCharacteristicWithResponseForService(serviceUUID, characteristicUUID, base64Data);
+      console.log(`Sent parameter ${opCode} to CAN ID: ${canId}`);
     } catch (error: any) {
-      console.error(`Write failed for OpCode ${opCode}`, error);
+      console.error(`Write failed for OpCode ${opCode} at CAN ID ${canId}`, error);
       if (showAlert) {
         Alert.alert("Write Error", `Error writing data for OpCode ${opCode}: ${error.message}`);
       }
@@ -65,14 +67,17 @@ const All_Parameters: React.FC<All_ParametersProps> = ({ route }) => {
 
   const handleSendAllParameters = async () => {
     try {
-      await writeParameterToDevice(RegenLimit, '0A', '0001', false); // Regen Limit
-      await writeParameterToDevice(customModeCurrLimit, '0B', '0001', false); // Custom Mode Current Limit
-      await writeParameterToDevice(frequency, '0C', '0001', false); // Frequency
-      await writeParameterToDevice(torque, '0D', '0002', false); // Torque
-      await writeParameterToDevice(bufferSpeed, '0E', '0001', false); // Buffer Speed
-      await writeParameterToDevice(baseSpeed, '0F', '0001', false); // Base Speed
-      await writeParameterToDevice(torqueLimitBeforeProfileSpeed, '10', '0001', false); // Torque Limit Before Profile Speed
-      await writeParameterToDevice(torqueLimitAfterProfileSpeed, '11', '0001', false); // Torque Limit After Profile Speed
+      // Sending parameters for CAN ID 18F20309
+      await writeParameterToDevice(RegenLimit, '0A', '0001', '18F20309'); // Regen Limit
+      await writeParameterToDevice(customModeCurrLimit, '0B', '0001', '18F20309'); // Custom Mode Current Limit
+      await writeParameterToDevice(frequency, '0C', '0001', '18F20309'); // Frequency
+      await writeParameterToDevice(torque, '0D', '0002', '18F20309'); // Torque
+
+      // Sending parameters for CAN ID 18F20311
+      await writeParameterToDevice(bufferSpeed, '0E', '0001', '18F20311'); // Buffer Speed
+      await writeParameterToDevice(baseSpeed, '0F', '0001', '18F20311'); // Base Speed
+      await writeParameterToDevice(torqueLimitBeforeProfileSpeed, '10', '0001', '18F20311'); // Torque Limit Before Profile Speed
+      await writeParameterToDevice(torqueLimitAfterProfileSpeed, '11', '0001', '18F20311'); // Torque Limit After Profile Speed
 
       Alert.alert('Success', 'All parameters have been sent to the device successfully.');
     } catch (error: any) {
