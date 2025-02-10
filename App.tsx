@@ -1,6 +1,6 @@
-//App.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert, Platform, PermissionsAndroid } from 'react-native';
+import CheckBox from '@react-native-community/checkbox';
 import { BleManager, Device } from 'react-native-ble-plx';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -19,6 +19,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> = ({ navigation }) => {
   const [manager] = useState(new BleManager());
   const [devices, setDevices] = useState<Device[]>([]);
+  const [showAllDevices, setShowAllDevices] = useState(false);
 
   useEffect(() => {
     checkBluetoothState();
@@ -90,11 +91,20 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
     }, 10000); // Stop scanning after 10 seconds
   };
 
+  const filteredDevices = showAllDevices ? devices : devices.filter(device => device.name?.toLowerCase().includes('lectrix'));
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>BLE Devices:</Text>
+      <View style={styles.checkboxContainer}>
+        <CheckBox
+          value={showAllDevices}
+          onValueChange={setShowAllDevices}
+        />
+        <Text style={styles.label}>Show All Devices</Text>
+      </View>
       <FlatList
-        data={devices}
+        data={filteredDevices}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => connectToDevice(item)}>
@@ -137,7 +147,16 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#DDD',
     borderRadius: 5,
-  }
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  label: {
+    marginLeft: 8,
+    fontSize: 16,
+  },
 });
 
 export default App;

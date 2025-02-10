@@ -76,8 +76,8 @@
                 <!-- CheckBox hidden by default -->
                 <CheckBox
                     android:id="@+id/cbCellVol01"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="2dp"
+                    android:layout_height="54dp"
                     android:visibility="gone" />
 
                 <!-- TextView visible by default -->
