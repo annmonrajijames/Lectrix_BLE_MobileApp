@@ -35,7 +35,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 #define GATTS_DESCR_UUID_TEST_A     0x3333
 #define GATTS_NUM_HANDLE_TEST_A     4
 
-#define TEST_DEVICE_NAME            "Annmon_LECTRIX" 
+#define TEST_DEVICE_NAME            "Annmon_Lectrix" 
 #define TEST_MANUFACTURER_DATA_LEN  17
 
 #define GATTS_DEMO_CHAR_VAL_LEN_MAX 0x40
@@ -1248,7 +1248,7 @@ static void twai_receive_task(void *arg) {
                     byte_67 = message.data[6];
                     byte_68 = message.data[7];
                     break;
-                case 0x18F20312: // CAN #9 // MISSED // WRONG
+                case 0x18FF3002: // CAN #9 // MCU_Firmware_Id
                     byte_69 = message.data[0];
                     byte_70 = message.data[1];
                     byte_71 = message.data[2];
@@ -1269,7 +1269,7 @@ static void twai_receive_task(void *arg) {
                     byte_84 = message.data[6];
                     byte_85 = message.data[7];
                     break;
-                case 0x18F20315: // CAN #11 // Take this ID for CAN loss for Cluster
+                case 0x18F20315: // CAN #11 // Take this ID for CAN loss for Cluster // Cluster version number
                     last_received_0x18F20315 = xTaskGetTickCount();
                     byte_86 = message.data[0];
                     byte_87 = message.data[1];
@@ -1301,7 +1301,7 @@ static void twai_receive_task(void *arg) {
                     byte_109 = message.data[6];
                     byte_110 = message.data[7];
                     break;
-                case 0xD: // CAN #14
+                case 0xD: // CAN #14 // Battery version number
                     byte_111 = message.data[0];
                     byte_112 = message.data[1];
                     byte_113 = message.data[2];
