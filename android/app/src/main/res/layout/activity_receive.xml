@@ -2607,6 +2607,29 @@
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
+<!-- Row for MCU_Firmware_Id -->
+<LinearLayout
+    android:id="@+id/rowMCU_Firmware_Id"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <CheckBox
+        android:id="@+id/cbMCU_Firmware_Id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvMCU_Firmware_Id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="MCU_Firmware_Id: N/A"
+        android:visibility="visible"
+        android:layout_marginStart="8dp"
+        android:layout_gravity="center_vertical" />
+</LinearLayout>
+
 <!-- Row for IgnitionStatus -->
 <LinearLayout
     android:id="@+id/rowIgnitionStatus"
