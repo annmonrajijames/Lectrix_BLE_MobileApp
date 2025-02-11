@@ -74,9 +74,9 @@ class ReceiveActivity : AppCompatActivity() {
     private var lastValid_12vVol: Double? = null
     private var lastValidActual_SoC: Double? = null
     private var lastValidUsable_Capacity_Ah: Double? = null
-    private var lastValidConfigVer: Double? = null
-    private var lastValidInternalFWVer: Double? = null
-    private var lastValidInternalFWSubVer: Double? = null
+    private var lastValidConfigVer: String? = null
+    private var lastValidInternalFWVer: String? = null
+    private var lastValidInternalFWSubVer: String? = null
     private var lastValidBHB_66049: Double? = null
     private var lastValidMaxTemp: Double? = null
     private var lastValidMinTemp: Double? = null
@@ -89,9 +89,9 @@ class ReceiveActivity : AppCompatActivity() {
     private var lastValidTemp6: Double? = null
     private var lastValidTemp7: Double? = null
     private var lastValidTemp8: Double? = null
-    private var lastValidHwVer: Double? = null
-    private var lastValidFwVer: Double? = null
-    private var lastValidFWSubVer: Double? = null
+    private var lastValidHwVer: String? = null
+    private var lastValidFwVer: String? = null
+    private var lastValidFWSubVer: String? = null
     private var lastValidBtStatus_NC0PSM1CC2CV3Finish4: Double? = null
     private var lastValidBt_liveMsg1Temp: Double? = null
     private var lastValidBt_liveMsg_soc: Double? = null
@@ -271,9 +271,9 @@ class ReceiveActivity : AppCompatActivity() {
     private var lastdatarecord_12vVol: Double? = null
     private var lastdatarecordActual_SoC: Double? = null
     private var lastdatarecordUsable_Capacity_Ah: Double? = null
-    private var lastdatarecordConfigVer: Double? = null
-    private var lastdatarecordInternalFWVer: Double? = null
-    private var lastdatarecordInternalFWSubVer: Double? = null
+    private var lastdatarecordConfigVer: String? = null
+    private var lastdatarecordInternalFWVer: String? = null
+    private var lastdatarecordInternalFWSubVer: String? = null
     private var lastdatarecordBHB_66049: Double? = null
     private var lastdatarecordPackCurr: Double? = null
     private var lastdatarecordMaxTemp: Double? = null
@@ -287,9 +287,9 @@ class ReceiveActivity : AppCompatActivity() {
     private var lastdatarecordTemp6: Double? = null
     private var lastdatarecordTemp7: Double? = null
     private var lastdatarecordTemp8: Double? = null
-    private var lastdatarecordHwVer: Double? = null
-    private var lastdatarecordFwVer: Double? = null
-    private var lastdatarecordFWSubVer: Double? = null
+    private var lastdatarecordHwVer: String? = null
+    private var lastdatarecordFwVer: String? = null
+    private var lastdatarecordFWSubVer: String? = null
     private var lastdatarecordBtStatus_NC0PSM1CC2CV3Finish4: Double? = null
     private var lastdatarecordBt_liveMsg1Temp: Double? = null
     private var lastdatarecordBt_liveMsg_soc: Double? = null
@@ -1274,9 +1274,9 @@ class ReceiveActivity : AppCompatActivity() {
         val _12vVolDecoder = eightBytesDecode("14", 0.01, 10, 11, 12, 13)
         val Actual_SoCDecoder = eightBytesDecode("14", 0.01, 10, 11, 12, 13)
         val Usable_Capacity_AhDecoder = eightBytesDecode("14", 0.001, 14, 15, 16, 17)
-        val ConfigVerDecoder = eightBytesDecode("14", 1.0, 2, 3, 4)
-        val InternalFWVerDecoder = eightBytesDecode("14", 1.0, 5, 6, 7)
-        val InternalFWSubVerDecoder = eightBytesDecode("14", 1.0, 8, 9)
+        val ConfigVerDecoder = eightBytesASCIIDecode("14", 2, 3, 4)
+        val InternalFWVerDecoder = eightBytesASCIIDecode("14", 5, 6, 7)
+        val InternalFWSubVerDecoder = eightBytesASCIIDecode("14", 8, 9)
         val BHB_66049Decoder = eightBytesDecode("14", 1.0, 3, 4, 5)
         val MaxTempDecoder = signedEightBytesDecode("07", 1.0, 17)
         val MinTempDecoder = signedEightBytesDecode("07", 1.0, 18)
@@ -1289,9 +1289,9 @@ class ReceiveActivity : AppCompatActivity() {
         val Temp6Decoder = signedEightBytesDecode("11", 1.0, 8)
         val Temp7Decoder = signedEightBytesDecode("11", 1.0, 9)
         val Temp8Decoder = signedEightBytesDecode("11", 1.0, 10)
-        val HwVerDecoder = eightBytesDecode("06", 1.0, 10, 11, 12)
-        val FwVerDecoder = eightBytesDecode("06", 1.0, 13, 14, 15)
-        val FWSubVerDecoder = eightBytesDecode("06", 1.0, 16, 17)
+        val HwVerDecoder = eightBytesASCIIDecode("06", 10, 11, 12)
+        val FwVerDecoder = eightBytesASCIIDecode("06", 13, 14, 15)
+        val FWSubVerDecoder = eightBytesASCIIDecode("06", 16, 17)
         val BtStatus_NC0PSM1CC2CV3Finish4Decoder = eightBytesDecode("17", 1.0, 9)
         val Bt_liveMsg1TempDecoder = signedEightBytesDecode("17", 1.0, 10)
         val Bt_liveMsg_socDecoder = eightBytesDecode("17", 1.0, 11)
@@ -1476,6 +1476,20 @@ class ReceiveActivity : AppCompatActivity() {
                     val bits = byte.toInt(16).toString(2).padStart(8, '0')
                     val resultBits = "${bits[7 - bit1]}${bits[7 - bit2]}${bits[7 - bit3]}"
                     resultBits.toInt(2)
+                } else {
+                    null
+                }
+            }
+        }
+        fun eightBytesASCIIDecode(firstByteCheck: String, vararg positions: Int): (String) -> String? {
+            return { data ->
+                if (data.length >= 2 * positions.size && data.substring(0, 2) == firstByteCheck) {
+                    val bytes = positions.map { pos ->
+                        val hexValue = data.substring(2 * pos, 2 * pos + 2)
+                        val decimalValue = hexValue.toInt(16)
+                        decimalValue.toChar()
+                    }.joinToString("")
+                    bytes
                 } else {
                     null
                 }
@@ -3905,11 +3919,11 @@ class ReceiveActivity : AppCompatActivity() {
         val LatchProtection: Double?, val LatchType: Double?, val ChargerType: Double?, val PcbTemp: Double?,
         val AfeTemp: Double?, val CellChemType: Double?, val Chg_Accumulative_Ah: Double?, val Dchg_Accumulative_Ah: Double?,
         val RefVol: Double?, val _3v3Vol: Double?, val _5vVol: Double?, val _12vVol: Double?, val Actual_SoC: Double?,
-        val Usable_Capacity_Ah: Double?, val ConfigVer: Double?, val InternalFWVer: Double?, val InternalFWSubVer: Double?,
+        val Usable_Capacity_Ah: Double?, val ConfigVer: String?, val InternalFWVer: String?, val InternalFWSubVer: String?,
         val BHB_66049: Double?, val MaxTemp: Double?, val MinTemp: Double?, val FetTemp: Double?,
         val Temp1: Double?, val Temp2: Double?, val Temp3: Double?, val Temp4: Double?,
-        val Temp5: Double?, val Temp6: Double?, val Temp7: Double?, val Temp8: Double?, val HwVer: Double?,
-        val FwVer: Double?, val FWSubVer: Double?, val BtStatus_NC0PSM1CC2CV3Finish4: Double?, val Bt_liveMsg1Temp: Double?,
+        val Temp5: Double?, val Temp6: Double?, val Temp7: Double?, val Temp8: Double?, val HwVer: String?,
+        val FwVer: String?, val FWSubVer: String?, val BtStatus_NC0PSM1CC2CV3Finish4: Double?, val Bt_liveMsg1Temp: Double?,
         val Bt_liveMsg_soc: Double?, val BMS_status: Double?, val Demand_voltage: Double?, val Demand_Current: Double?,
         val MaxChgVoltgae: Double?, val MaxChgCurrent: Double?, val ActualChgVoltage: Double?, val ActualChgCurrent: Double?,
         val Charging_end_cutoff_Curr: Double?, val CHB_258: Double?, val ChgrNC0PSM1CC2CV3Finsh4: Double?,
