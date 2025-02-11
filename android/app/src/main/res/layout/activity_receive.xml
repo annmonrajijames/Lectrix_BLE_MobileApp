@@ -2514,6 +2514,99 @@
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
+
+<!-- Row for SW_Version_MAJ -->
+<LinearLayout
+    android:id="@+id/rowSW_Version_MAJ"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <CheckBox
+        android:id="@+id/cbSW_Version_MAJ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvSW_Version_MAJ"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="SW_Version_MAJ: N/A"
+        android:visibility="visible"
+        android:layout_marginStart="8dp"
+        android:layout_gravity="center_vertical" />
+</LinearLayout>
+
+<!-- Row for SW_Version_MIN -->
+<LinearLayout
+    android:id="@+id/rowSW_Version_MIN"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <CheckBox
+        android:id="@+id/cbSW_Version_MIN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvSW_Version_MIN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="SW_Version_MIN: N/A"
+        android:visibility="visible"
+        android:layout_marginStart="8dp"
+        android:layout_gravity="center_vertical" />
+</LinearLayout>
+
+<!-- Row for HW_Version_MAJ -->
+<LinearLayout
+    android:id="@+id/rowHW_Version_MAJ"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <CheckBox
+        android:id="@+id/cbHW_Version_MAJ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvHW_Version_MAJ"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="HW_Version_MAJ: N/A"
+        android:visibility="visible"
+        android:layout_marginStart="8dp"
+        android:layout_gravity="center_vertical" />
+</LinearLayout>
+
+<!-- Row for HW_Version_MIN -->
+<LinearLayout
+    android:id="@+id/rowHW_Version_MIN"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <CheckBox
+        android:id="@+id/cbHW_Version_MIN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvHW_Version_MIN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="HW_Version_MIN: N/A"
+        android:visibility="visible"
+        android:layout_marginStart="8dp"
+        android:layout_gravity="center_vertical" />
+</LinearLayout>
+
 <!-- Row for IgnitionStatus -->
 <LinearLayout
     android:id="@+id/rowIgnitionStatus"
