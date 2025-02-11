@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Start Recording"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/searchEditText"
         android:layout_marginTop="20dp" />
 
     <Button
@@ -37,7 +37,6 @@
         android:layout_below="@id/stopRecordingButton"
         android:layout_marginTop="10dp" />
 
-    <!-- New buttons: Enable Selection, Show Selected Parameters -->
     <Button
         android:id="@+id/enableSelectionButton"
         android:layout_width="match_parent"
@@ -66,21 +65,19 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Row for CellVol01 -->
+            <!-- Parameter Row: CellVol01 -->
             <LinearLayout
                 android:id="@+id/rowCellVol01"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <!-- CheckBox hidden by default -->
                 <CheckBox
                     android:id="@+id/cbCellVol01"
                     android:layout_width="2dp"
                     android:layout_height="54dp"
                     android:visibility="gone" />
 
-                <!-- TextView visible by default -->
                 <TextView
                     android:id="@+id/tvCellVol01"
                     android:layout_width="match_parent"
@@ -91,28 +88,28 @@
                     android:layout_gravity="center_vertical" />
             </LinearLayout>
 
-    <!-- Row for PackCurr -->
-<LinearLayout
-    android:id="@+id/rowPackCurr"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
+            <!-- Parameter Row: PackCurr -->
+            <LinearLayout
+                android:id="@+id/rowPackCurr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-    <CheckBox
-        android:id="@+id/cbPackCurr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
+                <CheckBox
+                    android:id="@+id/cbPackCurr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/tvPackCurr"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="PackCurr: N/A"
-        android:visibility="visible"
-        android:layout_marginStart="8dp"
-        android:layout_gravity="center_vertical" />
-</LinearLayout>
+                <TextView
+                    android:id="@+id/tvPackCurr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="PackCurr: N/A"
+                    android:visibility="visible"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
 
 
 <!-- Row for CellVol02 -->
@@ -4434,39 +4431,36 @@
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for Limp_mode_REQUEST -->
-<LinearLayout
-    android:id="@+id/rowLimp_mode_REQUEST"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
+<!-- Parameter Row: Limp_mode_REQUEST -->
+            <LinearLayout
+                android:id="@+id/rowLimp_mode_REQUEST"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-    <CheckBox
-        android:id="@+id/cbLimp_mode_REQUEST"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
+                <CheckBox
+                    android:id="@+id/cbLimp_mode_REQUEST"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/tvLimp_mode_REQUEST"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Limp_mode_REQUEST: N/A"
-        android:visibility="visible"
-        android:layout_marginStart="8dp"
-        android:layout_gravity="center_vertical" />
-</LinearLayout>
+                <TextView
+                    android:id="@+id/tvLimp_mode_REQUEST"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Limp_mode_REQUEST: N/A"
+                    android:visibility="visible"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
 
-
-            <!-- Additional rows for other parameters, if needed -->
+            <!-- Button below all parameter rows -->
+            <Button
+                android:id="@+id/shareButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Share"
+                android:layout_marginTop="10dp" />
         </LinearLayout>
     </ScrollView>
-
-    <!-- Placeholder for potentially other controls at the bottom -->
-    <RelativeLayout
-        android:id="@+id/bottomLayout"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true">
-    </RelativeLayout>
 </RelativeLayout>
