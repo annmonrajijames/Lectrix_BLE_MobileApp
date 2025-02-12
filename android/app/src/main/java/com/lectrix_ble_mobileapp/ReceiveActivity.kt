@@ -1343,7 +1343,7 @@ class ReceiveActivity : AppCompatActivity() {
         val SW_Version_MINDecoder = eightBytesDecode("05", 1.0, 10)
         val HW_Version_MAJDecoder = eightBytesDecode("05", 1.0, 11)
         val HW_Version_MINDecoder = eightBytesDecode("05", 1.0, 12)
-        val MCU_Firmware_IdDecoder = eightBytesASCIIDecode("04", 15, 14, 13, 12, 11, 10, 9, 8)
+        val MCU_Firmware_IdDecoder = eightBytesASCIIDecode("04", 8, 9, 10, 11, 12, 13, 14, 15)
 
         val LoadDetectionDecoder = bitDecode("11", 18, 6)
         val KeystatusDecoder = bitDecode("11", 19, 0)
