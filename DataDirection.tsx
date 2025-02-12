@@ -7,6 +7,7 @@ import { NativeModules } from 'react-native';
 type RootStackParamList = {
   DataDirection: { device: Device };
   Receive: { device: Device };
+  PDIEOL: { device: Device };
 };
 
 type DataDirectionProps = NativeStackScreenProps<RootStackParamList, 'DataDirection'>;
@@ -31,6 +32,10 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
       <Button
         title="Transmit"
         onPress={() => console.log('Transmit')}
+      />
+      <Button
+        title="Go to PDIEOL"
+        onPress={() => navigation.navigate('PDIEOL', { device })}
       />
     </View>
   );

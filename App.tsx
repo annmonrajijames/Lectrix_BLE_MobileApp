@@ -7,11 +7,13 @@ import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navig
 import DataDirection from './DataDirection';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
 import Receive from './Receive'; 
+import PDIEOL from './PDIEOL';
 
 type RootStackParamList = {
   Home: undefined;
   DataDirection: { device: Device };
   Receive: { device: Device };
+  PDIEOL: { device: Device };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -124,6 +126,8 @@ const App: React.FC = () => {
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Scan BLE Devices' }} />
         <Stack.Screen name="DataDirection" component={DataDirection} options={{ title: 'Data Direction' }} />
         <Stack.Screen name="Receive" component={Receive} options={{ title: 'Receive' }} />
+        <Stack.Screen name="PDIEOL" component={PDIEOL} options={{ title: 'PDIEOL' }} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
