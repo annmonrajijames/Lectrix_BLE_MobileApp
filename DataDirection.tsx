@@ -8,6 +8,7 @@ type RootStackParamList = {
   DataDirection: { device: Device };
   Receive: { device: Device };
   PDIEOL: { device: Device };
+  AddParameters: { device: Device };
 };
 
 type DataDirectionProps = NativeStackScreenProps<RootStackParamList, 'DataDirection'>;
@@ -36,6 +37,10 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
       <Button
         title="Go to PDIEOL"
         onPress={() => navigation.navigate('PDIEOL', { device })}
+      />
+      <Button
+        title="Go to Add Parameters"
+        onPress={() => navigation.navigate('AddParameters', { device })}
       />
     </View>
   );

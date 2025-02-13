@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "434650372807",
+    "firebase_url": "https://pdieol-default-rtdb.firebaseio.com",
+    "project_id": "pdieol",
+    "storage_bucket": "pdieol.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:434650372807:android:cf4ecb9f684999f442bce2",
+        "android_client_info": {
+          "package_name": "com.lectrix_ble_mobileapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_eFOLfdts9xvS2zGsWrGFjroNaL5cKVU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
