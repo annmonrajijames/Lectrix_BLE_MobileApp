@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { db } from './firebaseConfig';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, doc } from 'firebase/firestore';
 
 // Define parameter keys
-type ParameterKeys = 'SW_Version_MAJDecoder' | 'SW_Version_MINDecoder' | 'HW_Version_MAJDecoder' | 'HW_Version_MINDecoder';
+type ParameterKeys =
+  | 'SW_Version_MAJDecoder'
+  | 'SW_Version_MINDecoder'
+  | 'HW_Version_MAJDecoder'
+  | 'HW_Version_MINDecoder';
 
 const AddParametersScreen = () => {
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [enteredPassword, setEnteredPassword] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [loadingPassword, setLoadingPassword] = useState(true);
+
+  // Parameter state
   const [parameters, setParameters] = useState<Record<ParameterKeys, string>>({
     SW_Version_MAJDecoder: '',
     SW_Version_MINDecoder: '',
@@ -14,27 +25,57 @@ const AddParametersScreen = () => {
     HW_Version_MINDecoder: '',
   });
 
-  // Handle input change
-  const handleInputChange = (name: ParameterKeys, value: string) => {
-    setParameters(prevState => ({ ...prevState, [name]: value }));
-  };
+  // Fetch the admin password from Firestore on component mount
+  useEffect(() => {
+    const fetchAdminPassword = async () => {
+      try {
+        // Assuming the admin password is stored in Firestore under settings/addParameters with a field "password"
+        const docRef = doc(db, 'settings', 'addParameters');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setAdminPassword(data.password);
+        } else {
+          console.error('Admin password configuration not found.');
+          Alert.alert('Error', 'Admin password configuration not found.');
+        }
+      } catch (error) {
+        console.error('Error fetching admin password:', error);
+        Alert.alert('Error', 'Failed to fetch admin password.');
+      } finally {
+        setLoadingPassword(false);
+      }
+    };
 
-  // Test Firestore connection
+    fetchAdminPassword();
+  }, []);
+
+  // Optional: test Firestore connection (only runs after authentication)
   useEffect(() => {
     const testFirestoreConnection = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'parameters'));
-        console.log('✅ Firestore Read Successful:', querySnapshot.docs.map(doc => doc.data()));
+        console.log(
+          '✅ Firestore Read Successful:',
+          querySnapshot.docs.map(doc => doc.data())
+        );
       } catch (error) {
         console.error('❌ Firestore Read Error:', error);
         Alert.alert('Firestore Error', 'Failed to connect to Firestore.');
       }
     };
 
-    testFirestoreConnection();
-  }, []);
+    if (isAuthenticated) {
+      testFirestoreConnection();
+    }
+  }, [isAuthenticated]);
 
-  // Upload to Firestore
+  // Handle parameter input change
+  const handleInputChange = (name: ParameterKeys, value: string) => {
+    setParameters(prevState => ({ ...prevState, [name]: value }));
+  };
+
+  // Upload parameters to Firebase
   const uploadToFirebase = async () => {
     try {
       if (!db) {
@@ -58,6 +99,42 @@ const AddParametersScreen = () => {
     }
   };
 
+  // Handle the authentication check
+  const handleAuthentication = () => {
+    if (enteredPassword === adminPassword) {
+      setIsAuthenticated(true);
+    } else {
+      Alert.alert('Error', 'Incorrect password!');
+    }
+  };
+
+  // Show a loading state while fetching the password from Firestore
+  if (loadingPassword) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  // If the user is not authenticated, show a password prompt
+  if (!isAuthenticated) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.heading}>Enter Password to Access Parameters</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter password"
+          secureTextEntry
+          value={enteredPassword}
+          onChangeText={setEnteredPassword}
+        />
+        <Button title="Authenticate" onPress={handleAuthentication} />
+      </View>
+    );
+  }
+
+  // Once authenticated, show the main parameter form
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Enter Parameter Values</Text>
