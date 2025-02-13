@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, View, Text, StyleSheet, Alert, Button } from "react-native";
+import { ScrollView, View, Text, StyleSheet, Alert, Button, TextInput } from "react-native";
 import { Device } from "react-native-ble-plx";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Buffer } from "buffer";
 import { db } from "./firebaseConfig"; // Ensure correct path
-import { collection, getDocs } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
 type RootStackParamList = {
   PDIEOL: { device: Device };
@@ -15,63 +15,82 @@ type PDIEOLProps = NativeStackScreenProps<RootStackParamList, "PDIEOL">;
 const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const { device } = route.params;
   
-  // State for values received from BLE
+  const [vehicleNumber, setVehicleNumber] = useState("");
+  const [firebaseData, setFirebaseData] = useState<any>(null);
+  const [isMatched, setIsMatched] = useState(false);
+
   const [SW_Version_MAJDecoder, setSW_Version_MAJDecoder] = useState<number | null>(null);
   const [SW_Version_MINDecoder, setSW_Version_MINDecoder] = useState<number | null>(null);
   const [HW_Version_MAJDecoder, setHW_Version_MAJDecoder] = useState<number | null>(null);
   const [HW_Version_MINDecoder, setHW_Version_MINDecoder] = useState<number | null>(null);
 
-  // State for values from Firebase
-  const [firebaseData, setFirebaseData] = useState<any>(null);
-  const [isMatched, setIsMatched] = useState(false);
-
   const serviceUUID = "00FF";
   const characteristicUUID = "FF01";
 
   useEffect(() => {
-    fetchData();
     setupBLESubscription();
-
     return () => {
       device.cancelConnection();
     };
   }, [device]);
 
-  const fetchData = async () => {
+  const fetchFirebaseData = async () => {
+    if (!vehicleNumber.trim()) {
+      Alert.alert("Error", "Please enter a vehicle number");
+      return;
+    }
+  
+    const trimmedVehicleNumber = vehicleNumber.trim();
+    console.log("🚀 Checking if vehicle exists:", trimmedVehicleNumber);
+  
     try {
-      // ✅ Correct Firestore Query Syntax
-      const querySnapshot = await getDocs(collection(db, "PDIEOL"));
-      const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      
-      console.log("Fetched Data:", data);
+      const docRef = doc(db, "parameters", trimmedVehicleNumber);
+      console.log("🔍 Firestore Document Path:", docRef.path); // Debugging
+  
+      const docSnap = await getDoc(docRef);
+  
+      if (!docSnap.exists()) {
+        console.log("❌ No document found with ID:", trimmedVehicleNumber);
+        Alert.alert("Error", "No data found for this vehicle number.");
+        return;
+      }
+  
+      console.log("✅ Vehicle found! Fetching data...");
+      const data = docSnap.data();
+      console.log("📂 Document Data:", data);
+  
+      // Ensure values exist before setting state
+      setFirebaseData(data);
+      setSW_Version_MAJDecoder(data?.SW_Version_MAJDecoder ?? null);
+      setSW_Version_MINDecoder(data?.SW_Version_MINDecoder ?? null);
+      setHW_Version_MAJDecoder(data?.HW_Version_MAJDecoder ?? null);
+      setHW_Version_MINDecoder(data?.HW_Version_MINDecoder ?? null);
+  
     } catch (error) {
-      console.error("🔥 Error fetching data from Firebase:", error);
+      console.error("🔥 Firebase Fetch Error:", error);
+      if (error instanceof Error) {
+        Alert.alert("Error", `Failed to fetch data: ${error.message}`);
+      } else {
+        Alert.alert("Error", "Failed to fetch data");
+      }
     }
   };
-  
-  fetchData();
-
-  // Setup BLE subscription
+ 
   const setupBLESubscription = async () => {
     try {
-      console.log("Checking connection...");
-      
-      // Ensure device is connected before subscribing
       const connectedDevice = await device.isConnected();
       if (!connectedDevice) {
-        console.log("Device not connected. Trying to connect...");
         await device.connect();
         await device.discoverAllServicesAndCharacteristics();
       }
-  
-      console.log("Subscribing to characteristic...");
+
       await device.monitorCharacteristicForService(serviceUUID, characteristicUUID, (error, characteristic) => {
         if (error) {
           console.error("Subscription error:", error);
-          Alert.alert("Subscription Error", `Error subscribing to characteristic: ${(error as Error).message}`);
+          Alert.alert("Subscription Error", error.message);
           return;
         }
-  
+
         if (characteristic?.value) {
           const data = Buffer.from(characteristic.value, "base64").toString("hex");
           decodeData(data);
@@ -79,12 +98,10 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       });
     } catch (error: any) {
       console.error("Failed to set up subscription:", error);
-      Alert.alert("Setup Error", `Error setting up characteristic subscription: ${error.message}`);
+      Alert.alert("Setup Error", error.message);
     }
   };
-  
 
-  // Decode BLE data
   const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
     return (data: string) => {
       if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
@@ -96,7 +113,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     };
   };
 
-  // Extract and store values from BLE data
   const decodeData = (data: string) => {
     const SW_MAJ = eight_bytes_decode("05", 1.0, 9)(data);
     const SW_MIN = eight_bytes_decode("05", 1.0, 10)(data);
@@ -109,40 +125,46 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     if (HW_MIN !== null) setHW_Version_MINDecoder(HW_MIN);
   };
 
-  // Compare Firebase and BLE values
-  useEffect(() => {
-    if (firebaseData && SW_Version_MAJDecoder !== null && SW_Version_MINDecoder !== null &&
-        HW_Version_MAJDecoder !== null && HW_Version_MINDecoder !== null) {
-      const matches =
-        firebaseData.SW_Version_MAJ === SW_Version_MAJDecoder &&
-        firebaseData.SW_Version_MIN === SW_Version_MINDecoder &&
-        firebaseData.HW_Version_MAJ === HW_Version_MAJDecoder &&
-        firebaseData.HW_Version_MIN === HW_Version_MINDecoder;
-
-      setIsMatched(matches);
-      if (!matches) {
-        Alert.alert("Mismatch", "Please check the component!");
-      }
+  const handleCheckout = () => {
+    if (!firebaseData) {
+      Alert.alert("Error", "No data fetched from Firebase. Please enter a valid vehicle number and fetch data.");
+      return;
     }
-  }, [firebaseData, SW_Version_MAJDecoder, SW_Version_MINDecoder, HW_Version_MAJDecoder, HW_Version_MINDecoder]);
+
+    const matches =
+      firebaseData.SW_Version_MAJ === SW_Version_MAJDecoder &&
+      firebaseData.SW_Version_MIN === SW_Version_MINDecoder &&
+      firebaseData.HW_Version_MAJ === HW_Version_MAJDecoder &&
+      firebaseData.HW_Version_MIN === HW_Version_MINDecoder;
+
+    if (matches) {
+      Alert.alert("Checkout Successful", "All components match!");
+    } else {
+      Alert.alert("Please check the components", "Mismatch detected!");
+    }
+  };
 
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
         <Text style={styles.header}>Vehicle Data</Text>
         
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Vehicle Number"
+          value={vehicleNumber}
+          onChangeText={setVehicleNumber}
+        />
+        <Button title="Fetch Data" onPress={fetchFirebaseData} />
+
         {SW_Version_MAJDecoder !== null && <Text style={styles.parameterText}>SW_Version_MAJ: {SW_Version_MAJDecoder} V</Text>}
         {SW_Version_MINDecoder !== null && <Text style={styles.parameterText}>SW_Version_MIN: {SW_Version_MINDecoder} V</Text>}
         {HW_Version_MAJDecoder !== null && <Text style={styles.parameterText}>HW_Version_MAJ: {HW_Version_MAJDecoder} V</Text>}
         {HW_Version_MINDecoder !== null && <Text style={styles.parameterText}>HW_Version_MIN: {HW_Version_MINDecoder} V</Text>}
 
         {firebaseData && <Text style={styles.infoText}>Fetched Firebase Data</Text>}
-        
-        {isMatched ? (
-          <Button title="Checkout" onPress={() => Alert.alert("Success", "Checkout Completed!")} />
-        ) : (
-          <Text style={styles.warningText}>Waiting for correct data...</Text>
-        )}
+
+        <Button title="Checkout" onPress={handleCheckout} />
       </View>
     </ScrollView>
   );
@@ -152,6 +174,15 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1, backgroundColor: "#fff" },
   container: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20 },
   header: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
+  input: {
+    width: "80%",
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
   parameterText: { fontSize: 18, fontWeight: "bold", marginBottom: 5 },
   infoText: { fontSize: 16, color: "blue", marginBottom: 10 },
   warningText: { fontSize: 16, color: "red", marginBottom: 10 },

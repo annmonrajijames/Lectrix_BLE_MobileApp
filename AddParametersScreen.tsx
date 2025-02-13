@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { db } from './firebaseConfig';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { collection, setDoc, doc, getDocs } from 'firebase/firestore';
 
 // Define parameter keys
 type ParameterKeys = 'SW_Version_MAJDecoder' | 'SW_Version_MINDecoder' | 'HW_Version_MAJDecoder' | 'HW_Version_MINDecoder';
 
 const AddParametersScreen = () => {
+  const [vehicleNumber, setVehicleNumber] = useState(''); // State for vehicle number
   const [parameters, setParameters] = useState<Record<ParameterKeys, string>>({
     SW_Version_MAJDecoder: '',
     SW_Version_MINDecoder: '',
@@ -34,18 +35,24 @@ const AddParametersScreen = () => {
     testFirestoreConnection();
   }, []);
 
-  // Upload to Firestore
+  // Upload to Firestore with Vehicle Number as Document ID
   const uploadToFirebase = async () => {
     try {
       if (!db) {
         throw new Error('Firestore instance is not initialized.');
       }
 
-      const docRef = await addDoc(collection(db, 'parameters'), parameters);
-      console.log('✅ Document added with ID:', docRef.id);
-      Alert.alert('Success', 'Parameters added to Firebase!');
+      if (!vehicleNumber.trim()) {
+        Alert.alert('Error', 'Please enter a valid Vehicle Number.');
+        return;
+      }
+
+      await setDoc(doc(db, 'parameters', vehicleNumber), parameters);
+      console.log('✅ Document added with ID (Vehicle Number):', vehicleNumber);
+      Alert.alert('Success', `Parameters added for Vehicle: ${vehicleNumber}`);
 
       // Reset input fields
+      setVehicleNumber('');
       setParameters({
         SW_Version_MAJDecoder: '',
         SW_Version_MINDecoder: '',
@@ -60,8 +67,20 @@ const AddParametersScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Enter Parameter Values</Text>
+      <Text style={styles.heading}>Enter Vehicle Number & Parameter Values</Text>
 
+      {/* Vehicle Number Input */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Vehicle Number:</Text>
+        <TextInput
+          style={styles.input}
+          value={vehicleNumber}
+          onChangeText={setVehicleNumber}
+          placeholder="Enter vehicle number"
+        />
+      </View>
+
+      {/* Parameter Inputs */}
       {Object.keys(parameters).map(key => (
         <View key={key} style={styles.inputContainer}>
           <Text style={styles.label}>{key}:</Text>
