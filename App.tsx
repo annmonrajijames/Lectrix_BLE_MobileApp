@@ -9,6 +9,7 @@ import BluetoothStateManager from 'react-native-bluetooth-state-manager';
 import AppToVCUFeatures from './App_to_VCU_features'; // Make sure this import is correct
 import CurrentLimit from './CurrentLimit';
 import All_Parameters  from './All_Parameters';
+import Custom_Mode from './Custom_Mode';
 
 type RootStackParamList = {
   Home: undefined;
@@ -17,6 +18,7 @@ type RootStackParamList = {
   AppToVCUFeatures: { device: Device };
   CurrentLimit: {device: Device};
   All_Parameters: { device: Device };
+  Custom_Mode: { device: Device };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -122,6 +124,7 @@ const App: React.FC = () => {
         <Stack.Screen name="AppToVCUFeatures" component={AppToVCUFeatures} options={{ title: 'App to VCU Features' }} />
         <Stack.Screen name="CurrentLimit" component={CurrentLimit} options={{ title: 'Current Limit' }} />
         <Stack.Screen name="All_Parameters" component={All_Parameters} options={{ title: 'All Parameters' }} />
+        <Stack.Screen name="Custom_Mode" component={Custom_Mode} options={{ title: 'Custom Mode' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
