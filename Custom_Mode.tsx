@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
-import { 
-  View, Text, Button, StyleSheet, Alert, ScrollView, Switch 
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Button, StyleSheet, Alert, ScrollView } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -16,12 +14,33 @@ type Custom_ModeProps = NativeStackScreenProps<RootStackParamList, 'Custom_Mode'
 const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
   const { device } = route.params;
 
-  const [Range, setRange] = useState(105);
-  const [PickUp, setPickUp] = useState(105);
-  const [TopSpeed, setTopSpeed] = useState(105);
-  const [Slop, setSlop] = useState(105);
-  const [Efficiency, setEfficiency] = useState(105);
-  const [isAdvanced, setIsAdvanced] = useState(false);
+  const [PickUp, setPickUp] = useState(16);
+  const [TopSpeed, setTopSpeed] = useState(30);
+  const [Slop, setSlop] = useState(7);
+
+  // Compute values based on the formulas
+  const currentLimit = 105 - ((PickUp - 6) / (16 - 6)) * (105 - 32);
+  const frequency = 105 + ((TopSpeed - 30) / (80 - 30)) * (401 - 105);
+  const slopeCurrentMap: Record<number, number> = { 7: 35, 10: 60, 14: 105 };
+  const slopeCurrent = slopeCurrentMap[Slop];
+  const MaxCur = Math.max(currentLimit, slopeCurrent);
+
+  // Debugging: Log computed values whenever they change
+  useEffect(() => {
+    console.log(`Pickup Time: ${PickUp}s → Current Limit: ${Math.round(currentLimit)}A`);
+  }, [PickUp]);
+
+  useEffect(() => {
+    console.log(`Top Speed: ${TopSpeed} Kmph → Frequency: ${Math.round(frequency)}Hz`);
+  }, [TopSpeed]);
+
+  useEffect(() => {
+    console.log(`Slope: ${Slop}° → Current Limit: ${slopeCurrent}A`);
+  }, [Slop]);
+
+  useEffect(() => {
+    console.log(`Maximum CurrentLimit: ${MaxCur}° A`);
+  }, [Slop]);
 
   const convertDecimalToHex = (decimal: string) => {
     const decimalNumber = parseInt(decimal, 10);
@@ -36,8 +55,7 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
     parameterValue: number,
     opCode: string,
     payloadLength: string,
-    canId: string,
-    showAlert: boolean = true
+    canId: string
   ) => {
     const serviceUUID = '00FF';
     const characteristicUUID = 'FF01';
@@ -52,25 +70,24 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
     const Destination = '02';
     const message = SOF + Source + Destination + opCode + payloadLength + parameterHex;
 
+    console.log(`Writing to device: ${message} (OpCode: ${opCode}, CAN ID: ${canId})`);
+
     try {
       const base64Data = Buffer.from(message, 'hex').toString('base64');
       await device.writeCharacteristicWithResponseForService(serviceUUID, characteristicUUID, base64Data);
-      console.log(`Sent parameter ${opCode} to CAN ID: ${canId}`);
+      console.log(`Sent parameter ${opCode} successfully.`);
     } catch (error: any) {
       console.error(`Write failed for OpCode ${opCode} at CAN ID ${canId}`, error);
-      if (showAlert) {
-        Alert.alert("Write Error", `Error writing data for OpCode ${opCode}: ${error.message}`);
-      }
+      Alert.alert("Write Error", `Error writing data for OpCode ${opCode}: ${error.message}`);
     }
   };
 
   const handleSendAllParameters = async () => {
     try {
-      await writeParameterToDevice(Range, '0A', '0001', '18F20309');
-      await writeParameterToDevice(PickUp, '0B', '0001', '18F20309');
-      await writeParameterToDevice(TopSpeed, '0C', '0001', '18F20309');
-      await writeParameterToDevice(Slop, '0D', '0002', '18F20309');
-      await writeParameterToDevice(Efficiency, '0E', '0001', '18F20309');
+      console.log("Sending all parameters...");
+      await writeParameterToDevice(MaxCur, '0B', '0001', '18F20309');
+      await writeParameterToDevice(frequency, '0C', '0001', '18F20309');
+      // await writeParameterToDevice(slopeCurrent, '0D', '0002', '18F20309');
 
       Alert.alert('Success', 'All parameters have been sent to the device successfully.');
     } catch (error: any) {
@@ -81,69 +98,24 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
 
   return (
     <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
-      
-      <View style={styles.switchContainer}>
-        <Text style={styles.label}>Advanced Controls</Text>
-        <Switch value={isAdvanced} onValueChange={setIsAdvanced} />
-      </View>
-
-      {/* Ride Experience Section */}
-      <View style={styles.rideExperienceContainer}>
-        <Text style={styles.sectionTitle}>Ride Experience</Text>
-        <View style={styles.rowContainer}>
-          <Text style={styles.label}>Efficiency</Text>
-          <Text style={styles.label}>Excitement</Text>
-        </View>
-        <Slider
-          style={styles.slider}
-          minimumValue={0}
-          maximumValue={255}
-          step={1}
-          value={Efficiency}
-          onValueChange={(value) => setEfficiency(value)}
-          disabled={isAdvanced}
-          minimumTrackTintColor="#3498db"
-          maximumTrackTintColor="#ddd"
-          thumbTintColor="#2980b9"
-        />
-        <Text style={styles.value}>{Efficiency}</Text>
-      </View>
-
-      {/* Other Parameters Section */}
       <View style={styles.parametersContainer}>
         <Text style={styles.sectionTitle}>Parameters at 100% Battery</Text>
 
-        <Text style={styles.label}>Regen</Text>
+        <Text style={styles.label}>Pick up (Seconds)</Text>
         <Slider
           style={styles.slider}
-          minimumValue={0}
-          maximumValue={255}
-          step={1}
-          value={Range}
-          onValueChange={(value) => setRange(value)}
-          disabled={!isAdvanced}
-          minimumTrackTintColor="#2ecc71"
-          maximumTrackTintColor="#ddd"
-          thumbTintColor="#27ae60"
-        />
-        <Text style={styles.value}>{Range}</Text>
-
-        <Text style={styles.label}>Pick up</Text>
-        <Slider
-          style={styles.slider}
-          minimumValue={5}
+          minimumValue={6}
           maximumValue={16}
           step={1}
-          value={PickUp}
-          onValueChange={(value) => setPickUp(value)}
-          disabled={!isAdvanced}
+          value={16 - (PickUp - 6)} // Inverts the slider movement
+          onValueChange={(value) => setPickUp(16 - (value - 6))} // Adjusts the state accordingly
           minimumTrackTintColor="#f39c12"
           maximumTrackTintColor="#ddd"
           thumbTintColor="#e67e22"
         />
-        <Text style={styles.value}>{PickUp}</Text>
+        <Text style={styles.value}>PickUp: {PickUp}s → Current Limit: {Math.round(currentLimit)} A</Text>       
 
-        <Text style={styles.label}>Top Speed</Text>
+        <Text style={styles.label}>Top Speed (Kmph)</Text>
         <Slider
           style={styles.slider}
           minimumValue={30}
@@ -151,27 +123,26 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
           step={1}
           value={TopSpeed}
           onValueChange={(value) => setTopSpeed(value)}
-          disabled={!isAdvanced}
           minimumTrackTintColor="#e74c3c"
           maximumTrackTintColor="#ddd"
           thumbTintColor="#c0392b"
         />
-        <Text style={styles.value}>{TopSpeed}</Text>
+        <Text style={styles.value}>Top Speed: {TopSpeed} Kmph → Frequency: {Math.round(frequency)} Hz</Text>
 
-        <Text style={styles.label}>Slop</Text>
+        <Text style={styles.label}>Slope (Degrees)</Text>
+        <Text style={styles.value}>Slope: {Slop}° → Current Limit: {slopeCurrent} A</Text>
         <Slider
           style={styles.slider}
           minimumValue={0}
-          maximumValue={3}
+          maximumValue={2}
           step={1}
-          value={[0, 7, 10, 14].indexOf(Slop)}
-          onValueChange={(index) => setSlop([0, 7, 10, 14][index])}
-          disabled={!isAdvanced}
+          value={[0,7, 10, 14].indexOf(Slop)}
+          onValueChange={(index) => setSlop([0,7, 10, 14][index])}
           minimumTrackTintColor="#9b59b6"
           maximumTrackTintColor="#ddd"
           thumbTintColor="#8e44ad"
         />
-        <Text style={styles.value}>{Slop}</Text>
+        
 
         <Button title="Send All Parameters" onPress={handleSendAllParameters} color="#3498db" />
       </View>
@@ -180,47 +151,15 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  // Main ScrollView container
   scrollView: { 
     flex: 1, 
     backgroundColor: '#f5f5f5' 
   },
 
-  // Content container for proper padding and alignment
   contentContainer: { 
     padding: 16 
   },
 
-  // Styling for the Advanced Controls switch
-  switchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    padding: 12,
-    marginBottom: 16,
-    borderRadius: 10,
-    elevation: 3, // Android shadow
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
-
-  // Section for ride experience styling
-  rideExperienceContainer: {
-    padding: 16,
-    backgroundColor: '#ecf0f1',
-    borderRadius: 10,
-    marginBottom: 16,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
-
-  // Styling for parameters container (sliders and labels)
   parametersContainer: { 
     padding: 16, 
     backgroundColor: '#ffffff', 
@@ -233,7 +172,6 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
 
-  // Titles of each section
   sectionTitle: { 
     fontSize: 20, 
     fontWeight: 'bold', 
@@ -241,24 +179,10 @@ const styles = StyleSheet.create({
     marginBottom: 12 
   },
 
-  // Label for sliders
   label: { 
     fontSize: 16, 
     fontWeight: '500', 
     marginBottom: 8 
-  },
-
-  // Row container for side-by-side elements
-  rowContainer: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    marginBottom: 8 
-  },
-
-  // Slider Styling
-  sliderContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
   },
 
   slider: { 
@@ -266,16 +190,6 @@ const styles = StyleSheet.create({
     height: 50,
   },
 
-  // Custom thumb style for slider (React Native does not support direct styling of thumb)
-  sliderThumb: {
-    backgroundColor: '#3498db',
-    width: 25,
-    height: 25,
-    borderRadius: 15,
-    elevation: 5,
-  },
-
-  // Displayed value under each slider
   value: { 
     fontSize: 16, 
     textAlign: 'center', 
@@ -283,21 +197,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#2c3e50'
   },
-
-  // Button styling
-  button: {
-    backgroundColor: '#3498db',
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
 });
-
 
 export default Custom_Mode;
