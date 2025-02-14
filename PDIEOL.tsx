@@ -15,13 +15,14 @@ type PDIEOLProps = NativeStackScreenProps<RootStackParamList, "PDIEOL">;
 const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const { device } = route.params;
   
-  const [firebaseData, setFirebaseData] = useState<any>(null);
-  const [isMatched, setIsMatched] = useState(false);
-
+  // BLE Data States
   const [SW_Version_MAJDecoder, setSW_Version_MAJDecoder] = useState<number | null>(null);
   const [SW_Version_MINDecoder, setSW_Version_MINDecoder] = useState<number | null>(null);
   const [HW_Version_MAJDecoder, setHW_Version_MAJDecoder] = useState<number | null>(null);
   const [HW_Version_MINDecoder, setHW_Version_MINDecoder] = useState<number | null>(null);
+
+  // Firebase Data State
+  const [firebaseData, setFirebaseData] = useState<any>(null);
 
   const serviceUUID = "00FF";
   const characteristicUUID = "FF01";
@@ -42,7 +43,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
           characteristicUUID,
           (error, characteristic) => {
             if (error) {
-              // Ignore cancellation errors during unmount
               if (error.message && error.message.includes("Operation was cancelled")) {
                 console.log("Subscription cancelled as part of cleanup.");
                 return;
@@ -58,7 +58,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
             }
           }
         );
-        
       } catch (error: any) {
         console.error("Failed to set up subscription:", error);
         Alert.alert("Setup Error", error.message);
@@ -74,9 +73,9 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     };
   }, [device]);
   
+  // Fetch the most recent document from the "parameters" collection
   const fetchFirebaseData = async () => {
     try {
-      // Reference the "parameters" collection.
       const parametersCollectionRef = collection(db, "parameters");
       const querySnapshot = await getDocs(parametersCollectionRef);
   
@@ -86,18 +85,13 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         return;
       }
   
-      // Sort documents by their document ID (assumed to be an ISO timestamp)
-      // in descending order so that the most recent is first.
+      // Sort documents by document ID (assumed to be an ISO timestamp) in descending order
       const sortedDocs = querySnapshot.docs.sort((a, b) => b.id.localeCompare(a.id));
       const latestData = sortedDocs[0].data();
       console.log("📂 Latest Document Data:", latestData);
   
       if (latestData) {
         setFirebaseData(latestData);
-        setSW_Version_MAJDecoder(latestData?.SW_Version_MAJ ?? null);
-        setSW_Version_MINDecoder(latestData?.SW_Version_MIN ?? null);
-        setHW_Version_MAJDecoder(latestData?.HW_Version_MAJ ?? null);
-        setHW_Version_MINDecoder(latestData?.HW_Version_MIN ?? null);
       }
   
     } catch (error) {
@@ -110,32 +104,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     }
   };
  
-  const setupBLESubscription = async () => {
-    try {
-      const connectedDevice = await device.isConnected();
-      if (!connectedDevice) {
-        await device.connect();
-        await device.discoverAllServicesAndCharacteristics();
-      }
-
-      await device.monitorCharacteristicForService(serviceUUID, characteristicUUID, (error, characteristic) => {
-        if (error) {
-          console.error("Subscription error:", error);
-          Alert.alert("Subscription Error", error.message);
-          return;
-        }
-
-        if (characteristic?.value) {
-          const data = Buffer.from(characteristic.value, "base64").toString("hex");
-          decodeData(data);
-        }
-      });
-    } catch (error: any) {
-      console.error("Failed to set up subscription:", error);
-      Alert.alert("Setup Error", error.message);
-    }
-  };
-
   const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
     return (data: string) => {
       if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
@@ -147,6 +115,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     };
   };
 
+  // Decode BLE data and update state
   const decodeData = (data: string) => {
     const SW_MAJ = eight_bytes_decode("05", 1.0, 9)(data);
     const SW_MIN = eight_bytes_decode("05", 1.0, 10)(data);
@@ -159,48 +128,48 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     if (HW_MIN !== null) setHW_Version_MINDecoder(HW_MIN);
   };
 
-  const handleCheckout = () => {
-    if (!firebaseData) {
-      Alert.alert("Error", "No data fetched from Firebase. Please fetch data first.");
-      return;
-    }
-
-    const matches =
-      firebaseData.SW_Version_MAJ === SW_Version_MAJDecoder &&
-      firebaseData.SW_Version_MIN === SW_Version_MINDecoder &&
-      firebaseData.HW_Version_MAJ === HW_Version_MAJDecoder &&
-      firebaseData.HW_Version_MIN === HW_Version_MINDecoder;
-
-    if (matches) {
-      Alert.alert("Checkout Successful", "All components match!");
-    } else {
-      Alert.alert("Please check the components", "Mismatch detected!");
-    }
-  };
-
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
-        <Text style={styles.header}>Vehicle Data</Text>
-        
-        <Button title="Fetch Data" onPress={fetchFirebaseData} />
+        {/* BLE Data Section */}
+        <Text style={styles.header}>BLE Data</Text>
+        <Text style={styles.parameterText}>
+          SW_Version_MAJ: {SW_Version_MAJDecoder !== null ? SW_Version_MAJDecoder : "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          SW_Version_MIN: {SW_Version_MINDecoder !== null ? SW_Version_MINDecoder : "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          HW_Version_MAJ: {HW_Version_MAJDecoder !== null ? HW_Version_MAJDecoder : "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          HW_Version_MIN: {HW_Version_MINDecoder !== null ? HW_Version_MINDecoder : "N/A"}
+        </Text>
 
-        {SW_Version_MAJDecoder !== null && (
-          <Text style={styles.parameterText}>SW_Version_MAJ: {SW_Version_MAJDecoder} V</Text>
-        )}
-        {SW_Version_MINDecoder !== null && (
-          <Text style={styles.parameterText}>SW_Version_MIN: {SW_Version_MINDecoder} V</Text>
-        )}
-        {HW_Version_MAJDecoder !== null && (
-          <Text style={styles.parameterText}>HW_Version_MAJ: {HW_Version_MAJDecoder} V</Text>
-        )}
-        {HW_Version_MINDecoder !== null && (
-          <Text style={styles.parameterText}>HW_Version_MIN: {HW_Version_MINDecoder} V</Text>
-        )}
+        {/* Firebase Data Fetch Button */}
+        <Button title="Fetch Firebase Data" onPress={fetchFirebaseData} />
 
-        {firebaseData && <Text style={styles.infoText}>Fetched Firebase Data</Text>}
-
-        <Button title="Checkout" onPress={handleCheckout} />
+        {/* Firebase Data Section */}
+        {firebaseData && (
+          <View style={styles.firebaseContainer}>
+            <Text style={styles.header}>Firebase Data</Text>
+            <Text style={styles.parameterText}>
+              SW_Version_MAJDecoder: {firebaseData.SW_Version_MAJDecoder || "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              SW_Version_MINDecoder: {firebaseData.SW_Version_MINDecoder || "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              HW_Version_MAJDecoder: {firebaseData.HW_Version_MAJDecoder || "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              HW_Version_MINDecoder: {firebaseData.HW_Version_MINDecoder || "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              Timestamp: {firebaseData.timestamp || "N/A"}
+            </Text>
+          </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -208,11 +177,10 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
 
 const styles = StyleSheet.create({
   scrollView: { flex: 1, backgroundColor: "#fff" },
-  container: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20 },
-  header: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
-  parameterText: { fontSize: 18, fontWeight: "bold", marginBottom: 5 },
-  infoText: { fontSize: 16, color: "blue", marginBottom: 10 },
-  warningText: { fontSize: 16, color: "red", marginBottom: 10 },
+  container: { flex: 1, alignItems: "center", padding: 20 },
+  header: { fontSize: 24, fontWeight: "bold", marginVertical: 10 },
+  parameterText: { fontSize: 18, marginBottom: 5 },
+  firebaseContainer: { marginTop: 30, alignItems: "center" }
 });
 
 export default PDIEOL;
