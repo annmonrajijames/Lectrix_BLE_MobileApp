@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, View, Text, StyleSheet, Alert, Button } from "react-native";
+import {
+  SafeAreaView,
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  Button,
+} from "react-native";
 import { Device } from "react-native-ble-plx";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Buffer } from "buffer";
@@ -86,7 +94,9 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       }
   
       // Sort documents by document ID (assumed to be an ISO timestamp) in descending order
-      const sortedDocs = querySnapshot.docs.sort((a, b) => b.id.localeCompare(a.id));
+      const sortedDocs = querySnapshot.docs.sort((a, b) =>
+        b.id.localeCompare(a.id)
+      );
       const latestData = sortedDocs[0].data();
       console.log("📂 Latest Document Data:", latestData);
   
@@ -104,10 +114,19 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     }
   };
  
-  const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
+  const eight_bytes_decode = (
+    firstByteCheck: string,
+    multiplier: number,
+    ...positions: number[]
+  ) => {
     return (data: string) => {
-      if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
-        const bytes = positions.map((pos) => data.substring(2 * pos, 2 * pos + 2)).join("");
+      if (
+        data.length >= 2 * positions.length &&
+        data.substring(0, 2) === firstByteCheck
+      ) {
+        const bytes = positions
+          .map((pos) => data.substring(2 * pos, 2 * pos + 2))
+          .join("");
         const decimalValue = parseInt(bytes, 16);
         return decimalValue * multiplier;
       }
@@ -129,8 +148,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   };
 
   return (
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
         {/* BLE Data Section */}
         <Text style={styles.header}>BLE Data</Text>
         <Text style={styles.parameterText}>
@@ -145,9 +164,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         <Text style={styles.parameterText}>
           HW_Version_MIN: {HW_Version_MINDecoder !== null ? HW_Version_MINDecoder : "N/A"}
         </Text>
-
-        {/* Firebase Data Fetch Button */}
-        <Button title="Fetch Firebase Data" onPress={fetchFirebaseData} />
 
         {/* Firebase Data Section */}
         {firebaseData && (
@@ -170,17 +186,27 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
             </Text>
           </View>
         )}
+      </ScrollView>
+      <View style={styles.fixedButtonContainer}>
+        <Button title="Fetch Firebase Data" onPress={fetchFirebaseData} />
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: "#fff" },
-  container: { flex: 1, alignItems: "center", padding: 20 },
-  header: { fontSize: 24, fontWeight: "bold", marginVertical: 10 },
-  parameterText: { fontSize: 18, marginBottom: 5 },
-  firebaseContainer: { marginTop: 30, alignItems: "center" }
+  safeArea: { flex: 1, backgroundColor: "#fff" },
+  contentContainer: { alignItems: "center", padding: 20, paddingBottom: 120 },
+  header: { fontSize: 24, fontWeight: "bold", marginVertical: 10, textAlign: "center" },
+  parameterText: { fontSize: 18, marginBottom: 5, textAlign: "center" },
+  firebaseContainer: { marginTop: 30, alignItems: "center" },
+  fixedButtonContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
 });
 
 export default PDIEOL;
