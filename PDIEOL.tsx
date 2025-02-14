@@ -43,17 +43,23 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
           characteristicUUID,
           (error, characteristic) => {
             if (error) {
+              // Ignore cancellation errors during unmount
+              if (error.message && error.message.includes("Operation was cancelled")) {
+                console.log("Subscription cancelled as part of cleanup.");
+                return;
+              }
               console.error("Subscription error:", error);
               Alert.alert("Subscription Error", error.message);
               return;
             }
-  
+        
             if (characteristic?.value) {
               const data = Buffer.from(characteristic.value, "base64").toString("hex");
               decodeData(data);
             }
           }
         );
+        
       } catch (error: any) {
         console.error("Failed to set up subscription:", error);
         Alert.alert("Setup Error", error.message);
