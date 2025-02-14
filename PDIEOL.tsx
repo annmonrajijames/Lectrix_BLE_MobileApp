@@ -28,11 +28,51 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const characteristicUUID = "FF01";
 
   useEffect(() => {
+    let subscription: { remove: () => void } | undefined;
+  
+    const setupBLESubscription = async () => {
+      try {
+        const connected = await device.isConnected();
+        if (!connected) {
+          await device.connect();
+          await device.discoverAllServicesAndCharacteristics();
+        }
+  
+        subscription = device.monitorCharacteristicForService(
+          serviceUUID,
+          characteristicUUID,
+          (error, characteristic) => {
+            if (error) {
+              console.error("Subscription error:", error);
+              Alert.alert("Subscription Error", error.message);
+              return;
+            }
+  
+            if (characteristic?.value) {
+              const data = Buffer.from(characteristic.value, "base64").toString("hex");
+              decodeData(data);
+            }
+          }
+        );
+      } catch (error: any) {
+        console.error("Failed to set up subscription:", error);
+        Alert.alert("Setup Error", error.message);
+      }
+    };
+  
     setupBLESubscription();
+  
     return () => {
-      device.cancelConnection();
+      // Clean up the subscription if it exists
+      if (subscription) {
+        subscription.remove();
+      }
+      // Optionally, you can cancel the device connection if that's part of your desired lifecycle.
+      // Note: If you cancel the connection here, ensure that your reconnection logic handles it on re-enter.
+      // device.cancelConnection();
     };
   }, [device]);
+  
 
   const fetchFirebaseData = async () => {
     if (!vehicleNumber.trim()) {
