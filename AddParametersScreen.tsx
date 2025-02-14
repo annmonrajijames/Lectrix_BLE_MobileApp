@@ -7,7 +7,6 @@ import { collection, setDoc, doc, getDocs } from 'firebase/firestore';
 type ParameterKeys = 'SW_Version_MAJDecoder' | 'SW_Version_MINDecoder' | 'HW_Version_MAJDecoder' | 'HW_Version_MINDecoder';
 
 const AddParametersScreen = () => {
-  const [vehicleNumber, setVehicleNumber] = useState(''); // State for vehicle number
   const [parameters, setParameters] = useState<Record<ParameterKeys, string>>({
     SW_Version_MAJDecoder: '',
     SW_Version_MINDecoder: '',
@@ -15,12 +14,12 @@ const AddParametersScreen = () => {
     HW_Version_MINDecoder: '',
   });
 
-  // Handle input change
+  // Handle input change for parameters
   const handleInputChange = (name: ParameterKeys, value: string) => {
     setParameters(prevState => ({ ...prevState, [name]: value }));
   };
 
-  // Test Firestore connection
+  // Test Firestore connection on mount
   useEffect(() => {
     const testFirestoreConnection = async () => {
       try {
@@ -35,24 +34,26 @@ const AddParametersScreen = () => {
     testFirestoreConnection();
   }, []);
 
-  // Upload to Firestore with Vehicle Number as Document ID
+  // Upload to Firestore with current time as Document ID
   const uploadToFirebase = async () => {
     try {
       if (!db) {
         throw new Error('Firestore instance is not initialized.');
       }
 
-      if (!vehicleNumber.trim()) {
-        Alert.alert('Error', 'Please enter a valid Vehicle Number.');
-        return;
-      }
+      // Generate a timestamp string
+      const currentTime = new Date().toISOString();
 
-      await setDoc(doc(db, 'parameters', vehicleNumber), parameters);
-      console.log('✅ Document added with ID (Vehicle Number):', vehicleNumber);
-      Alert.alert('Success', `Parameters added for Vehicle: ${vehicleNumber}`);
+      // Upload document with timestamp as the document ID, and include the timestamp in the document fields
+      await setDoc(doc(db, 'parameters', currentTime), {
+        ...parameters,
+        timestamp: currentTime,
+      });
 
-      // Reset input fields
-      setVehicleNumber('');
+      console.log('✅ Document added with ID (Timestamp):', currentTime);
+      Alert.alert('Success', `Parameters added at ${currentTime}`);
+
+      // Reset parameter input fields
       setParameters({
         SW_Version_MAJDecoder: '',
         SW_Version_MINDecoder: '',
@@ -67,18 +68,7 @@ const AddParametersScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Enter Vehicle Number & Parameter Values</Text>
-
-      {/* Vehicle Number Input */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Vehicle Number:</Text>
-        <TextInput
-          style={styles.input}
-          value={vehicleNumber}
-          onChangeText={setVehicleNumber}
-          placeholder="Enter vehicle number"
-        />
-      </View>
+      <Text style={styles.heading}>Enter Parameter Values</Text>
 
       {/* Parameter Inputs */}
       {Object.keys(parameters).map(key => (
