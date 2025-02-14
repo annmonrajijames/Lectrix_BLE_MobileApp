@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, View, Text, StyleSheet, Alert, Button, TextInput } from "react-native";
+import { ScrollView, View, Text, StyleSheet, Alert, Button } from "react-native";
 import { Device } from "react-native-ble-plx";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Buffer } from "buffer";
 import { db } from "./firebaseConfig"; // Ensure correct path
-import { doc, getDoc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
 type RootStackParamList = {
   PDIEOL: { device: Device };
@@ -15,7 +15,6 @@ type PDIEOLProps = NativeStackScreenProps<RootStackParamList, "PDIEOL">;
 const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const { device } = route.params;
   
-  const [vehicleNumber, setVehicleNumber] = useState("");
   const [firebaseData, setFirebaseData] = useState<any>(null);
   const [isMatched, setIsMatched] = useState(false);
 
@@ -69,48 +68,37 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     setupBLESubscription();
   
     return () => {
-      // Clean up the subscription if it exists
       if (subscription) {
         subscription.remove();
       }
-      // Optionally, you can cancel the device connection if that's part of your desired lifecycle.
-      // Note: If you cancel the connection here, ensure that your reconnection logic handles it on re-enter.
-      // device.cancelConnection();
     };
   }, [device]);
   
-
   const fetchFirebaseData = async () => {
-    if (!vehicleNumber.trim()) {
-      Alert.alert("Error", "Please enter a vehicle number");
-      return;
-    }
-  
-    const trimmedVehicleNumber = vehicleNumber.trim();
-    console.log("🚀 Checking if vehicle exists:", trimmedVehicleNumber);
-  
     try {
-      const docRef = doc(db, "parameters", trimmedVehicleNumber);
-      console.log("🔍 Firestore Document Path:", docRef.path); // Debugging
+      // Reference the "parameters" collection.
+      const parametersCollectionRef = collection(db, "parameters");
+      const querySnapshot = await getDocs(parametersCollectionRef);
   
-      const docSnap = await getDoc(docRef);
-  
-      if (!docSnap.exists()) {
-        console.log("❌ No document found with ID:", trimmedVehicleNumber);
-        Alert.alert("Error", "No data found for this vehicle number.");
+      if (querySnapshot.empty) {
+        console.log("❌ No documents found in the parameters collection.");
+        Alert.alert("Error", "No data found in parameters collection.");
         return;
       }
   
-      console.log("✅ Vehicle found! Fetching data...");
-      const data = docSnap.data();
-      console.log("📂 Document Data:", data);
+      // Sort documents by their document ID (assumed to be an ISO timestamp)
+      // in descending order so that the most recent is first.
+      const sortedDocs = querySnapshot.docs.sort((a, b) => b.id.localeCompare(a.id));
+      const latestData = sortedDocs[0].data();
+      console.log("📂 Latest Document Data:", latestData);
   
-      // Ensure values exist before setting state
-      setFirebaseData(data);
-      setSW_Version_MAJDecoder(data?.SW_Version_MAJDecoder ?? null);
-      setSW_Version_MINDecoder(data?.SW_Version_MINDecoder ?? null);
-      setHW_Version_MAJDecoder(data?.HW_Version_MAJDecoder ?? null);
-      setHW_Version_MINDecoder(data?.HW_Version_MINDecoder ?? null);
+      if (latestData) {
+        setFirebaseData(latestData);
+        setSW_Version_MAJDecoder(latestData?.SW_Version_MAJ ?? null);
+        setSW_Version_MINDecoder(latestData?.SW_Version_MIN ?? null);
+        setHW_Version_MAJDecoder(latestData?.HW_Version_MAJ ?? null);
+        setHW_Version_MINDecoder(latestData?.HW_Version_MIN ?? null);
+      }
   
     } catch (error) {
       console.error("🔥 Firebase Fetch Error:", error);
@@ -173,7 +161,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
 
   const handleCheckout = () => {
     if (!firebaseData) {
-      Alert.alert("Error", "No data fetched from Firebase. Please enter a valid vehicle number and fetch data.");
+      Alert.alert("Error", "No data fetched from Firebase. Please fetch data first.");
       return;
     }
 
@@ -195,18 +183,20 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       <View style={styles.container}>
         <Text style={styles.header}>Vehicle Data</Text>
         
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Vehicle Number"
-          value={vehicleNumber}
-          onChangeText={setVehicleNumber}
-        />
         <Button title="Fetch Data" onPress={fetchFirebaseData} />
 
-        {SW_Version_MAJDecoder !== null && <Text style={styles.parameterText}>SW_Version_MAJ: {SW_Version_MAJDecoder} V</Text>}
-        {SW_Version_MINDecoder !== null && <Text style={styles.parameterText}>SW_Version_MIN: {SW_Version_MINDecoder} V</Text>}
-        {HW_Version_MAJDecoder !== null && <Text style={styles.parameterText}>HW_Version_MAJ: {HW_Version_MAJDecoder} V</Text>}
-        {HW_Version_MINDecoder !== null && <Text style={styles.parameterText}>HW_Version_MIN: {HW_Version_MINDecoder} V</Text>}
+        {SW_Version_MAJDecoder !== null && (
+          <Text style={styles.parameterText}>SW_Version_MAJ: {SW_Version_MAJDecoder} V</Text>
+        )}
+        {SW_Version_MINDecoder !== null && (
+          <Text style={styles.parameterText}>SW_Version_MIN: {SW_Version_MINDecoder} V</Text>
+        )}
+        {HW_Version_MAJDecoder !== null && (
+          <Text style={styles.parameterText}>HW_Version_MAJ: {HW_Version_MAJDecoder} V</Text>
+        )}
+        {HW_Version_MINDecoder !== null && (
+          <Text style={styles.parameterText}>HW_Version_MIN: {HW_Version_MINDecoder} V</Text>
+        )}
 
         {firebaseData && <Text style={styles.infoText}>Fetched Firebase Data</Text>}
 
@@ -220,15 +210,6 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1, backgroundColor: "#fff" },
   container: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20 },
   header: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
-  input: {
-    width: "80%",
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
   parameterText: { fontSize: 18, fontWeight: "bold", marginBottom: 5 },
   infoText: { fontSize: 16, color: "blue", marginBottom: 10 },
   warningText: { fontSize: 16, color: "red", marginBottom: 10 },
