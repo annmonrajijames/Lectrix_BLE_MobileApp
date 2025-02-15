@@ -5,6 +5,7 @@ import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
 import LinearGradient from 'react-native-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
   Custom_Mode: { device: Device };
@@ -19,6 +20,54 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
   const [TopSpeed, setTopSpeed] = useState(30);
   const [Slop, setSlop] = useState(7);
   // const [Regen, setRegen] = useState(2); // Added Regen parameter
+  // State for managing save functionality
+  const [savedValues, setSavedValues] = useState({ PickUp, TopSpeed, Slop });
+  const [isSendEnabled, setIsSendEnabled] = useState(false);
+  const [originalValues, setOriginalValues] = useState({ PickUp: 16, TopSpeed: 30, Slop: 7 });
+
+
+  // Load saved values from AsyncStorage when component mounts
+  useEffect(() => {
+    const loadSavedValues = async () => {
+      try {
+        const savedData = await AsyncStorage.getItem('savedParameters');
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          setPickUp(parsedData.PickUp);
+          setTopSpeed(parsedData.TopSpeed);
+          setSlop(parsedData.Slop);
+          setIsSendEnabled(true); // Enable the Send button if values exist
+        }
+      } catch (error) {
+        console.error('Error loading saved values:', error);
+      }
+    };
+
+    loadSavedValues();
+  }, []); // Run only when the screen is first loaded
+
+  // Disable Send button if any slider value is changed
+  useEffect(() => {
+    if (
+      PickUp !== originalValues.PickUp ||
+      TopSpeed !== originalValues.TopSpeed ||
+      Slop !== originalValues.Slop
+    ) {
+      setIsSendEnabled(false);
+    }
+  }, [PickUp, TopSpeed, Slop]);
+
+  // Save the current values when "Save" button is clicked
+  const handleSave = async () => {
+    const newValues = { PickUp, TopSpeed, Slop };
+    try {
+      await AsyncStorage.setItem('savedParameters', JSON.stringify(newValues));
+      setIsSendEnabled(true); // Enable send button after saving
+      Alert.alert('Saved', 'Parameters have been saved successfully.');
+    } catch (error) {
+      console.error('Error saving values:', error);
+    }
+  };
 
   // Compute values based on the formulas
   const currentLimit = 105 - ((PickUp - 6) / (16 - 6)) * (105 - 32);
@@ -28,7 +77,23 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
   const MaxCur = Math.max(currentLimit, slopeCurrent);
   // const regenValues: Record<number, number> = { 25: 2, 50: 18, 100: 15 };
   // const RegenSendValues = regenValues[Regen];
+  // const [isConnected, setIsConnected] = useState(false);
+  
+  useEffect(() => {
+    checkConnection();
+  }, []);
 
+  const checkConnection = async () => {
+    try {
+      const connected = await device.isConnected();
+      if (!connected) {
+        await device.connect();
+        await device.discoverAllServicesAndCharacteristics();
+      }
+    } catch (error) {
+      Alert.alert('Connection Error', 'Failed to connect to device.');
+    }
+  };
   // Debugging: Log computed values whenever they chegen
   useEffect(() => {
     console.log(`Pickup Time: ${PickUp}s → Current Limit: ${Math.round(currentLimit)}A`);
@@ -122,27 +187,35 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
   return (
     <LinearGradient colors={['#283c86', '#45a247']} style={styles.gradient}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.header}>Custom Mode Settings</Text>
+        <Text style={styles.header}>{device.name || 'Unknown Device'}</Text>
 
         <View style={styles.card}>
-          <Text style={styles.label}>Pick Up Time (Seconds)</Text>
-          <Text style={styles.value}>{PickUp}s → {Math.round(currentLimit)} A</Text>
-          <Slider
-            style={styles.slider}
-            minimumValue={6}
-            maximumValue={16}
-            step={1}
-            value={PickUp}
-            onValueChange={setPickUp}
-            minimumTrackTintColor="#f39c12"
-            maximumTrackTintColor="#ddd"
-            thumbTintColor="#e67e22"
-          />
+          <View style={styles.rowContainer}>
+            <Text style={styles.label}>Pick Up Time (Seconds)</Text>
+            <Text style={styles.label}>0-40 kmph in {PickUp}s</Text>
+          </View>
+          <View style={styles.sliderContainer}>
+            <Slider
+              style={styles.slider}
+              minimumValue={6}
+              maximumValue={16}
+              step={1}
+              value={PickUp}
+              onValueChange={setPickUp}
+              minimumTrackTintColor="transparent"
+              maximumTrackTintColor="transparent"
+              thumbTintColor="white"
+            />
             
+          </View>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.label}>Top Speed (Kmph)</Text>
+          <View style={styles.rowContainer}>
+            <Text style={styles.label}>Top Speed (Kmph)</Text>
+            <Text style={styles.label}>{TopSpeed} Kmph </Text>
+          </View>
+          <View style={styles.sliderContainer}>
           <Slider
             style={styles.slider}
             minimumValue={30}
@@ -150,15 +223,20 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
             step={1}
             value={TopSpeed}
             onValueChange={setTopSpeed}
-            minimumTrackTintColor="#e74c3c"
-            maximumTrackTintColor="#ddd"
-            thumbTintColor="#c0392b"
+            minimumTrackTintColor="transparent"
+            maximumTrackTintColor="transparent"
+            thumbTintColor="white"
           />
-          <Text style={styles.value}>{TopSpeed} Kmph → {Math.round(frequency)} Hz</Text>
+          </View>
+          
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.label}>Slope (Degrees)</Text>
+          <View style={styles.rowContainer}>
+            <Text style={styles.label}>Slope (Degrees)</Text>
+            <Text style={styles.label}>{Slop}° with single ride</Text>
+          </View>
+          <View style={styles.sliderContainer}>
           <Slider
             style={styles.slider}
             minimumValue={0}
@@ -166,18 +244,32 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
             step={1}
             value={[3, 7, 10, 14].indexOf(Slop)}
             onValueChange={(index) => setSlop([3, 7, 10, 14][index])}
-            minimumTrackTintColor="#9b59b6"
-            maximumTrackTintColor="#ddd"
-            thumbTintColor="#8e44ad"
+            minimumTrackTintColor="transparent"
+            maximumTrackTintColor="transparent"
+            thumbTintColor="white"
           />
-          <Text style={styles.value}>{Slop}° → {slopeCurrent} A</Text>
+          </View>
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleSendAllParameters}>
+
+        <View style={styles.buttonRow}>
+         {/* Save Button */}
+         <TouchableOpacity style={styles.button} onPress={handleSave}>
           <LinearGradient colors={['#ff7e5f', '#feb47b']} style={styles.buttonGradient}>
-            <Text style={styles.buttonText}>Send All Parameters</Text>
+            <Text style={styles.buttonText}>Save</Text>
           </LinearGradient>
         </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.button, !isSendEnabled && styles.disabledButton]} 
+          onPress={handleSendAllParameters}
+          disabled={!isSendEnabled}
+        >
+          <LinearGradient colors={['#ff7e5f', '#feb47b']} style={styles.buttonGradient}>
+            <Text style={styles.buttonText}>Send</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+        </View>
       </ScrollView>
     </LinearGradient>
   );
@@ -188,19 +280,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    padding: 16,
-    alignItems: 'center',
+    flex: 1,
+    backgroundColor: '#000',
+    padding: 20,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-    marginBottom: 20,
+    backgroundColor: '#000',
   },
   card: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     padding: 18,
     borderRadius: 20,
     marginBottom: 16,
@@ -213,27 +306,73 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
     marginBottom: 6,
+    lineHeight: 22, // Ensure text isn't getting clipped
   },
   valueContainer: {
     alignItems: 'center', // Center aligns the text under sliders properly
     marginTop: 8,
     marginBottom: 20,
   },
+  sliderContainer: {
+    width: '100%',
+    height: 18,  // Thicker background for tube effect
+    borderRadius: 15,
+    backgroundColor: 'black',  // Tube background color
+    borderWidth: 2,  // Border thickness
+    borderColor: 'white',  // Border color
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+  },
   slider: {
     width: '100%',
-    height: 40,
+    height: 10, // Increase height for better appearance
+    marginHorizontal: -15, // Adjust to ensure thumb reaches the border
+  },
+  sliderTrack: {
+    height: 14, // Thicker track
+    borderRadius: 100, // Rounded tube-like effect
+    backgroundColor: 'black',
+    transform: [{ translateY: -4 }], // Align perfectly with thumb
+  },
+  sliderThumb: {
+    width: 100000,  // Big and thick thumb (moving dot)
+    height: 3000, 
+    borderRadius: 100, // Perfect circle
+    backgroundColor: 'white', 
+    borderWidth: 2,
+    borderColor: 'white', 
+    elevation: 5, // Shadow for better visibility
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    transform: [{ translateY: -15 }], // Move it up so it sits on top of the track
+  },
+  sliderBorder: {
+    width: '100%',
+    borderWidth: 2,  // Border thickness
+    borderColor: 'black',  // Border color
+    borderRadius: 10,  // Optional: Rounded border
+    padding: 2,  // Optional: Adjust spacing
+    position: 'relative'
   },
   value: {
     fontSize: 16,
     fontWeight: '600',
     color: '#555',
-    marginTop: 6,
-    textAlign: 'right',
+    textAlign: 'right',  // Centers text properly
+    width: '100%',        // Ensures full width
+    flexWrap: 'wrap',     // Allows text wrapping
+    marginTop: 10,        // Adds spacing
+    marginBottom: 10,     // Adds spacing
+    paddingHorizontal: 20, // Prevents text from getting cut
+    lineHeight: 22, // Ensure text isn't getting clipped
   },
+  
   button: {
-    width: '100%',
+    width: '50%',
     borderRadius: 8,
     overflow: 'hidden',
     elevation: 3,
@@ -249,6 +388,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
+  // Row container for side-by-side elements
+  rowContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 8 
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  buttonRow: {
+    flexDirection: 'row',  // Align buttons in a row
+    justifyContent: 'space-between',  // Space buttons evenly
+    marginTop: 15,
+  },
+  buttonSpacing: {
+    flex: 1,  // Make both buttons equal width
+    marginHorizontal: 5,  // Add spacing between buttons
+  },
+
 });
+
+
 
 export default Custom_Mode;
