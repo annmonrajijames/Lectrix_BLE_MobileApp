@@ -575,7 +575,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
                 can_message.extd = 1; // Extended frame
                 can_message.data_length_code = 8;
 
-                switch (opcode) {
+                switch (~opcode) {
                     // case 0x0A: // RegenLimit
                     //     ESP_LOGI(GATTS_TAG, "Message: RegenLimit");
                     //     regen_current_limit = payload; // Regen current limit
