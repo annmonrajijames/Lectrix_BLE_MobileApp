@@ -201,7 +201,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
 
   // Function to push data to Firebase (Matched Vehicle collection)
   // Document ID is the Vehicle Number entered by the user.
-  // "Admin_timestamp" is from firebaseData.timestamp and "Tester_timestamp" is the current timestamp.
+  // "Admin_timestamp" comes from firebaseData.timestamp.
+  // "Tester_timestamp" is the current local timestamp.
   const pushVehicleData = async () => {
     if (!firebaseData) {
       Alert.alert("Error", "Firebase data is not available.");
@@ -215,6 +216,12 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       Alert.alert("Error", "Please enter both Vehicle Number and Tester Name.");
       return;
     }
+    // Compute local Tester_timestamp adjusted for timezone.
+    const now = new Date();
+    const localTesterTimestamp = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, -1);
+    
     const docRef = doc(db, "Matched Vehicle", vehicleNumber);
     try {
       await setDoc(docRef, {
@@ -225,7 +232,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         HW_Version_MAJDecoder,
         HW_Version_MINDecoder,
         Admin_timestamp: firebaseData.timestamp, // Timestamp from fetched Firebase data
-        Tester_timestamp: new Date().toISOString(), // Current timestamp when pushing the data
+        Tester_timestamp: localTesterTimestamp, // Local timestamp at the time of pushing
       });
       Alert.alert("Success", "Vehicle data pushed successfully!");
     } catch (error) {
