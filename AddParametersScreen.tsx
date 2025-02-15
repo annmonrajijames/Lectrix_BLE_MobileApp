@@ -1,29 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { db } from './firebaseConfig';
 import { collection, setDoc, doc, getDocs } from 'firebase/firestore';
 
-// Define parameter keys
+// Define parameter keys, including the new ones.
 type ParameterKeys =
   | 'SW_Version_MAJDecoder'
   | 'SW_Version_MINDecoder'
   | 'HW_Version_MAJDecoder'
-  | 'HW_Version_MINDecoder';
+  | 'HW_Version_MINDecoder'
+  | 'HwVer'
+  | 'FwVer'
+  | 'FWSubVer'
+  | 'ConfigVer'
+  | 'InternalFWVer'
+  | 'InternalFWSubVer'
+  | 'MCU_Firmware_Id';
 
 const AddParametersScreen = () => {
+  // Updated initial state including the new parameters.
   const [parameters, setParameters] = useState<Record<ParameterKeys, string>>({
     SW_Version_MAJDecoder: '',
     SW_Version_MINDecoder: '',
     HW_Version_MAJDecoder: '',
     HW_Version_MINDecoder: '',
+    HwVer: '',
+    FwVer: '',
+    FWSubVer: '',
+    ConfigVer: '',
+    InternalFWVer: '',
+    InternalFWSubVer: '',
+    MCU_Firmware_Id: '',
   });
 
-  // Handle input change for parameters
+  // Handle input change for parameters.
   const handleInputChange = (name: ParameterKeys, value: string) => {
     setParameters(prevState => ({ ...prevState, [name]: value }));
   };
 
-  // Test Firestore connection on mount
+  // Test Firestore connection on mount.
   useEffect(() => {
     const testFirestoreConnection = async () => {
       try {
@@ -54,7 +69,7 @@ const AddParametersScreen = () => {
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
   };
 
-  // Upload to Firestore with the formatted local time string as Document ID
+  // Upload to Firestore with the formatted local time string as Document ID.
   const uploadToFirebase = async () => {
     try {
       if (!db) {
@@ -71,12 +86,19 @@ const AddParametersScreen = () => {
       console.log('✅ Document added with ID (Local Time):', localTime);
       Alert.alert('Success', `Parameters added at ${localTime}`);
 
-      // Reset parameter input fields
+      // Reset parameter input fields.
       setParameters({
         SW_Version_MAJDecoder: '',
         SW_Version_MINDecoder: '',
         HW_Version_MAJDecoder: '',
         HW_Version_MINDecoder: '',
+        HwVer: '',
+        FwVer: '',
+        FWSubVer: '',
+        ConfigVer: '',
+        InternalFWVer: '',
+        InternalFWSubVer: '',
+        MCU_Firmware_Id: '',
       });
     } catch (error) {
       console.error('❌ Error adding document:', error);
@@ -85,10 +107,10 @@ const AddParametersScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.heading}>Enter Parameter Values</Text>
 
-      {/* Parameter Inputs */}
+      {/* Render an input for each parameter */}
       {Object.keys(parameters).map(key => (
         <View key={key} style={styles.inputContainer}>
           <Text style={styles.label}>{key}:</Text>
@@ -96,24 +118,22 @@ const AddParametersScreen = () => {
             style={styles.input}
             value={parameters[key as ParameterKeys]}
             onChangeText={text => handleInputChange(key as ParameterKeys, text)}
-            keyboardType="numeric"
+            keyboardType="default"
             placeholder="Enter value"
           />
         </View>
       ))}
 
       <Button title="Upload to Firebase" onPress={uploadToFirebase} />
-    </View>
+    </ScrollView>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
     backgroundColor: '#fff',
-    justifyContent: 'center',
   },
   heading: {
     fontSize: 20,
