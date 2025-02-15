@@ -200,7 +200,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   };
 
   // Function to push data to Firebase (Matched Vehicle collection)
-  // Document ID is now the Vehicle Number entered by the user.
+  // Document ID is the Vehicle Number entered by the user.
+  // "Admin_timestamp" is from firebaseData.timestamp and "Tester_timestamp" is the current timestamp.
   const pushVehicleData = async () => {
     if (!firebaseData) {
       Alert.alert("Error", "Firebase data is not available.");
@@ -223,7 +224,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         SW_Version_MINDecoder,
         HW_Version_MAJDecoder,
         HW_Version_MINDecoder,
-        // Optionally include any additional fields (like timestamp) if needed.
+        Admin_timestamp: firebaseData.timestamp, // Timestamp from fetched Firebase data
+        Tester_timestamp: new Date().toISOString(), // Current timestamp when pushing the data
       });
       Alert.alert("Success", "Vehicle data pushed successfully!");
     } catch (error) {
