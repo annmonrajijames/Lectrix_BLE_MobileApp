@@ -13,7 +13,7 @@ import { Device } from "react-native-ble-plx";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Buffer } from "buffer";
 import { db } from "./firebaseConfig"; // Ensure correct path
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 
 type RootStackParamList = {
   PDIEOL: { device: Device };
@@ -34,9 +34,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const [HW_Version_MAJDecoder, setHW_Version_MAJDecoder] = useState<number | null>(null);
   const [HW_Version_MINDecoder, setHW_Version_MINDecoder] = useState<number | null>(null);
 
-  // Firebase Data State
+  // Firebase Data State and Mismatch Message
   const [firebaseData, setFirebaseData] = useState<any>(null);
-  // Mismatch message state
   const [mismatchMessage, setMismatchMessage] = useState<string>("");
 
   const serviceUUID = "00FF";
@@ -200,6 +199,39 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     if (HW_MIN !== null) setHW_Version_MINDecoder(HW_MIN);
   };
 
+  // Function to push data to Firebase (Matched Vehicle collection)
+  // Document ID is now the Vehicle Number entered by the user.
+  const pushVehicleData = async () => {
+    if (!firebaseData) {
+      Alert.alert("Error", "Firebase data is not available.");
+      return;
+    }
+    if (mismatchMessage !== "All parameters match.") {
+      Alert.alert("Error", "Parameters do not match. Cannot push data.");
+      return;
+    }
+    if (!vehicleNumber || !testerName) {
+      Alert.alert("Error", "Please enter both Vehicle Number and Tester Name.");
+      return;
+    }
+    const docRef = doc(db, "Matched Vehicle", vehicleNumber);
+    try {
+      await setDoc(docRef, {
+        vehicleNumber,
+        testerName,
+        SW_Version_MAJDecoder,
+        SW_Version_MINDecoder,
+        HW_Version_MAJDecoder,
+        HW_Version_MINDecoder,
+        // Optionally include any additional fields (like timestamp) if needed.
+      });
+      Alert.alert("Success", "Vehicle data pushed successfully!");
+    } catch (error) {
+      console.error("Push Error:", error);
+      Alert.alert("Error", "Failed to push vehicle data.");
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
@@ -260,6 +292,12 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         )}
       </ScrollView>
       <View style={styles.fixedButtonContainer}>
+        <Button
+          title="PUSH Vehicle data along with vehicle number and tester name"
+          onPress={pushVehicleData}
+          disabled={!(firebaseData && mismatchMessage === "All parameters match.")}
+        />
+        <View style={{ height: 10 }} />
         <Button title="Fetch Firebase Data" onPress={fetchFirebaseData} />
       </View>
     </SafeAreaView>
@@ -268,7 +306,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#fff" },
-  contentContainer: { alignItems: "center", padding: 20, paddingBottom: 120 },
+  contentContainer: { alignItems: "center", padding: 20, paddingBottom: 140 },
   entryContainer: {
     width: "100%",
     alignItems: "center",
