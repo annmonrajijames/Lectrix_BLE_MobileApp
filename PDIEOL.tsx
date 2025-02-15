@@ -21,6 +21,41 @@ type RootStackParamList = {
 
 type PDIEOLProps = NativeStackScreenProps<RootStackParamList, "PDIEOL">;
 
+/**
+ * Helper function to parse a custom timestamp string in the format:
+ * "YYYY-MM-DD_HH-mm-ss-zzz" (for example, "2025-02-15_16-55-06-040")
+ * and return a Date object.
+ *
+ * This function assumes that the last part (zzz) is the offset in hours and minutes
+ * (without a colon) and that it represents a negative offset (e.g. "040" means "-04:00").
+ */
+const parseCustomTimestamp = (ts: string): Date | null => {
+  const parts = ts.split("_");
+  if (parts.length !== 2) return null;
+  const datePart = parts[0]; // e.g., "2025-02-15"
+  const timePart = parts[1]; // e.g., "16-55-06-040"
+  const timeComponents = timePart.split("-");
+  if (timeComponents.length !== 4) return null;
+  const [hour, minute, second, offsetRaw] = timeComponents;
+  // Assume offsetRaw is a 3-digit string representing a negative offset.
+  // For example, "040" becomes "-04:00"
+  const offsetStr = "-" + offsetRaw.slice(0, 2) + ":" + offsetRaw.slice(2).padEnd(2, "0");
+  // Build an ISO string. For example: "2025-02-15T16:55:06-04:00"
+  const isoString = `${datePart}T${hour}:${minute}:${second}${offsetStr}`;
+  const parsedDate = new Date(isoString);
+  return isNaN(parsedDate.getTime()) ? null : parsedDate;
+};
+
+/**
+ * Helper function to format a Date in local time as an ISO-like string.
+ * For example, if local time is 21:27:25.993, it returns "2025-02-15T21:27:25.993"
+ */
+const formatLocalISO = (date: Date): string => {
+  const pad = (num: number) => num.toString().padStart(2, "0");
+  const padMs = (num: number) => num.toString().padStart(3, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.${padMs(date.getMilliseconds())}`;
+};
+
 const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const { device } = route.params;
   
@@ -43,7 +78,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
 
   useEffect(() => {
     let subscription: { remove: () => void } | undefined;
-  
     const setupBLESubscription = async () => {
       try {
         const connected = await device.isConnected();
@@ -51,7 +85,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
           await device.connect();
           await device.discoverAllServicesAndCharacteristics();
         }
-  
         subscription = device.monitorCharacteristicForService(
           serviceUUID,
           characteristicUUID,
@@ -65,7 +98,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
               Alert.alert("Subscription Error", error.message);
               return;
             }
-        
             if (characteristic?.value) {
               const data = Buffer.from(characteristic.value, "base64").toString("hex");
               decodeData(data);
@@ -77,9 +109,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         Alert.alert("Setup Error", error.message);
       }
     };
-  
     setupBLESubscription();
-  
     return () => {
       if (subscription) {
         subscription.remove();
@@ -87,40 +117,29 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     };
   }, [device]);
 
-  // Fetch the most recent document from the "parameters" collection
   const fetchFirebaseData = async () => {
     try {
       const parametersCollectionRef = collection(db, "parameters");
       const querySnapshot = await getDocs(parametersCollectionRef);
-  
       if (querySnapshot.empty) {
-        console.log("❌ No documents found in the parameters collection.");
         Alert.alert("Error", "No data found in parameters collection.");
         return;
       }
-  
-      // Sort documents by document ID (assumed to be an ISO timestamp) in descending order
+      // Sort documents by document ID (assumed to be in proper ISO format) in descending order
       const sortedDocs = querySnapshot.docs.sort((a, b) =>
         b.id.localeCompare(a.id)
       );
       const latestData = sortedDocs[0].data();
       console.log("📂 Latest Document Data:", latestData);
-  
       if (latestData) {
         setFirebaseData(latestData);
       }
-  
     } catch (error) {
-      console.error("🔥 Firebase Fetch Error:", error);
-      if (error instanceof Error) {
-        Alert.alert("Error", `Failed to fetch data: ${error.message}`);
-      } else {
-        Alert.alert("Error", "Failed to fetch data");
-      }
+      console.error("Firebase Fetch Error:", error);
+      Alert.alert("Error", `Failed to fetch data: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 
-  // Compare BLE and Firebase Data and update mismatchMessage
   useEffect(() => {
     if (firebaseData) {
       const mismatches: string[] = [];
@@ -152,11 +171,11 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       ) {
         mismatches.push("HW_Version_MIN");
       }
-      if (mismatches.length > 0) {
-        setMismatchMessage(`Mismatched parameter(s): ${mismatches.join(", ")}`);
-      } else {
-        setMismatchMessage("All parameters match.");
-      }
+      setMismatchMessage(
+        mismatches.length > 0
+          ? `Mismatched parameter(s): ${mismatches.join(", ")}`
+          : "All parameters match."
+      );
     }
   }, [
     firebaseData,
@@ -186,23 +205,19 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     };
   };
 
-  // Decode BLE data and update state
   const decodeData = (data: string) => {
     const SW_MAJ = eight_bytes_decode("05", 1.0, 9)(data);
     const SW_MIN = eight_bytes_decode("05", 1.0, 10)(data);
     const HW_MAJ = eight_bytes_decode("05", 1.0, 11)(data);
     const HW_MIN = eight_bytes_decode("05", 1.0, 12)(data);
-
     if (SW_MAJ !== null) setSW_Version_MAJDecoder(SW_MAJ);
     if (SW_MIN !== null) setSW_Version_MINDecoder(SW_MIN);
     if (HW_MAJ !== null) setHW_Version_MAJDecoder(HW_MAJ);
     if (HW_MIN !== null) setHW_Version_MINDecoder(HW_MIN);
   };
 
-  // Function to push data to Firebase (Matched Vehicle collection)
-  // Document ID is the Vehicle Number entered by the user.
-  // "Admin_timestamp" comes from firebaseData.timestamp.
-  // "Tester_timestamp" is the current local timestamp.
+  // When pushing data, use the fetched firebaseData.timestamp directly for Admin_timestamp.
+  // For Tester_timestamp, generate the current local time in the desired ISO format without trailing "Z".
   const pushVehicleData = async () => {
     if (!firebaseData) {
       Alert.alert("Error", "Firebase data is not available.");
@@ -216,11 +231,10 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       Alert.alert("Error", "Please enter both Vehicle Number and Tester Name.");
       return;
     }
-    // Compute local Tester_timestamp adjusted for timezone.
-    const now = new Date();
-    const localTesterTimestamp = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, -1);
+    // Use the fetched timestamp as Admin_timestamp (assumed to already be in the correct format)
+    const adminTimestamp = firebaseData.timestamp;
+    // Generate Tester_timestamp using the local time formatter
+    const testerTimestamp = formatLocalISO(new Date());
     
     const docRef = doc(db, "Matched Vehicle", vehicleNumber);
     try {
@@ -231,8 +245,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         SW_Version_MINDecoder,
         HW_Version_MAJDecoder,
         HW_Version_MINDecoder,
-        Admin_timestamp: firebaseData.timestamp, // Timestamp from fetched Firebase data
-        Tester_timestamp: localTesterTimestamp, // Local timestamp at the time of pushing
+        Admin_timestamp: adminTimestamp, // e.g. "2025-02-15T17:20:30.040"
+        Tester_timestamp: testerTimestamp, // e.g. "2025-02-15T21:27:25.993" if local time is that
       });
       Alert.alert("Success", "Vehicle data pushed successfully!");
     } catch (error) {
@@ -244,7 +258,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        {/* Entry Boxes at the Top with Labels */}
         <View style={styles.entryContainer}>
           <Text style={styles.label}>Vehicle Number</Text>
           <TextInput
@@ -259,8 +272,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
             onChangeText={setTesterName}
           />
         </View>
-
-        {/* BLE Data Section */}
         <Text style={styles.header}>BLE Data</Text>
         <Text style={styles.parameterText}>
           SW_Version_MAJ: {SW_Version_MAJDecoder !== null ? SW_Version_MAJDecoder : "N/A"}
@@ -274,8 +285,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         <Text style={styles.parameterText}>
           HW_Version_MIN: {HW_Version_MINDecoder !== null ? HW_Version_MINDecoder : "N/A"}
         </Text>
-
-        {/* Firebase Data Section */}
         {firebaseData && (
           <View style={styles.firebaseContainer}>
             <Text style={styles.header}>Firebase Data</Text>

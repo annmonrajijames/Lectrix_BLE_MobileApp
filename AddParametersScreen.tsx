@@ -41,30 +41,28 @@ const AddParametersScreen = () => {
     testFirestoreConnection();
   }, []);
 
-  // Function to format local time as YYYY-MM-DD_HH-mm-ss
+  // Generate a local time string in the format YYYY-MM-DDTHH:mm:ss.SSS using the device's local time.
   const getFormattedLocalTime = (): string => {
     const now = new Date();
     const year = now.getFullYear();
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const day = now.getDate().toString().padStart(2, '0');
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    const seconds = now.getSeconds().toString().padStart(2, '0');
-
-    return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
   };
 
-  // Upload to Firestore with local time as Document ID
+  // Upload to Firestore with the formatted local time string as Document ID
   const uploadToFirebase = async () => {
     try {
       if (!db) {
         throw new Error('Firestore instance is not initialized.');
       }
 
-      // Generate a local time string formatted as YYYY-MM-DD_HH-mm-ss
       const localTime = getFormattedLocalTime();
 
-      // Upload document with localTime as the document ID, and include the timestamp in the document fields
       await setDoc(doc(db, 'parameters', localTime), {
         ...parameters,
         timestamp: localTime,
