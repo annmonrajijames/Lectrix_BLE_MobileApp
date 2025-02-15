@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
   Button,
+  TextInput,
 } from "react-native";
 import { Device } from "react-native-ble-plx";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -23,6 +24,10 @@ type PDIEOLProps = NativeStackScreenProps<RootStackParamList, "PDIEOL">;
 const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const { device } = route.params;
   
+  // Entry Box States
+  const [vehicleNumber, setVehicleNumber] = useState<string>("");
+  const [testerName, setTesterName] = useState<string>("");
+
   // BLE Data States
   const [SW_Version_MAJDecoder, setSW_Version_MAJDecoder] = useState<number | null>(null);
   const [SW_Version_MINDecoder, setSW_Version_MINDecoder] = useState<number | null>(null);
@@ -198,6 +203,22 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
+        {/* Entry Boxes at the Top with Labels */}
+        <View style={styles.entryContainer}>
+          <Text style={styles.label}>Vehicle Number</Text>
+          <TextInput
+            style={styles.input}
+            value={vehicleNumber}
+            onChangeText={setVehicleNumber}
+          />
+          <Text style={styles.label}>Tester Name</Text>
+          <TextInput
+            style={styles.input}
+            value={testerName}
+            onChangeText={setTesterName}
+          />
+        </View>
+
         {/* BLE Data Section */}
         <Text style={styles.header}>BLE Data</Text>
         <Text style={styles.parameterText}>
@@ -248,8 +269,38 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#fff" },
   contentContainer: { alignItems: "center", padding: 20, paddingBottom: 120 },
-  header: { fontSize: 24, fontWeight: "bold", marginVertical: 10, textAlign: "center" },
-  parameterText: { fontSize: 18, marginBottom: 5, textAlign: "center" },
+  entryContainer: {
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  label: {
+    alignSelf: "flex-start",
+    marginLeft: "5%",
+    fontSize: 16,
+    fontWeight: "500",
+    marginVertical: 5,
+  },
+  input: {
+    width: "90%",
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginVertical: 10,
+    textAlign: "center",
+  },
+  parameterText: {
+    fontSize: 18,
+    marginBottom: 5,
+    textAlign: "center",
+  },
   firebaseContainer: { marginTop: 30, alignItems: "center" },
   fixedButtonContainer: {
     position: "absolute",
