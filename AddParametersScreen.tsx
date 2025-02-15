@@ -4,7 +4,11 @@ import { db } from './firebaseConfig';
 import { collection, setDoc, doc, getDocs } from 'firebase/firestore';
 
 // Define parameter keys
-type ParameterKeys = 'SW_Version_MAJDecoder' | 'SW_Version_MINDecoder' | 'HW_Version_MAJDecoder' | 'HW_Version_MINDecoder';
+type ParameterKeys =
+  | 'SW_Version_MAJDecoder'
+  | 'SW_Version_MINDecoder'
+  | 'HW_Version_MAJDecoder'
+  | 'HW_Version_MINDecoder';
 
 const AddParametersScreen = () => {
   const [parameters, setParameters] = useState<Record<ParameterKeys, string>>({
@@ -24,7 +28,10 @@ const AddParametersScreen = () => {
     const testFirestoreConnection = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'parameters'));
-        console.log('✅ Firestore Read Successful:', querySnapshot.docs.map(doc => doc.data()));
+        console.log(
+          '✅ Firestore Read Successful:',
+          querySnapshot.docs.map(doc => doc.data())
+        );
       } catch (error) {
         console.error('❌ Firestore Read Error:', error);
         Alert.alert('Firestore Error', 'Failed to connect to Firestore.');
@@ -34,24 +41,37 @@ const AddParametersScreen = () => {
     testFirestoreConnection();
   }, []);
 
-  // Upload to Firestore with current time as Document ID
+  // Function to format local time as YYYY-MM-DD_HH-mm-ss
+  const getFormattedLocalTime = (): string => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+  };
+
+  // Upload to Firestore with local time as Document ID
   const uploadToFirebase = async () => {
     try {
       if (!db) {
         throw new Error('Firestore instance is not initialized.');
       }
 
-      // Generate a timestamp string
-      const currentTime = new Date().toISOString();
+      // Generate a local time string formatted as YYYY-MM-DD_HH-mm-ss
+      const localTime = getFormattedLocalTime();
 
-      // Upload document with timestamp as the document ID, and include the timestamp in the document fields
-      await setDoc(doc(db, 'parameters', currentTime), {
+      // Upload document with localTime as the document ID, and include the timestamp in the document fields
+      await setDoc(doc(db, 'parameters', localTime), {
         ...parameters,
-        timestamp: currentTime,
+        timestamp: localTime,
       });
 
-      console.log('✅ Document added with ID (Timestamp):', currentTime);
-      Alert.alert('Success', `Parameters added at ${currentTime}`);
+      console.log('✅ Document added with ID (Local Time):', localTime);
+      Alert.alert('Success', `Parameters added at ${localTime}`);
 
       // Reset parameter input fields
       setParameters({
