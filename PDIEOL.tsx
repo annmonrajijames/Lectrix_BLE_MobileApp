@@ -31,6 +31,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
 
   // Firebase Data State
   const [firebaseData, setFirebaseData] = useState<any>(null);
+  // Mismatch message state
+  const [mismatchMessage, setMismatchMessage] = useState<string>("");
 
   const serviceUUID = "00FF";
   const characteristicUUID = "FF01";
@@ -80,7 +82,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       }
     };
   }, [device]);
-  
+
   // Fetch the most recent document from the "parameters" collection
   const fetchFirebaseData = async () => {
     try {
@@ -113,7 +115,53 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       }
     }
   };
- 
+
+  // Compare BLE and Firebase Data and update mismatchMessage
+  useEffect(() => {
+    if (firebaseData) {
+      const mismatches: string[] = [];
+      if (
+        firebaseData.SW_Version_MAJDecoder !== undefined &&
+        SW_Version_MAJDecoder !== null &&
+        Number(firebaseData.SW_Version_MAJDecoder) !== SW_Version_MAJDecoder
+      ) {
+        mismatches.push("SW_Version_MAJ");
+      }
+      if (
+        firebaseData.SW_Version_MINDecoder !== undefined &&
+        SW_Version_MINDecoder !== null &&
+        Number(firebaseData.SW_Version_MINDecoder) !== SW_Version_MINDecoder
+      ) {
+        mismatches.push("SW_Version_MIN");
+      }
+      if (
+        firebaseData.HW_Version_MAJDecoder !== undefined &&
+        HW_Version_MAJDecoder !== null &&
+        Number(firebaseData.HW_Version_MAJDecoder) !== HW_Version_MAJDecoder
+      ) {
+        mismatches.push("HW_Version_MAJ");
+      }
+      if (
+        firebaseData.HW_Version_MINDecoder !== undefined &&
+        HW_Version_MINDecoder !== null &&
+        Number(firebaseData.HW_Version_MINDecoder) !== HW_Version_MINDecoder
+      ) {
+        mismatches.push("HW_Version_MIN");
+      }
+      if (mismatches.length > 0) {
+        setMismatchMessage(`Mismatched parameter(s): ${mismatches.join(", ")}`);
+      } else {
+        setMismatchMessage("All parameters match.");
+      }
+    }
+  }, [
+    firebaseData,
+    SW_Version_MAJDecoder,
+    SW_Version_MINDecoder,
+    HW_Version_MAJDecoder,
+    HW_Version_MINDecoder,
+  ]);
+
   const eight_bytes_decode = (
     firstByteCheck: string,
     multiplier: number,
@@ -184,6 +232,9 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
             <Text style={styles.parameterText}>
               Timestamp: {firebaseData.timestamp || "N/A"}
             </Text>
+            {mismatchMessage !== "" && (
+              <Text style={styles.mismatchText}>{mismatchMessage}</Text>
+            )}
           </View>
         )}
       </ScrollView>
@@ -206,6 +257,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: "center",
+  },
+  mismatchText: {
+    fontSize: 16,
+    color: "red",
+    marginTop: 10,
+    textAlign: "center",
   },
 });
 
