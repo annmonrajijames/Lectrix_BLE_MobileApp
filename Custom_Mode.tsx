@@ -6,6 +6,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Buffer } from 'buffer';
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 
 type RootStackParamList = {
   Custom_Mode: { device: Device };
@@ -24,6 +26,9 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
   const [savedValues, setSavedValues] = useState({ PickUp, TopSpeed, Slop });
   const [isSendEnabled, setIsSendEnabled] = useState(false);
   const [originalValues, setOriginalValues] = useState({ PickUp: 16, TopSpeed: 30, Slop: 7 });
+  const [isSaved, setIsSaved] = useState(false);
+  const [isPushed, setIsPushed] = useState(false);
+
 
 
   // Load saved values from AsyncStorage when component mounts
@@ -36,7 +41,7 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
           setPickUp(parsedData.PickUp);
           setTopSpeed(parsedData.TopSpeed);
           setSlop(parsedData.Slop);
-          setIsSendEnabled(true); // Enable the Send button if values exist
+          setIsSaved(true); // Enable the Send button if values exist
         }
       } catch (error) {
         console.error('Error loading saved values:', error);
@@ -62,8 +67,9 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
     const newValues = { PickUp, TopSpeed, Slop };
     try {
       await AsyncStorage.setItem('savedParameters', JSON.stringify(newValues));
-      setIsSendEnabled(true); // Enable send button after saving
+      setIsPushed(true); // Enable send button after saving
       Alert.alert('Saved', 'Parameters have been saved successfully.');
+      setIsSendEnabled(true);  // Enable Push to vehicle button
     } catch (error) {
       console.error('Error saving values:', error);
     }
@@ -72,12 +78,23 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
   // Compute values based on the formulas
   const currentLimit = 105 - ((PickUp - 6) / (16 - 6)) * (105 - 32);
   const frequency = 105 + ((TopSpeed - 30) / (80 - 30)) * (401 - 105);
+  // Mapping slope to current values
   const slopeCurrentMap: Record<number, number> = { 3: 14, 7: 35, 10: 60, 14: 105 };
   const slopeCurrent = slopeCurrentMap[Slop];
   const MaxCur = Math.max(currentLimit, slopeCurrent);
   // const regenValues: Record<number, number> = { 25: 2, 50: 18, 100: 15 };
   // const RegenSendValues = regenValues[Regen];
   // const [isConnected, setIsConnected] = useState(false);
+
+  // const handlePickupCurrentLimitChange = (value: React.SetStateAction<number>) => {
+  //   setPickUp(value);
+  //   setSlop(value);  // Sync slope slider with pickupCurrentLimit slider
+  // };
+
+  // const handleSlopeChange = (value: React.SetStateAction<number>) => {
+  //   setSlop(value);
+  //   setPickUp(value);  // Sync pickupCurrentLimit slider with slope slider
+  // };
   
   useEffect(() => {
     checkConnection();
@@ -177,12 +194,16 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
       await writeParameterToDevice(packedMessage, '0F', '0009', '18F20309');
       // await writeParameterToDevice(slopeCurrent, '0D', '0002', '18F20309');
 
+      setIsPushed(true);  // Once pushed, show the success message
+      setIsSendEnabled(false);  // Disable Push to vehicle button after it's clicked
+
       Alert.alert('Success', 'All parameters have been sent to the device successfully.');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error sending parameters:', error);
       Alert.alert('Error', 'Failed to send all parameters. Please try again.');
     }
-  };
+};
+
 
   return (
     <LinearGradient colors={['#283c86', '#45a247']} style={styles.gradient}>
@@ -204,7 +225,7 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
               onValueChange={setPickUp}
               minimumTrackTintColor="transparent"
               maximumTrackTintColor="transparent"
-              thumbTintColor="white"
+              thumbTintColor="#c0c0c0"
             />
             
           </View>
@@ -225,7 +246,7 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
             onValueChange={setTopSpeed}
             minimumTrackTintColor="transparent"
             maximumTrackTintColor="transparent"
-            thumbTintColor="white"
+            thumbTintColor="#c0c0c0"
           />
           </View>
           
@@ -246,7 +267,7 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
             onValueChange={(index) => setSlop([3, 7, 10, 14][index])}
             minimumTrackTintColor="transparent"
             maximumTrackTintColor="transparent"
-            thumbTintColor="white"
+            thumbTintColor="#c0c0c0"
           />
           </View>
         </View>
@@ -254,22 +275,24 @@ const Custom_Mode: React.FC<Custom_ModeProps> = ({ route }) => {
 
         <View style={styles.buttonRow}>
          {/* Save Button */}
-         <TouchableOpacity style={styles.button} onPress={handleSave}>
-          <LinearGradient colors={['#ff7e5f', '#feb47b']} style={styles.buttonGradient}>
+         <TouchableOpacity style={[styles.button, styles.buttonSpacing]} onPress={handleSave}>
+          <LinearGradient colors={['#4A90E2', '#007AFF']} style={styles.buttonGradient}>
             <Text style={styles.buttonText}>Save</Text>
           </LinearGradient>
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={[styles.button, !isSendEnabled && styles.disabledButton]} 
+          style={[styles.button, styles.buttonSpacing, !isSendEnabled && styles.disabledButton]} 
           onPress={handleSendAllParameters}
           disabled={!isSendEnabled}
         >
-          <LinearGradient colors={['#ff7e5f', '#feb47b']} style={styles.buttonGradient}>
-            <Text style={styles.buttonText}>Send</Text>
+          <LinearGradient colors={['#4A90E2', '#007AFF']} style={styles.buttonGradient}>
+            <Text style={styles.buttonText}>Push to the vehicle
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
         </View>
+
       </ScrollView>
     </LinearGradient>
   );
@@ -290,6 +313,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 24,
     backgroundColor: '#000',
+    color: '#c0c0c0',
   },
   card: {
     width: '100%',
@@ -306,7 +330,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#c0c0c0',
     marginBottom: 6,
     lineHeight: 22, // Ensure text isn't getting clipped
   },
@@ -321,7 +345,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: 'black',  // Tube background color
     borderWidth: 2,  // Border thickness
-    borderColor: 'white',  // Border color
+    borderColor: '#c0c0c0',  // Border color
     justifyContent: 'center',
     paddingHorizontal: 5,
   },
@@ -340,9 +364,9 @@ const styles = StyleSheet.create({
     width: 100000,  // Big and thick thumb (moving dot)
     height: 3000, 
     borderRadius: 100, // Perfect circle
-    backgroundColor: 'white', 
+    backgroundColor: '#c0c0c0', 
     borderWidth: 2,
-    borderColor: 'white', 
+    borderColor: '#c0c0c0', 
     elevation: 5, // Shadow for better visibility
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -386,7 +410,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#c0c0c0',
   },
   // Row container for side-by-side elements
   rowContainer: { 
@@ -404,7 +428,20 @@ const styles = StyleSheet.create({
   },
   buttonSpacing: {
     flex: 1,  // Make both buttons equal width
-    marginHorizontal: 5,  // Add spacing between buttons
+    marginHorizontal: 10,  // Add spacing between buttons
+  },
+  pushedMessage: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  pushedText: {
+    fontSize: 16,
+    color: 'green',
+    marginLeft: 10,
+  },
+  savedText: {
+    color: '#A9A9A9', // Gray color when saved
   },
 
 });
