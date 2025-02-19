@@ -60,6 +60,14 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const [HW_Version_MINDecoder, setHW_Version_MINDecoder] = useState<number | null>(null);
   const [MCU_Firmware_IdDecoder, setMCU_Firmware_IdDecoder] = useState<string | null>(null);
 
+  // Additional BLE Decoded Parameters
+  const [ConfigVerDecoder, setConfigVerDecoder] = useState<string | null>(null);
+  const [InternalFWVerDecoder, setInternalFWVerDecoder] = useState<string | null>(null);
+  const [InternalFWSubVerDecoder, setInternalFWSubVerDecoder] = useState<string | null>(null);
+  const [HwVerDecoder, setHwVerDecoder] = useState<string | null>(null);
+  const [FwVerDecoder, setFwVerDecoder] = useState<string | null>(null);
+  const [FWSubVerDecoder, setFWSubVerDecoder] = useState<string | null>(null);
+
   // Firebase Data State (contains the pushed document)
   const [firebaseData, setFirebaseData] = useState<any>(null);
   const [mismatchMessage, setMismatchMessage] = useState<string>("");
@@ -67,7 +75,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const serviceUUID = "00FF";
   const characteristicUUID = "FF01";
 
-  // Converts selected bytes (positions) to a number.
+  // Decodes selected bytes to a number.
   const eight_bytes_decode = (
     firstByteCheck: string,
     multiplier: number,
@@ -82,14 +90,13 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         const bytes = positions
           .map((pos) => data.substring(2 * pos, 2 * pos + 2))
           .join("");
-        const decimalValue = parseInt(bytes, 16);
-        return decimalValue * multiplier;
+        return parseInt(bytes, 16) * multiplier;
       }
       return null;
     };
   };
 
-  // Converts selected hex bytes to an ASCII string.
+  // Decodes selected bytes to an ASCII string.
   const eight_bytes_ascii_decode = (
     firstByteCheck: string,
     ...positions: number[]
@@ -102,7 +109,9 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       ) {
         return positions
           .map((pos) =>
-            String.fromCharCode(parseInt(data.substring(2 * pos, 2 * pos + 2), 16))
+            String.fromCharCode(
+              parseInt(data.substring(2 * pos, 2 * pos + 2), 16)
+            )
           )
           .join("");
       }
@@ -134,7 +143,10 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
               return;
             }
             if (characteristic?.value) {
-              const data = Buffer.from(characteristic.value, "base64").toString("hex");
+              const data = Buffer.from(
+                characteristic.value,
+                "base64"
+              ).toString("hex");
               decodeData(data);
             }
           }
@@ -176,7 +188,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     }
   };
 
-  // Compare BLE decoded data with Firebase data for mismatches.
   useEffect(() => {
     if (firebaseData) {
       const mismatches: string[] = [];
@@ -208,7 +219,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       ) {
         mismatches.push("HW_Version_MIN");
       }
-      // Compare BLE-decoded MCU Firmware Id with the value stored in Firebase (under MCU_Firmware_Id)
       if (
         firebaseData.MCU_Firmware_Id !== undefined &&
         MCU_Firmware_IdDecoder !== null &&
@@ -232,29 +242,33 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   ]);
 
   const decodeData = (data: string) => {
+    // Decode numeric values
     const SW_MAJ = eight_bytes_decode("05", 1.0, 9)(data);
     const SW_MIN = eight_bytes_decode("05", 1.0, 10)(data);
     const HW_MAJ = eight_bytes_decode("05", 1.0, 11)(data);
     const HW_MIN = eight_bytes_decode("05", 1.0, 12)(data);
-    const MCU_Firmware_Id = eight_bytes_ascii_decode(
-      "04",
-      15,
-      14,
-      13,
-      12,
-      11,
-      10,
-      9,
-      8
-    )(data);
+    const MCU_Firmware_Id = eight_bytes_ascii_decode("04", 15, 14, 13, 12, 11, 10, 9, 8)(data);
 
-    if (MCU_Firmware_Id !== null) {
-      setMCU_Firmware_IdDecoder(MCU_Firmware_Id);
-    }
+    // Decode additional parameters
+    const configVer = eight_bytes_ascii_decode("14", 2, 3, 4)(data);
+    const internalFWVer = eight_bytes_ascii_decode("14", 5, 6, 7)(data);
+    const internalFWSubVer = eight_bytes_ascii_decode("14", 8, 9)(data);
+    const hwVer = eight_bytes_ascii_decode("06", 10, 11, 12)(data);
+    const fwVer = eight_bytes_ascii_decode("06", 13, 14, 15)(data);
+    const fwSubVer = eight_bytes_ascii_decode("06", 16, 17)(data);
+
+    if (MCU_Firmware_Id !== null) setMCU_Firmware_IdDecoder(MCU_Firmware_Id);
     if (SW_MAJ !== null) setSW_Version_MAJDecoder(SW_MAJ);
     if (SW_MIN !== null) setSW_Version_MINDecoder(SW_MIN);
     if (HW_MAJ !== null) setHW_Version_MAJDecoder(HW_MAJ);
     if (HW_MIN !== null) setHW_Version_MINDecoder(HW_MIN);
+
+    if (configVer !== null) setConfigVerDecoder(configVer);
+    if (internalFWVer !== null) setInternalFWVerDecoder(internalFWVer);
+    if (internalFWSubVer !== null) setInternalFWSubVerDecoder(internalFWSubVer);
+    if (hwVer !== null) setHwVerDecoder(hwVer);
+    if (fwVer !== null) setFwVerDecoder(fwVer);
+    if (fwSubVer !== null) setFWSubVerDecoder(fwSubVer);
   };
 
   const pushVehicleData = async () => {
@@ -273,7 +287,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     const adminTimestamp = firebaseData.timestamp;
     const testerTimestamp = formatLocalISO(new Date());
 
-    // Note: Here we store the MCU Firmware Id from BLE data under a different key.
+    // When pushing data, store the BLE-decoded values under keys that include "Decoder"
     const docRef = doc(db, "Matched Vehicle", vehicleNumber);
     try {
       await setDoc(docRef, {
@@ -284,6 +298,12 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         HW_Version_MAJDecoder,
         HW_Version_MINDecoder,
         MCU_Firmware_Id: MCU_Firmware_IdDecoder,
+        ConfigVerDecoder,
+        InternalFWVerDecoder,
+        InternalFWSubVerDecoder,
+        HwVerDecoder,
+        FwVerDecoder,
+        FWSubVerDecoder,
         Admin_timestamp: adminTimestamp,
         Tester_timestamp: testerTimestamp,
       });
@@ -315,19 +335,46 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         {/* BLE Data Section */}
         <Text style={styles.header}>BLE Data</Text>
         <Text style={styles.parameterText}>
-          SW_Version_MAJ: {SW_Version_MAJDecoder !== null ? SW_Version_MAJDecoder : "N/A"}
+          SW_Version_MAJ:{" "}
+          {SW_Version_MAJDecoder !== null ? SW_Version_MAJDecoder : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          SW_Version_MIN: {SW_Version_MINDecoder !== null ? SW_Version_MINDecoder : "N/A"}
+          SW_Version_MIN:{" "}
+          {SW_Version_MINDecoder !== null ? SW_Version_MINDecoder : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          HW_Version_MAJ: {HW_Version_MAJDecoder !== null ? HW_Version_MAJDecoder : "N/A"}
+          HW_Version_MAJ:{" "}
+          {HW_Version_MAJDecoder !== null ? HW_Version_MAJDecoder : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          HW_Version_MIN: {HW_Version_MINDecoder !== null ? HW_Version_MINDecoder : "N/A"}
+          HW_Version_MIN:{" "}
+          {HW_Version_MINDecoder !== null ? HW_Version_MINDecoder : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          MCU Firmware Id: {MCU_Firmware_IdDecoder !== null ? MCU_Firmware_IdDecoder : "N/A"}
+          MCU Firmware Id:{" "}
+          {MCU_Firmware_IdDecoder !== null ? MCU_Firmware_IdDecoder : "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          Config Version:{" "}
+          {ConfigVerDecoder || "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          Internal FW Version:{" "}
+          {InternalFWVerDecoder || "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          Internal FW Sub Version:{" "}
+          {InternalFWSubVerDecoder || "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          HW Version: {HwVerDecoder || "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          FW Version: {FwVerDecoder || "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          FW Sub Version:{" "}
+          {FWSubVerDecoder || "N/A"}
         </Text>
 
         {/* Firebase Data Section */}
@@ -335,19 +382,60 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
           <View style={styles.firebaseContainer}>
             <Text style={styles.header}>Firebase Data</Text>
             <Text style={styles.parameterText}>
-              SW_Version_MAJDecoder: {firebaseData.SW_Version_MAJDecoder || "N/A"}
+              SW_Version_MAJDecoder:{" "}
+              {firebaseData.SW_Version_MAJDecoder || "N/A"}
             </Text>
             <Text style={styles.parameterText}>
-              SW_Version_MINDecoder: {firebaseData.SW_Version_MINDecoder || "N/A"}
+              SW_Version_MINDecoder:{" "}
+              {firebaseData.SW_Version_MINDecoder || "N/A"}
             </Text>
             <Text style={styles.parameterText}>
-              HW_Version_MAJDecoder: {firebaseData.HW_Version_MAJDecoder || "N/A"}
+              HW_Version_MAJDecoder:{" "}
+              {firebaseData.HW_Version_MAJDecoder || "N/A"}
             </Text>
             <Text style={styles.parameterText}>
-              HW_Version_MINDecoder: {firebaseData.HW_Version_MINDecoder || "N/A"}
+              HW_Version_MINDecoder:{" "}
+              {firebaseData.HW_Version_MINDecoder || "N/A"}
             </Text>
             <Text style={styles.parameterText}>
-              MCU Firmware Id: {firebaseData.MCU_Firmware_Id || "N/A"}
+              MCU Firmware Id:{" "}
+              {firebaseData.MCU_Firmware_Id || "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              Config Version:{" "}
+              {firebaseData.ConfigVerDecoder ||
+                firebaseData.ConfigVer ||
+                "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              Internal FW Version:{" "}
+              {firebaseData.InternalFWVerDecoder ||
+                firebaseData.InternalFWVer ||
+                "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              Internal FW Sub Version:{" "}
+              {firebaseData.InternalFWSubVerDecoder ||
+                firebaseData.InternalFWSubVer ||
+                "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              HW Version:{" "}
+              {firebaseData.HwVerDecoder ||
+                firebaseData.HwVer ||
+                "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              FW Version:{" "}
+              {firebaseData.FwVerDecoder ||
+                firebaseData.FwVer ||
+                "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              FW Sub Version:{" "}
+              {firebaseData.FWSubVerDecoder ||
+                firebaseData.FWSubVer ||
+                "N/A"}
             </Text>
             <Text style={styles.parameterText}>
               Timestamp: {firebaseData.timestamp || "N/A"}
