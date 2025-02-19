@@ -49,21 +49,25 @@ const formatLocalISO = (date: Date): string => {
 const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const { device } = route.params;
 
+  // Entry Box States
   const [vehicleNumber, setVehicleNumber] = useState<string>("");
   const [testerName, setTesterName] = useState<string>("");
 
+  // BLE Data States (decoded from BLE notifications)
   const [SW_Version_MAJDecoder, setSW_Version_MAJDecoder] = useState<number | null>(null);
   const [SW_Version_MINDecoder, setSW_Version_MINDecoder] = useState<number | null>(null);
   const [HW_Version_MAJDecoder, setHW_Version_MAJDecoder] = useState<number | null>(null);
   const [HW_Version_MINDecoder, setHW_Version_MINDecoder] = useState<number | null>(null);
   const [MCU_Firmware_IdDecoder, setMCU_Firmware_IdDecoder] = useState<string | null>(null);
 
+  // Firebase Data State (contains the pushed document)
   const [firebaseData, setFirebaseData] = useState<any>(null);
   const [mismatchMessage, setMismatchMessage] = useState<string>("");
 
   const serviceUUID = "00FF";
   const characteristicUUID = "FF01";
 
+  // Converts selected bytes (positions) to a number.
   const eight_bytes_decode = (
     firstByteCheck: string,
     multiplier: number,
@@ -85,7 +89,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     };
   };
 
-  // MCU Firmware ID decoder that converts each hex pair to an ASCII character.
+  // Converts selected hex bytes to an ASCII string.
   const eight_bytes_ascii_decode = (
     firstByteCheck: string,
     ...positions: number[]
@@ -96,13 +100,11 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         data.length >= 2 * (maxPos + 1) &&
         data.substring(0, 2) === firstByteCheck
       ) {
-        const asciiString = positions
-          .map((pos) => {
-            const hexValue = data.substring(2 * pos, 2 * pos + 2);
-            return String.fromCharCode(parseInt(hexValue, 16));
-          })
+        return positions
+          .map((pos) =>
+            String.fromCharCode(parseInt(data.substring(2 * pos, 2 * pos + 2), 16))
+          )
           .join("");
-        return asciiString;
       }
       return null;
     };
@@ -165,10 +167,16 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         setFirebaseData(latestData);
       }
     } catch (error) {
-      Alert.alert("Error", `Failed to fetch data: ${error instanceof Error ? error.message : "Unknown error"}`);
+      Alert.alert(
+        "Error",
+        `Failed to fetch data: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   };
 
+  // Compare BLE decoded data with Firebase data for mismatches.
   useEffect(() => {
     if (firebaseData) {
       const mismatches: string[] = [];
@@ -200,10 +208,11 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       ) {
         mismatches.push("HW_Version_MIN");
       }
+      // Compare BLE-decoded MCU Firmware Id with the value stored in Firebase (under MCU_Firmware_Id)
       if (
-        firebaseData.MCU_Firmware_IdDecoder !== undefined &&
+        firebaseData.MCU_Firmware_Id !== undefined &&
         MCU_Firmware_IdDecoder !== null &&
-        firebaseData.MCU_Firmware_IdDecoder !== MCU_Firmware_IdDecoder
+        firebaseData.MCU_Firmware_Id !== MCU_Firmware_IdDecoder
       ) {
         mismatches.push("MCU_Firmware_Id");
       }
@@ -227,7 +236,17 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     const SW_MIN = eight_bytes_decode("05", 1.0, 10)(data);
     const HW_MAJ = eight_bytes_decode("05", 1.0, 11)(data);
     const HW_MIN = eight_bytes_decode("05", 1.0, 12)(data);
-    const MCU_Firmware_Id = eight_bytes_ascii_decode("04", 15, 14, 13, 12, 11, 10, 9, 8)(data);
+    const MCU_Firmware_Id = eight_bytes_ascii_decode(
+      "04",
+      15,
+      14,
+      13,
+      12,
+      11,
+      10,
+      9,
+      8
+    )(data);
 
     if (MCU_Firmware_Id !== null) {
       setMCU_Firmware_IdDecoder(MCU_Firmware_Id);
@@ -253,7 +272,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     }
     const adminTimestamp = firebaseData.timestamp;
     const testerTimestamp = formatLocalISO(new Date());
-    
+
+    // Note: Here we store the MCU Firmware Id from BLE data under a different key.
     const docRef = doc(db, "Matched Vehicle", vehicleNumber);
     try {
       await setDoc(docRef, {
@@ -263,7 +283,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         SW_Version_MINDecoder,
         HW_Version_MAJDecoder,
         HW_Version_MINDecoder,
-        MCU_Firmware_IdDecoder,
+        MCU_Firmware_Id: MCU_Firmware_IdDecoder,
         Admin_timestamp: adminTimestamp,
         Tester_timestamp: testerTimestamp,
       });
@@ -276,6 +296,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
+        {/* Entry Section */}
         <View style={styles.entryContainer}>
           <Text style={styles.label}>Vehicle Number</Text>
           <TextInput
@@ -290,6 +311,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
             onChangeText={setTesterName}
           />
         </View>
+
+        {/* BLE Data Section */}
         <Text style={styles.header}>BLE Data</Text>
         <Text style={styles.parameterText}>
           SW_Version_MAJ: {SW_Version_MAJDecoder !== null ? SW_Version_MAJDecoder : "N/A"}
@@ -306,6 +329,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         <Text style={styles.parameterText}>
           MCU Firmware Id: {MCU_Firmware_IdDecoder !== null ? MCU_Firmware_IdDecoder : "N/A"}
         </Text>
+
+        {/* Firebase Data Section */}
         {firebaseData && (
           <View style={styles.firebaseContainer}>
             <Text style={styles.header}>Firebase Data</Text>
@@ -322,7 +347,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
               HW_Version_MINDecoder: {firebaseData.HW_Version_MINDecoder || "N/A"}
             </Text>
             <Text style={styles.parameterText}>
-              MCU_Firmware_IdDecoder: {firebaseData.MCU_Firmware_IdDecoder || "N/A"}
+              MCU Firmware Id: {firebaseData.MCU_Firmware_Id || "N/A"}
             </Text>
             <Text style={styles.parameterText}>
               Timestamp: {firebaseData.timestamp || "N/A"}
