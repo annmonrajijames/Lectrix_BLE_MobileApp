@@ -12,7 +12,7 @@ import {
 import { Device } from "react-native-ble-plx";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Buffer } from "buffer";
-import { db } from "./firebaseConfig"; // Ensure correct path
+import { db } from "./firebaseConfig";
 import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 
 type RootStackParamList = {
@@ -21,60 +21,92 @@ type RootStackParamList = {
 
 type PDIEOLProps = NativeStackScreenProps<RootStackParamList, "PDIEOL">;
 
-/**
- * Helper function to parse a custom timestamp string in the format:
- * "YYYY-MM-DD_HH-mm-ss-zzz" (for example, "2025-02-15_16-55-06-040")
- * and return a Date object.
- *
- * This function assumes that the last part (zzz) is the offset in hours and minutes
- * (without a colon) and that it represents a negative offset (e.g. "040" means "-04:00").
- */
 const parseCustomTimestamp = (ts: string): Date | null => {
   const parts = ts.split("_");
   if (parts.length !== 2) return null;
-  const datePart = parts[0]; // e.g., "2025-02-15"
-  const timePart = parts[1]; // e.g., "16-55-06-040"
+  const datePart = parts[0];
+  const timePart = parts[1];
   const timeComponents = timePart.split("-");
   if (timeComponents.length !== 4) return null;
   const [hour, minute, second, offsetRaw] = timeComponents;
-  // Assume offsetRaw is a 3-digit string representing a negative offset.
-  // For example, "040" becomes "-04:00"
-  const offsetStr = "-" + offsetRaw.slice(0, 2) + ":" + offsetRaw.slice(2).padEnd(2, "0");
-  // Build an ISO string. For example: "2025-02-15T16:55:06-04:00"
+  const offsetStr =
+    "-" + offsetRaw.slice(0, 2) + ":" + offsetRaw.slice(2).padEnd(2, "0");
   const isoString = `${datePart}T${hour}:${minute}:${second}${offsetStr}`;
   const parsedDate = new Date(isoString);
   return isNaN(parsedDate.getTime()) ? null : parsedDate;
 };
 
-/**
- * Helper function to format a Date in local time as an ISO-like string.
- * For example, if local time is 21:27:25.993, it returns "2025-02-15T21:27:25.993"
- */
 const formatLocalISO = (date: Date): string => {
   const pad = (num: number) => num.toString().padStart(2, "0");
   const padMs = (num: number) => num.toString().padStart(3, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.${padMs(date.getMilliseconds())}`;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate()
+  )}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+    date.getSeconds()
+  )}.${padMs(date.getMilliseconds())}`;
 };
 
 const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const { device } = route.params;
-  
-  // Entry Box States
+
   const [vehicleNumber, setVehicleNumber] = useState<string>("");
   const [testerName, setTesterName] = useState<string>("");
 
-  // BLE Data States
   const [SW_Version_MAJDecoder, setSW_Version_MAJDecoder] = useState<number | null>(null);
   const [SW_Version_MINDecoder, setSW_Version_MINDecoder] = useState<number | null>(null);
   const [HW_Version_MAJDecoder, setHW_Version_MAJDecoder] = useState<number | null>(null);
   const [HW_Version_MINDecoder, setHW_Version_MINDecoder] = useState<number | null>(null);
+  const [MCU_Firmware_IdDecoder, setMCU_Firmware_IdDecoder] = useState<string | null>(null);
 
-  // Firebase Data State and Mismatch Message
   const [firebaseData, setFirebaseData] = useState<any>(null);
   const [mismatchMessage, setMismatchMessage] = useState<string>("");
 
   const serviceUUID = "00FF";
   const characteristicUUID = "FF01";
+
+  const eight_bytes_decode = (
+    firstByteCheck: string,
+    multiplier: number,
+    ...positions: number[]
+  ) => {
+    return (data: string) => {
+      const maxPos = Math.max(...positions);
+      if (
+        data.length >= 2 * (maxPos + 1) &&
+        data.substring(0, 2) === firstByteCheck
+      ) {
+        const bytes = positions
+          .map((pos) => data.substring(2 * pos, 2 * pos + 2))
+          .join("");
+        const decimalValue = parseInt(bytes, 16);
+        return decimalValue * multiplier;
+      }
+      return null;
+    };
+  };
+
+  // MCU Firmware ID decoder that converts each hex pair to an ASCII character.
+  const eight_bytes_ascii_decode = (
+    firstByteCheck: string,
+    ...positions: number[]
+  ) => {
+    return (data: string) => {
+      const maxPos = Math.max(...positions);
+      if (
+        data.length >= 2 * (maxPos + 1) &&
+        data.substring(0, 2) === firstByteCheck
+      ) {
+        const asciiString = positions
+          .map((pos) => {
+            const hexValue = data.substring(2 * pos, 2 * pos + 2);
+            return String.fromCharCode(parseInt(hexValue, 16));
+          })
+          .join("");
+        return asciiString;
+      }
+      return null;
+    };
+  };
 
   useEffect(() => {
     let subscription: { remove: () => void } | undefined;
@@ -90,11 +122,12 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
           characteristicUUID,
           (error, characteristic) => {
             if (error) {
-              if (error.message && error.message.includes("Operation was cancelled")) {
-                console.log("Subscription cancelled as part of cleanup.");
+              if (
+                error.message &&
+                error.message.includes("Operation was cancelled")
+              ) {
                 return;
               }
-              console.error("Subscription error:", error);
               Alert.alert("Subscription Error", error.message);
               return;
             }
@@ -105,7 +138,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
           }
         );
       } catch (error: any) {
-        console.error("Failed to set up subscription:", error);
         Alert.alert("Setup Error", error.message);
       }
     };
@@ -125,17 +157,14 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         Alert.alert("Error", "No data found in parameters collection.");
         return;
       }
-      // Sort documents by document ID (assumed to be in proper ISO format) in descending order
       const sortedDocs = querySnapshot.docs.sort((a, b) =>
         b.id.localeCompare(a.id)
       );
       const latestData = sortedDocs[0].data();
-      console.log("📂 Latest Document Data:", latestData);
       if (latestData) {
         setFirebaseData(latestData);
       }
     } catch (error) {
-      console.error("Firebase Fetch Error:", error);
       Alert.alert("Error", `Failed to fetch data: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
@@ -171,6 +200,13 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       ) {
         mismatches.push("HW_Version_MIN");
       }
+      if (
+        firebaseData.MCU_Firmware_IdDecoder !== undefined &&
+        MCU_Firmware_IdDecoder !== null &&
+        firebaseData.MCU_Firmware_IdDecoder !== MCU_Firmware_IdDecoder
+      ) {
+        mismatches.push("MCU_Firmware_Id");
+      }
       setMismatchMessage(
         mismatches.length > 0
           ? `Mismatched parameter(s): ${mismatches.join(", ")}`
@@ -183,41 +219,25 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     SW_Version_MINDecoder,
     HW_Version_MAJDecoder,
     HW_Version_MINDecoder,
+    MCU_Firmware_IdDecoder,
   ]);
-
-  const eight_bytes_decode = (
-    firstByteCheck: string,
-    multiplier: number,
-    ...positions: number[]
-  ) => {
-    return (data: string) => {
-      if (
-        data.length >= 2 * positions.length &&
-        data.substring(0, 2) === firstByteCheck
-      ) {
-        const bytes = positions
-          .map((pos) => data.substring(2 * pos, 2 * pos + 2))
-          .join("");
-        const decimalValue = parseInt(bytes, 16);
-        return decimalValue * multiplier;
-      }
-      return null;
-    };
-  };
 
   const decodeData = (data: string) => {
     const SW_MAJ = eight_bytes_decode("05", 1.0, 9)(data);
     const SW_MIN = eight_bytes_decode("05", 1.0, 10)(data);
     const HW_MAJ = eight_bytes_decode("05", 1.0, 11)(data);
     const HW_MIN = eight_bytes_decode("05", 1.0, 12)(data);
+    const MCU_Firmware_Id = eight_bytes_ascii_decode("04", 15, 14, 13, 12, 11, 10, 9, 8)(data);
+
+    if (MCU_Firmware_Id !== null) {
+      setMCU_Firmware_IdDecoder(MCU_Firmware_Id);
+    }
     if (SW_MAJ !== null) setSW_Version_MAJDecoder(SW_MAJ);
     if (SW_MIN !== null) setSW_Version_MINDecoder(SW_MIN);
     if (HW_MAJ !== null) setHW_Version_MAJDecoder(HW_MAJ);
     if (HW_MIN !== null) setHW_Version_MINDecoder(HW_MIN);
   };
 
-  // When pushing data, use the fetched firebaseData.timestamp directly for Admin_timestamp.
-  // For Tester_timestamp, generate the current local time in the desired ISO format without trailing "Z".
   const pushVehicleData = async () => {
     if (!firebaseData) {
       Alert.alert("Error", "Firebase data is not available.");
@@ -231,9 +251,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       Alert.alert("Error", "Please enter both Vehicle Number and Tester Name.");
       return;
     }
-    // Use the fetched timestamp as Admin_timestamp (assumed to already be in the correct format)
     const adminTimestamp = firebaseData.timestamp;
-    // Generate Tester_timestamp using the local time formatter
     const testerTimestamp = formatLocalISO(new Date());
     
     const docRef = doc(db, "Matched Vehicle", vehicleNumber);
@@ -245,12 +263,12 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         SW_Version_MINDecoder,
         HW_Version_MAJDecoder,
         HW_Version_MINDecoder,
-        Admin_timestamp: adminTimestamp, // e.g. "2025-02-15T17:20:30.040"
-        Tester_timestamp: testerTimestamp, // e.g. "2025-02-15T21:27:25.993" if local time is that
+        MCU_Firmware_IdDecoder,
+        Admin_timestamp: adminTimestamp,
+        Tester_timestamp: testerTimestamp,
       });
       Alert.alert("Success", "Vehicle data pushed successfully!");
     } catch (error) {
-      console.error("Push Error:", error);
       Alert.alert("Error", "Failed to push vehicle data.");
     }
   };
@@ -285,6 +303,9 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         <Text style={styles.parameterText}>
           HW_Version_MIN: {HW_Version_MINDecoder !== null ? HW_Version_MINDecoder : "N/A"}
         </Text>
+        <Text style={styles.parameterText}>
+          MCU Firmware Id: {MCU_Firmware_IdDecoder !== null ? MCU_Firmware_IdDecoder : "N/A"}
+        </Text>
         {firebaseData && (
           <View style={styles.firebaseContainer}>
             <Text style={styles.header}>Firebase Data</Text>
@@ -299,6 +320,9 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
             </Text>
             <Text style={styles.parameterText}>
               HW_Version_MINDecoder: {firebaseData.HW_Version_MINDecoder || "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              MCU_Firmware_IdDecoder: {firebaseData.MCU_Firmware_IdDecoder || "N/A"}
             </Text>
             <Text style={styles.parameterText}>
               Timestamp: {firebaseData.timestamp || "N/A"}
