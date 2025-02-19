@@ -191,6 +191,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   useEffect(() => {
     if (firebaseData) {
       const mismatches: string[] = [];
+
+      // Check primary parameters (using Firebase's Decoder keys)
       if (
         firebaseData.SW_Version_MAJDecoder !== undefined &&
         SW_Version_MAJDecoder !== null &&
@@ -226,6 +228,86 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       ) {
         mismatches.push("MCU_Firmware_Id");
       }
+
+      // For additional parameters, allow for either the Decoder key or the plain key.
+      const fbConfigVer =
+        firebaseData.ConfigVerDecoder !== undefined
+          ? firebaseData.ConfigVerDecoder
+          : firebaseData.ConfigVer;
+      if (
+        fbConfigVer !== undefined &&
+        fbConfigVer !== null &&
+        ConfigVerDecoder !== null &&
+        fbConfigVer !== ConfigVerDecoder
+      ) {
+        mismatches.push("ConfigVer");
+      }
+
+      const fbInternalFWVer =
+        firebaseData.InternalFWVerDecoder !== undefined
+          ? firebaseData.InternalFWVerDecoder
+          : firebaseData.InternalFWVer;
+      if (
+        fbInternalFWVer !== undefined &&
+        fbInternalFWVer !== null &&
+        InternalFWVerDecoder !== null &&
+        fbInternalFWVer !== InternalFWVerDecoder
+      ) {
+        mismatches.push("InternalFWVer");
+      }
+
+      const fbInternalFWSubVer =
+        firebaseData.InternalFWSubVerDecoder !== undefined
+          ? firebaseData.InternalFWSubVerDecoder
+          : firebaseData.InternalFWSubVer;
+      if (
+        fbInternalFWSubVer !== undefined &&
+        fbInternalFWSubVer !== null &&
+        InternalFWSubVerDecoder !== null &&
+        fbInternalFWSubVer !== InternalFWSubVerDecoder
+      ) {
+        mismatches.push("InternalFWSubVer");
+      }
+
+      const fbHwVer =
+        firebaseData.HwVerDecoder !== undefined
+          ? firebaseData.HwVerDecoder
+          : firebaseData.HwVer;
+      if (
+        fbHwVer !== undefined &&
+        fbHwVer !== null &&
+        HwVerDecoder !== null &&
+        fbHwVer !== HwVerDecoder
+      ) {
+        mismatches.push("HwVer");
+      }
+
+      const fbFwVer =
+        firebaseData.FwVerDecoder !== undefined
+          ? firebaseData.FwVerDecoder
+          : firebaseData.FwVer;
+      if (
+        fbFwVer !== undefined &&
+        fbFwVer !== null &&
+        FwVerDecoder !== null &&
+        fbFwVer !== FwVerDecoder
+      ) {
+        mismatches.push("FwVer");
+      }
+
+      const fbFWSubVer =
+        firebaseData.FWSubVerDecoder !== undefined
+          ? firebaseData.FWSubVerDecoder
+          : firebaseData.FWSubVer;
+      if (
+        fbFWSubVer !== undefined &&
+        fbFWSubVer !== null &&
+        FWSubVerDecoder !== null &&
+        fbFWSubVer !== FWSubVerDecoder
+      ) {
+        mismatches.push("FWSubVer");
+      }
+
       setMismatchMessage(
         mismatches.length > 0
           ? `Mismatched parameter(s): ${mismatches.join(", ")}`
@@ -239,6 +321,12 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     HW_Version_MAJDecoder,
     HW_Version_MINDecoder,
     MCU_Firmware_IdDecoder,
+    ConfigVerDecoder,
+    InternalFWVerDecoder,
+    InternalFWSubVerDecoder,
+    HwVerDecoder,
+    FwVerDecoder,
+    FWSubVerDecoder,
   ]);
 
   const decodeData = (data: string) => {
@@ -355,16 +443,13 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
           {MCU_Firmware_IdDecoder !== null ? MCU_Firmware_IdDecoder : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Config Version:{" "}
-          {ConfigVerDecoder || "N/A"}
+          Config Version: {ConfigVerDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Internal FW Version:{" "}
-          {InternalFWVerDecoder || "N/A"}
+          Internal FW Version: {InternalFWVerDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Internal FW Sub Version:{" "}
-          {InternalFWSubVerDecoder || "N/A"}
+          Internal FW Sub Version: {InternalFWSubVerDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
           HW Version: {HwVerDecoder || "N/A"}
@@ -373,8 +458,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
           FW Version: {FwVerDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          FW Sub Version:{" "}
-          {FWSubVerDecoder || "N/A"}
+          FW Sub Version: {FWSubVerDecoder || "N/A"}
         </Text>
 
         {/* Firebase Data Section */}
