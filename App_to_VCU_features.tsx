@@ -48,7 +48,7 @@ const AppToVCUFeatures: React.FC<AppToVCUFeaturesProps> = ({ navigation, route }
 
       {/* Main Content */}
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.heading}>App to VCU Features</Text>
+        {/* <Text style={styles.heading}>App to VCU Features///</Text> */}
         {/* Add other UI components here */}
       </ScrollView>
     </View>
