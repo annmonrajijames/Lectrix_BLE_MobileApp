@@ -140,6 +140,11 @@ class ReceiveActivity : AppCompatActivity() {
     private var lastValidHW_Version_MIN: Double? = null
     private var lastValidMCU_Firmware_Id: String? = null
 
+    private var lastValidCharger_Hardware_Version_MAJ: String? = null
+    private var lastValidCharger_Hardware_Version_MIN: Double? = null
+    private var lastValidCharger_Software_Version_MAJ: String? = null
+    private var lastValidCharger_Software_Version_MIN: Double? = null
+
     private var lastValidLoadDetection: Int? = null
     private var lastValidKeystatus: Int? = null
     private var lastValidKeyevents: Int? = null
@@ -424,6 +429,11 @@ class ReceiveActivity : AppCompatActivity() {
     private var lastdatarecordHW_Version_MAJ: Double? = null
     private var lastdatarecordHW_Version_MIN: Double? = null
     private var lastdatarecordMCU_Firmware_Id: String? = null
+
+    private var lastdatarecordCharger_Hardware_Version_MAJ: String? = null
+    private var lastdatarecordCharger_Hardware_Version_MIN: Double? = null
+    private var lastdatarecordCharger_Software_Version_MAJ: String? = null
+    private var lastdatarecordCharger_Software_Version_MIN: Double? = null
 
     // Rows, CheckBoxes, and TextViews for each parameter
     private lateinit var rowCellVol01: LinearLayout
@@ -1213,6 +1223,22 @@ class ReceiveActivity : AppCompatActivity() {
     private lateinit var rowMCU_Firmware_Id: LinearLayout
     private lateinit var cbMCU_Firmware_Id: CheckBox
     private lateinit var tvMCU_Firmware_Id: TextView
+
+    private lateinit var rowCharger_Hardware_Version_MAJ: LinearLayout
+    private lateinit var cbCharger_Hardware_Version_MAJ: CheckBox
+    private lateinit var tvCharger_Hardware_Version_MAJ: TextView
+
+    private lateinit var rowCharger_Hardware_Version_MIN: LinearLayout
+    private lateinit var cbCharger_Hardware_Version_MIN: CheckBox
+    private lateinit var tvCharger_Hardware_Version_MIN: TextView
+
+    private lateinit var rowCharger_Software_Version_MAJ: LinearLayout
+    private lateinit var cbCharger_Software_Version_MAJ: CheckBox
+    private lateinit var tvCharger_Software_Version_MAJ: TextView
+
+    private lateinit var rowCharger_Software_Version_MIN: LinearLayout
+    private lateinit var cbCharger_Software_Version_MIN: CheckBox
+    private lateinit var tvCharger_Software_Version_MIN: TextView
     
     // File saving
     private var saveFileUri: Uri? = null
@@ -1344,6 +1370,11 @@ class ReceiveActivity : AppCompatActivity() {
         val HW_Version_MAJDecoder = eightBytesDecode("05", 1.0, 11)
         val HW_Version_MINDecoder = eightBytesDecode("05", 1.0, 12)
         val MCU_Firmware_IdDecoder = eightBytesASCIIDecode("04", 15, 14, 13, 12, 11, 10, 9, 8)
+
+        val Charger_Hardware_Version_MAJDecoder = eightBytesASCIIDecode("20", 1)
+        val Charger_Hardware_Version_MINDecoder = eightBytesDecode("20", 1.0, 2)
+        val Charger_Software_Version_MAJDecoder = eightBytesASCIIDecode("20", 3)
+        val Charger_Software_Version_MINDecoder = eightBytesDecode("20", 1.0, 4)
 
         val LoadDetectionDecoder = bitDecode("11", 18, 6)
         val KeystatusDecoder = bitDecode("11", 19, 0)
@@ -1959,6 +1990,22 @@ class ReceiveActivity : AppCompatActivity() {
         rowMCU_Firmware_Id     = findViewById(R.id.rowMCU_Firmware_Id)
         cbMCU_Firmware_Id      = findViewById(R.id.cbMCU_Firmware_Id)
         tvMCU_Firmware_Id      = findViewById(R.id.tvMCU_Firmware_Id)
+
+        rowCharger_Hardware_Version_MAJ     = findViewById(R.id.rowCharger_Hardware_Version_MAJ)
+        cbCharger_Hardware_Version_MAJ      = findViewById(R.id.cbCharger_Hardware_Version_MAJ)
+        tvCharger_Hardware_Version_MAJ      = findViewById(R.id.tvCharger_Hardware_Version_MAJ)
+
+        rowCharger_Hardware_Version_MIN     = findViewById(R.id.rowCharger_Hardware_Version_MIN)
+        cbCharger_Hardware_Version_MIN      = findViewById(R.id.cbCharger_Hardware_Version_MIN)
+        tvCharger_Hardware_Version_MIN      = findViewById(R.id.tvCharger_Hardware_Version_MIN)
+
+        rowCharger_Software_Version_MAJ     = findViewById(R.id.rowCharger_Software_Version_MAJ)
+        cbCharger_Software_Version_MAJ      = findViewById(R.id.cbCharger_Software_Version_MAJ)
+        tvCharger_Software_Version_MAJ      = findViewById(R.id.tvCharger_Software_Version_MAJ)
+
+        rowCharger_Software_Version_MIN     = findViewById(R.id.rowCharger_Software_Version_MIN)
+        cbCharger_Software_Version_MIN      = findViewById(R.id.cbCharger_Software_Version_MIN)
+        tvCharger_Software_Version_MIN      = findViewById(R.id.tvCharger_Software_Version_MIN)
         
         rowIgnitionStatus  = findViewById(R.id.rowIgnitionStatus)
         cbIgnitionStatus   = findViewById(R.id.cbIgnitionStatus)
@@ -2400,7 +2447,7 @@ class ReceiveActivity : AppCompatActivity() {
     cbCluster_odo, cbMode_Ack, cbMotorSpeed, cbBatteryVoltage, 
     cbBatteryCurrent, cbAC_Current, cbAC_Voltage, cbThrottle, 
     cbMCU_Temperature, cbMotor_Temperature, cbMCU_Fault_Code, cbMCU_ID, 
-    cbCluster_heartbeat, cbOdo_Cluster, cbSW_Version_MAJ, cbSW_Version_MIN, cbHW_Version_MAJ, cbHW_Version_MIN, cbMCU_Firmware_Id, cbIgnitionStatus, cbLoadDetection, 
+    cbCluster_heartbeat, cbOdo_Cluster, cbSW_Version_MAJ, cbSW_Version_MIN, cbHW_Version_MAJ, cbHW_Version_MIN, cbMCU_Firmware_Id, cbCharger_Hardware_Version_MAJ, cbCharger_Hardware_Version_MIN, cbCharger_Software_Version_MAJ, cbCharger_Software_Version_MIN, cbIgnitionStatus, cbLoadDetection, 
     cbKeystatus, cbKeyevents, cbCellUnderVolProt, cbCellOverVolProt, 
     cbPackUnderVolProt, cbPackOverVolProt, cbChgUnderTempProt, 
     cbChgOverTempProt, cbDchgUnderTempProt, cbDchgOverTempProt, 
@@ -2551,6 +2598,10 @@ class ReceiveActivity : AppCompatActivity() {
             Triple("hw_version_maj", rowHW_Version_MAJ, cbHW_Version_MAJ),
             Triple("hw_version_min", rowHW_Version_MIN, cbHW_Version_MIN),
             Triple("mcu_firmware_id", rowMCU_Firmware_Id, cbMCU_Firmware_Id),
+            Triple("charger_hardware_version_maj", rowCharger_Hardware_Version_MAJ, cbCharger_Hardware_Version_MAJ),
+            Triple("charger_hardware_version_min", rowCharger_Hardware_Version_MIN, cbCharger_Hardware_Version_MIN),
+            Triple("charger_software_version_maj", rowCharger_Software_Version_MAJ, cbCharger_Software_Version_MAJ),
+            Triple("charger_software_version_min", rowCharger_Software_Version_MIN, cbCharger_Software_Version_MIN),
             Triple("load_detection", rowLoadDetection, cbLoadDetection),
             Triple("keystatus", rowKeystatus, cbKeystatus),
             Triple("keyevents", rowKeyevents, cbKeyevents),
@@ -2817,6 +2868,10 @@ class ReceiveActivity : AppCompatActivity() {
                 val decodedHW_Version_MAJ = HW_Version_MAJDecoder(hexString)
                 val decodedHW_Version_MIN = HW_Version_MINDecoder(hexString)
                 val decodedMCU_Firmware_Id = MCU_Firmware_IdDecoder(hexString)
+                val decodedCharger_Hardware_Version_MAJ = Charger_Hardware_Version_MAJDecoder(hexString)
+                val decodedCharger_Hardware_Version_MIN = Charger_Hardware_Version_MINDecoder(hexString)
+                val decodedCharger_Software_Version_MAJ = Charger_Software_Version_MAJDecoder(hexString)
+                val decodedCharger_Software_Version_MIN = Charger_Software_Version_MINDecoder(hexString)
 
                 val decodedLoadDetection = LoadDetectionDecoder(hexString)
                 val decodedKeystatus = KeystatusDecoder(hexString)
@@ -3243,6 +3298,18 @@ class ReceiveActivity : AppCompatActivity() {
                 if (decodedMCU_Firmware_Id != null) {
                     lastValidMCU_Firmware_Id = decodedMCU_Firmware_Id
                 }
+                if (decodedCharger_Hardware_Version_MAJ != null) {
+                    lastValidCharger_Hardware_Version_MAJ = decodedCharger_Hardware_Version_MAJ
+                }
+                if (decodedCharger_Hardware_Version_MIN != null) {
+                    lastValidCharger_Hardware_Version_MIN = decodedCharger_Hardware_Version_MIN
+                }
+                if (decodedCharger_Software_Version_MAJ != null) {
+                    lastValidCharger_Software_Version_MAJ = decodedCharger_Software_Version_MAJ
+                }
+                if (decodedCharger_Software_Version_MIN != null) {
+                    lastValidCharger_Software_Version_MIN = decodedCharger_Software_Version_MIN
+                }
                 if (decodedLoadDetection != null) {
                     lastValidLoadDetection = decodedLoadDetection
                 }
@@ -3612,6 +3679,10 @@ class ReceiveActivity : AppCompatActivity() {
                     tvHW_Version_MAJ.text = "HW_Version_MAJ: ${lastValidHW_Version_MAJ ?: "N/A"}"
                     tvHW_Version_MIN.text = "HW_Version_MIN: ${lastValidHW_Version_MIN ?: "N/A"}"
                     tvMCU_Firmware_Id.text = "MCU_Firmware_Id: ${lastValidMCU_Firmware_Id ?: "N/A"}"
+                    tvCharger_Hardware_Version_MAJ.text = "Charger_Hardware_Version_MAJ: ${lastValidCharger_Hardware_Version_MAJ ?: "N/A"}"
+                    tvCharger_Hardware_Version_MIN.text = "Charger_Hardware_Version_MIN: ${lastValidCharger_Hardware_Version_MIN ?: "N/A"}"
+                    tvCharger_Software_Version_MAJ.text = "Charger_Software_Version_MAJ: ${lastValidCharger_Software_Version_MAJ ?: "N/A"}"
+                    tvCharger_Software_Version_MIN.text = "Charger_Software_Version_MIN: ${lastValidCharger_Software_Version_MIN ?: "N/A"}"
                     tvIgnitionStatus.text = "IgnitionStatus: ${lastValidIgnitionStatus ?: "N/A"}"
                     tvLoadDetection.text = "LoadDetection: ${lastValidLoadDetection ?: "N/A"}"
                     tvKeystatus.text = "Keystatus: ${lastValidKeystatus ?: "N/A"}"
@@ -3822,6 +3893,10 @@ class ReceiveActivity : AppCompatActivity() {
                     HW_Version_MAJ = lastValidHW_Version_MAJ,
                     HW_Version_MIN = lastValidHW_Version_MIN,
                     MCU_Firmware_Id = lastValidMCU_Firmware_Id,
+                    Charger_Hardware_Version_MAJ = lastValidCharger_Hardware_Version_MAJ,
+                    Charger_Hardware_Version_MIN = lastValidCharger_Hardware_Version_MIN,
+                    Charger_Software_Version_MAJ = lastValidCharger_Software_Version_MAJ,
+                    Charger_Software_Version_MIN = lastValidCharger_Software_Version_MIN,
                     LoadDetection = lastValidLoadDetection,
                     Keystatus = lastValidKeystatus,
                     Keyevents = lastValidKeyevents,
@@ -3951,7 +4026,7 @@ class ReceiveActivity : AppCompatActivity() {
         val Base_speed: Double?, val Initial_torque: Double?, val Final_torque: Double?, val Cluster_odo: Double?,
         val MotorSpeed: Double?, val BatteryVoltage: Double?, val BatteryCurrent: Double?, val AC_Current: Double?,
         val AC_Voltage: Double?, val Throttle: Double?, val MCU_Temperature: Double?, val Motor_Temperature: Double?,
-        val MCU_Fault_Code: Double?, val MCU_ID: Double?, val Cluster_heartbeat: Double?, val Odo_Cluster: Double?, val SW_Version_MAJ: Double?, val SW_Version_MIN: Double?, val HW_Version_MAJ: Double?, val HW_Version_MIN: Double?, val MCU_Firmware_Id: String?,
+        val MCU_Fault_Code: Double?, val MCU_ID: Double?, val Cluster_heartbeat: Double?, val Odo_Cluster: Double?, val SW_Version_MAJ: Double?, val SW_Version_MIN: Double?, val HW_Version_MAJ: Double?, val HW_Version_MIN: Double?, val MCU_Firmware_Id: String?, val Charger_Hardware_Version_MAJ: String?, val Charger_Hardware_Version_MIN: Double?, val Charger_Software_Version_MAJ: String?, val Charger_Software_Version_MIN: Double?, 
         val LoadDetection: Int?,
         val Keystatus: Int?,
         val Keyevents: Int?,
@@ -4043,13 +4118,13 @@ class ReceiveActivity : AppCompatActivity() {
             contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
                 OutputStreamWriter(outputStream).use { writer ->
                     if (!headersWritten) {
-                        writer.append("Timestamp,CellVol01,PackCurr,IgnitionStatus,Mode_Ack,CellVol02,CellVol03,CellVol04,CellVol05,CellVol06,CellVol07,CellVol08,CellVol09,CellVol10,CellVol11,CellVol12,CellVol13,CellVol14,CellVol15,CellVol16,MaxCellVol,MinCellVol,AvgCellVol,MaxVoltId,MinVoltId,PackVol,CycleCount,CellVolMinMaxDev,SOC,SOCAh,SOH,BmsStatus,LedStatus,ActiveCellBalStatus,BMS_Serial_No_MUX,BMS_Serial_No__1_7,LatchProtection,LatchType,ChargerType,PcbTemp,AfeTemp,CellChemType,Chg_Accumulative_Ah,Dchg_Accumulative_Ah,RefVol,_3v3Vol,_5vVol,_12vVol,Actual_SoC,Usable_Capacity_Ah,ConfigVer,InternalFWVer,InternalFWSubVer,BHB_66049,MaxTemp,MinTemp,FetTemp,Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,Temp7,Temp8,HwVer,FwVer,FWSubVer,BtStatus_NC0PSM1CC2CV3Finish4,Bt_liveMsg1Temp,Bt_liveMsg_soc,BMS_status,Demand_voltage,Demand_Current,MaxChgVoltgae,MaxChgCurrent,ActualChgVoltage,ActualChgCurrent,Charging_end_cutoff_Curr,CHB_258,ChgrNC0PSM1CC2CV3Finsh4,chgr_msg_temp,ChgStatus_chg_idle,chgrLiveMsgChgVolt,chgrLiveMsgChgCurrent,ChargeSOP,DchgSOP,Drive_Error_Flag,Set_Regen,DCcurrentlimit,Custom_freq,Custom_torque,Buffer_speed,Base_speed,Initial_torque,Final_torque,Cluster_odo,MotorSpeed,BatteryVoltage,BatteryCurrent,AC_Current,AC_Voltage,Throttle,MCU_Temperature,Motor_Temperature,MCU_Fault_Code,MCU_ID,Cluster_heartbeat,Odo_Cluster,SW_Version_MAJ,SW_Version_MIN,HW_Version_MAJ,HW_Version_MIN,MCU_Firmware_Id,LoadDetection,Keystatus,Keyevents,CellUnderVolProt,CellOverVolProt,PackUnderVolProt,PackOverVolProt,ChgUnderTempProt,ChgOverTempProt,DchgUnderTempProt,DchgOverTempProt,CellOverDevProt,BattLowSocWarn,ChgOverCurrProt,DchgOverCurrProt,CellUnderVolWarn,CellOverVolWarn,FetTempProt,ResSocProt,FetFailure,TempSenseFault,PackUnderVolWarn,PackOverVolWarn,ChgUnderTempWarn,ChgOverTempWarn,DchgUnderTempWarn,DchgOverTempWarn,PreChgFetStatus,ChgFetStatus,DchgFetStatus,ResStatus,ShortCktProt,DschgPeakProt,ChgAuth,ChgPeakProt,DI1,DI2,DO1,DO2,ChargerDetection,CanCommDetection,CellBalFeatureStatus,ImmoChg,ImmoDchg,BuzzerStatus,Side_Stand_Ack,Direction_Ack,Ride_Ack,Hill_hold_Ack,Wakeup_Ack,DriveError_Motor_hall,Motor_Stalling,Motor_Phase_loss,Controller_Over_Temeprature,Motor_Over_Temeprature,Throttle_Error,MOSFET_Protection,DriveStatus_Regenerative_Braking,ModeR_Pulse,ModeL_Pulse,Brake_Pulse,Park_Pulse,Reverse_Pulse,SideStand_Pulse,ForwardParking_Mode_Ack,DriveError_Controller_OverVoltag,Controller_Undervoltage,Overcurrent_Fault,DriveStatus1_ride,Wakeup_Request,Hill_Hold,Reverse_REQUEST,Forward_parkingmode_REQUEST,Side_stand_Req,Battery_charge_logic,Remote_cutoff,mode_limit,Geo_fencebuzzer,Holiday_mode,Service_request,Low_Mode_REQUEST,Medium_Mode_REQUEST,User_defind_mode_High_REQUEST,Limp_mode_REQUEST\n")
+                        writer.append("Timestamp,CellVol01,PackCurr,IgnitionStatus,Mode_Ack,CellVol02,CellVol03,CellVol04,CellVol05,CellVol06,CellVol07,CellVol08,CellVol09,CellVol10,CellVol11,CellVol12,CellVol13,CellVol14,CellVol15,CellVol16,MaxCellVol,MinCellVol,AvgCellVol,MaxVoltId,MinVoltId,PackVol,CycleCount,CellVolMinMaxDev,SOC,SOCAh,SOH,BmsStatus,LedStatus,ActiveCellBalStatus,BMS_Serial_No_MUX,BMS_Serial_No__1_7,LatchProtection,LatchType,ChargerType,PcbTemp,AfeTemp,CellChemType,Chg_Accumulative_Ah,Dchg_Accumulative_Ah,RefVol,_3v3Vol,_5vVol,_12vVol,Actual_SoC,Usable_Capacity_Ah,ConfigVer,InternalFWVer,InternalFWSubVer,BHB_66049,MaxTemp,MinTemp,FetTemp,Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,Temp7,Temp8,HwVer,FwVer,FWSubVer,BtStatus_NC0PSM1CC2CV3Finish4,Bt_liveMsg1Temp,Bt_liveMsg_soc,BMS_status,Demand_voltage,Demand_Current,MaxChgVoltgae,MaxChgCurrent,ActualChgVoltage,ActualChgCurrent,Charging_end_cutoff_Curr,CHB_258,ChgrNC0PSM1CC2CV3Finsh4,chgr_msg_temp,ChgStatus_chg_idle,chgrLiveMsgChgVolt,chgrLiveMsgChgCurrent,ChargeSOP,DchgSOP,Drive_Error_Flag,Set_Regen,DCcurrentlimit,Custom_freq,Custom_torque,Buffer_speed,Base_speed,Initial_torque,Final_torque,Cluster_odo,MotorSpeed,BatteryVoltage,BatteryCurrent,AC_Current,AC_Voltage,Throttle,MCU_Temperature,Motor_Temperature,MCU_Fault_Code,MCU_ID,Cluster_heartbeat,Odo_Cluster,SW_Version_MAJ,SW_Version_MIN,HW_Version_MAJ,HW_Version_MIN,MCU_Firmware_Id,Charger_Hardware_Version_MAJ,Charger_Hardware_Version_MIN,Charger_Software_Version_MAJ,Charger_Software_Version_MIN,LoadDetection,Keystatus,Keyevents,CellUnderVolProt,CellOverVolProt,PackUnderVolProt,PackOverVolProt,ChgUnderTempProt,ChgOverTempProt,DchgUnderTempProt,DchgOverTempProt,CellOverDevProt,BattLowSocWarn,ChgOverCurrProt,DchgOverCurrProt,CellUnderVolWarn,CellOverVolWarn,FetTempProt,ResSocProt,FetFailure,TempSenseFault,PackUnderVolWarn,PackOverVolWarn,ChgUnderTempWarn,ChgOverTempWarn,DchgUnderTempWarn,DchgOverTempWarn,PreChgFetStatus,ChgFetStatus,DchgFetStatus,ResStatus,ShortCktProt,DschgPeakProt,ChgAuth,ChgPeakProt,DI1,DI2,DO1,DO2,ChargerDetection,CanCommDetection,CellBalFeatureStatus,ImmoChg,ImmoDchg,BuzzerStatus,Side_Stand_Ack,Direction_Ack,Ride_Ack,Hill_hold_Ack,Wakeup_Ack,DriveError_Motor_hall,Motor_Stalling,Motor_Phase_loss,Controller_Over_Temeprature,Motor_Over_Temeprature,Throttle_Error,MOSFET_Protection,DriveStatus_Regenerative_Braking,ModeR_Pulse,ModeL_Pulse,Brake_Pulse,Park_Pulse,Reverse_Pulse,SideStand_Pulse,ForwardParking_Mode_Ack,DriveError_Controller_OverVoltag,Controller_Undervoltage,Overcurrent_Fault,DriveStatus1_ride,Wakeup_Request,Hill_Hold,Reverse_REQUEST,Forward_parkingmode_REQUEST,Side_stand_Req,Battery_charge_logic,Remote_cutoff,mode_limit,Geo_fencebuzzer,Holiday_mode,Service_request,Low_Mode_REQUEST,Medium_Mode_REQUEST,User_defind_mode_High_REQUEST,Limp_mode_REQUEST\n")
                         headersWritten = true
                     }
                     val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault()).format(Date())
 
                     writer.append(
-    "$timestamp,${metrics.CellVol01 ?: ""},${metrics.PackCurr ?: ""},${metrics.IgnitionStatus ?: ""},${metrics.Mode_Ack ?: ""},${metrics.CellVol02 ?: ""},${metrics.CellVol03 ?: ""},${metrics.CellVol04 ?: ""},${metrics.CellVol05 ?: ""},${metrics.CellVol06 ?: ""},${metrics.CellVol07 ?: ""},${metrics.CellVol08 ?: ""},${metrics.CellVol09 ?: ""},${metrics.CellVol10 ?: ""},${metrics.CellVol11 ?: ""},${metrics.CellVol12 ?: ""},${metrics.CellVol13 ?: ""},${metrics.CellVol14 ?: ""},${metrics.CellVol15 ?: ""},${metrics.CellVol16 ?: ""},${metrics.MaxCellVol ?: ""},${metrics.MinCellVol ?: ""},${metrics.AvgCellVol ?: ""},${metrics.MaxVoltId ?: ""},${metrics.MinVoltId ?: ""},${metrics.PackVol ?: ""},${metrics.CycleCount ?: ""},${metrics.CellVolMinMaxDev ?: ""},${metrics.SOC ?: ""},${metrics.SOCAh ?: ""},${metrics.SOH ?: ""},${metrics.BmsStatus ?: ""},${metrics.LedStatus ?: ""},${metrics.ActiveCellBalStatus ?: ""},${metrics.BMS_Serial_No_MUX ?: ""},${metrics.BMS_Serial_No__1_7 ?: ""},${metrics.LatchProtection ?: ""},${metrics.LatchType ?: ""},${metrics.ChargerType ?: ""},${metrics.PcbTemp ?: ""},${metrics.AfeTemp ?: ""},${metrics.CellChemType ?: ""},${metrics.Chg_Accumulative_Ah ?: ""},${metrics.Dchg_Accumulative_Ah ?: ""},${metrics.RefVol ?: ""},${metrics._3v3Vol ?: ""},${metrics._5vVol ?: ""},${metrics._12vVol ?: ""},${metrics.Actual_SoC ?: ""},${metrics.Usable_Capacity_Ah ?: ""},${metrics.ConfigVer ?: ""},${metrics.InternalFWVer ?: ""},${metrics.InternalFWSubVer ?: ""},${metrics.BHB_66049 ?: ""},${metrics.MaxTemp ?: ""},${metrics.MinTemp ?: ""},${metrics.FetTemp ?: ""},${metrics.Temp1 ?: ""},${metrics.Temp2 ?: ""},${metrics.Temp3 ?: ""},${metrics.Temp4 ?: ""},${metrics.Temp5 ?: ""},${metrics.Temp6 ?: ""},${metrics.Temp7 ?: ""},${metrics.Temp8 ?: ""},${metrics.HwVer ?: ""},${metrics.FwVer ?: ""},${metrics.FWSubVer ?: ""},${metrics.BtStatus_NC0PSM1CC2CV3Finish4 ?: ""},${metrics.Bt_liveMsg1Temp ?: ""},${metrics.Bt_liveMsg_soc ?: ""},${metrics.BMS_status ?: ""},${metrics.Demand_voltage ?: ""},${metrics.Demand_Current ?: ""},${metrics.MaxChgVoltgae ?: ""},${metrics.MaxChgCurrent ?: ""},${metrics.ActualChgVoltage ?: ""},${metrics.ActualChgCurrent ?: ""},${metrics.Charging_end_cutoff_Curr ?: ""},${metrics.CHB_258 ?: ""},${metrics.ChgrNC0PSM1CC2CV3Finsh4 ?: ""},${metrics.chgr_msg_temp ?: ""},${metrics.ChgStatus_chg_idle ?: ""},${metrics.chgrLiveMsgChgVolt ?: ""},${metrics.chgrLiveMsgChgCurrent ?: ""},${metrics.ChargeSOP ?: ""},${metrics.DchgSOP ?: ""},${metrics.Drive_Error_Flag ?: ""},${metrics.Set_Regen ?: ""},${metrics.DCcurrentlimit ?: ""},${metrics.Custom_freq ?: ""},${metrics.Custom_torque ?: ""},${metrics.Buffer_speed ?: ""},${metrics.Base_speed ?: ""},${metrics.Initial_torque ?: ""},${metrics.Final_torque ?: ""},${metrics.Cluster_odo ?: ""},${metrics.MotorSpeed ?: ""},${metrics.BatteryVoltage ?: ""},${metrics.BatteryCurrent ?: ""},${metrics.AC_Current ?: ""},${metrics.AC_Voltage ?: ""},${metrics.Throttle ?: ""},${metrics.MCU_Temperature ?: ""},${metrics.Motor_Temperature ?: ""},${metrics.MCU_Fault_Code ?: ""},${metrics.MCU_ID ?: ""},${metrics.Cluster_heartbeat ?: ""},${metrics.Odo_Cluster ?: ""},${metrics.SW_Version_MAJ ?: ""},${metrics.SW_Version_MIN ?: ""},${metrics.HW_Version_MAJ ?: ""},${metrics.HW_Version_MIN ?: ""},${metrics.MCU_Firmware_Id ?: ""},${metrics.LoadDetection ?: ""},${metrics.Keystatus ?: ""},${metrics.Keyevents ?: ""},${metrics.CellUnderVolProt ?: ""},${metrics.CellOverVolProt ?: ""},${metrics.PackUnderVolProt ?: ""},${metrics.PackOverVolProt ?: ""},${metrics.ChgUnderTempProt ?: ""},${metrics.ChgOverTempProt ?: ""},${metrics.DchgUnderTempProt ?: ""},${metrics.DchgOverTempProt ?: ""},${metrics.CellOverDevProt ?: ""},${metrics.BattLowSocWarn ?: ""},${metrics.ChgOverCurrProt ?: ""},${metrics.DchgOverCurrProt ?: ""},${metrics.CellUnderVolWarn ?: ""},${metrics.CellOverVolWarn ?: ""},${metrics.FetTempProt ?: ""},${metrics.ResSocProt ?: ""},${metrics.FetFailure ?: ""},${metrics.TempSenseFault ?: ""},${metrics.PackUnderVolWarn ?: ""},${metrics.PackOverVolWarn ?: ""},${metrics.ChgUnderTempWarn ?: ""},${metrics.ChgOverTempWarn ?: ""},${metrics.DchgUnderTempWarn ?: ""},${metrics.DchgOverTempWarn ?: ""},${metrics.PreChgFetStatus ?: ""},${metrics.ChgFetStatus ?: ""},${metrics.DchgFetStatus ?: ""},${metrics.ResStatus ?: ""},${metrics.ShortCktProt ?: ""},${metrics.DschgPeakProt ?: ""},${metrics.ChgAuth ?: ""},${metrics.ChgPeakProt ?: ""},${metrics.DI1 ?: ""},${metrics.DI2 ?: ""},${metrics.DO1 ?: ""},${metrics.DO2 ?: ""},${metrics.ChargerDetection ?: ""},${metrics.CanCommDetection ?: ""},${metrics.CellBalFeatureStatus ?: ""},${metrics.ImmoChg ?: ""},${metrics.ImmoDchg ?: ""},${metrics.BuzzerStatus ?: ""},${metrics.Side_Stand_Ack ?: ""},${metrics.Direction_Ack ?: ""},${metrics.Ride_Ack ?: ""},${metrics.Hill_hold_Ack ?: ""},${metrics.Wakeup_Ack ?: ""},${metrics.DriveError_Motor_hall ?: ""},${metrics.Motor_Stalling ?: ""},${metrics.Motor_Phase_loss ?: ""},${metrics.Controller_Over_Temeprature ?: ""},${metrics.Motor_Over_Temeprature ?: ""},${metrics.Throttle_Error ?: ""},${metrics.MOSFET_Protection ?: ""},${metrics.DriveStatus_Regenerative_Braking ?: ""},${metrics.ModeR_Pulse ?: ""},${metrics.ModeL_Pulse ?: ""},${metrics.Brake_Pulse ?: ""},${metrics.Park_Pulse ?: ""},${metrics.Reverse_Pulse ?: ""},${metrics.SideStand_Pulse ?: ""},${metrics.ForwardParking_Mode_Ack ?: ""},${metrics.DriveError_Controller_OverVoltag ?: ""},${metrics.Controller_Undervoltage ?: ""},${metrics.Overcurrent_Fault ?: ""},${metrics.DriveStatus1_ride ?: ""},${metrics.Wakeup_Request ?: ""},${metrics.Hill_Hold ?: ""},${metrics.Reverse_REQUEST ?: ""},${metrics.Forward_parkingmode_REQUEST ?: ""},${metrics.Side_stand_Req ?: ""},${metrics.Battery_charge_logic ?: ""},${metrics.Remote_cutoff ?: ""},${metrics.mode_limit ?: ""},${metrics.Geo_fencebuzzer ?: ""},${metrics.Holiday_mode ?: ""},${metrics.Service_request ?: ""},${metrics.Low_Mode_REQUEST ?: ""},${metrics.Medium_Mode_REQUEST ?: ""},${metrics.User_defind_mode_High_REQUEST ?: ""},${metrics.Limp_mode_REQUEST ?: ""}\n"
+    "$timestamp,${metrics.CellVol01 ?: ""},${metrics.PackCurr ?: ""},${metrics.IgnitionStatus ?: ""},${metrics.Mode_Ack ?: ""},${metrics.CellVol02 ?: ""},${metrics.CellVol03 ?: ""},${metrics.CellVol04 ?: ""},${metrics.CellVol05 ?: ""},${metrics.CellVol06 ?: ""},${metrics.CellVol07 ?: ""},${metrics.CellVol08 ?: ""},${metrics.CellVol09 ?: ""},${metrics.CellVol10 ?: ""},${metrics.CellVol11 ?: ""},${metrics.CellVol12 ?: ""},${metrics.CellVol13 ?: ""},${metrics.CellVol14 ?: ""},${metrics.CellVol15 ?: ""},${metrics.CellVol16 ?: ""},${metrics.MaxCellVol ?: ""},${metrics.MinCellVol ?: ""},${metrics.AvgCellVol ?: ""},${metrics.MaxVoltId ?: ""},${metrics.MinVoltId ?: ""},${metrics.PackVol ?: ""},${metrics.CycleCount ?: ""},${metrics.CellVolMinMaxDev ?: ""},${metrics.SOC ?: ""},${metrics.SOCAh ?: ""},${metrics.SOH ?: ""},${metrics.BmsStatus ?: ""},${metrics.LedStatus ?: ""},${metrics.ActiveCellBalStatus ?: ""},${metrics.BMS_Serial_No_MUX ?: ""},${metrics.BMS_Serial_No__1_7 ?: ""},${metrics.LatchProtection ?: ""},${metrics.LatchType ?: ""},${metrics.ChargerType ?: ""},${metrics.PcbTemp ?: ""},${metrics.AfeTemp ?: ""},${metrics.CellChemType ?: ""},${metrics.Chg_Accumulative_Ah ?: ""},${metrics.Dchg_Accumulative_Ah ?: ""},${metrics.RefVol ?: ""},${metrics._3v3Vol ?: ""},${metrics._5vVol ?: ""},${metrics._12vVol ?: ""},${metrics.Actual_SoC ?: ""},${metrics.Usable_Capacity_Ah ?: ""},${metrics.ConfigVer ?: ""},${metrics.InternalFWVer ?: ""},${metrics.InternalFWSubVer ?: ""},${metrics.BHB_66049 ?: ""},${metrics.MaxTemp ?: ""},${metrics.MinTemp ?: ""},${metrics.FetTemp ?: ""},${metrics.Temp1 ?: ""},${metrics.Temp2 ?: ""},${metrics.Temp3 ?: ""},${metrics.Temp4 ?: ""},${metrics.Temp5 ?: ""},${metrics.Temp6 ?: ""},${metrics.Temp7 ?: ""},${metrics.Temp8 ?: ""},${metrics.HwVer ?: ""},${metrics.FwVer ?: ""},${metrics.FWSubVer ?: ""},${metrics.BtStatus_NC0PSM1CC2CV3Finish4 ?: ""},${metrics.Bt_liveMsg1Temp ?: ""},${metrics.Bt_liveMsg_soc ?: ""},${metrics.BMS_status ?: ""},${metrics.Demand_voltage ?: ""},${metrics.Demand_Current ?: ""},${metrics.MaxChgVoltgae ?: ""},${metrics.MaxChgCurrent ?: ""},${metrics.ActualChgVoltage ?: ""},${metrics.ActualChgCurrent ?: ""},${metrics.Charging_end_cutoff_Curr ?: ""},${metrics.CHB_258 ?: ""},${metrics.ChgrNC0PSM1CC2CV3Finsh4 ?: ""},${metrics.chgr_msg_temp ?: ""},${metrics.ChgStatus_chg_idle ?: ""},${metrics.chgrLiveMsgChgVolt ?: ""},${metrics.chgrLiveMsgChgCurrent ?: ""},${metrics.ChargeSOP ?: ""},${metrics.DchgSOP ?: ""},${metrics.Drive_Error_Flag ?: ""},${metrics.Set_Regen ?: ""},${metrics.DCcurrentlimit ?: ""},${metrics.Custom_freq ?: ""},${metrics.Custom_torque ?: ""},${metrics.Buffer_speed ?: ""},${metrics.Base_speed ?: ""},${metrics.Initial_torque ?: ""},${metrics.Final_torque ?: ""},${metrics.Cluster_odo ?: ""},${metrics.MotorSpeed ?: ""},${metrics.BatteryVoltage ?: ""},${metrics.BatteryCurrent ?: ""},${metrics.AC_Current ?: ""},${metrics.AC_Voltage ?: ""},${metrics.Throttle ?: ""},${metrics.MCU_Temperature ?: ""},${metrics.Motor_Temperature ?: ""},${metrics.MCU_Fault_Code ?: ""},${metrics.MCU_ID ?: ""},${metrics.Cluster_heartbeat ?: ""},${metrics.Odo_Cluster ?: ""},${metrics.SW_Version_MAJ ?: ""},${metrics.SW_Version_MIN ?: ""},${metrics.HW_Version_MAJ ?: ""},${metrics.HW_Version_MIN ?: ""},${metrics.MCU_Firmware_Id ?: ""},${metrics.Charger_Hardware_Version_MAJ ?: ""},${metrics.Charger_Hardware_Version_MIN ?: ""},${metrics.Charger_Software_Version_MAJ ?: ""},${metrics.Charger_Software_Version_MIN ?: ""},${metrics.LoadDetection ?: ""},${metrics.Keystatus ?: ""},${metrics.Keyevents ?: ""},${metrics.CellUnderVolProt ?: ""},${metrics.CellOverVolProt ?: ""},${metrics.PackUnderVolProt ?: ""},${metrics.PackOverVolProt ?: ""},${metrics.ChgUnderTempProt ?: ""},${metrics.ChgOverTempProt ?: ""},${metrics.DchgUnderTempProt ?: ""},${metrics.DchgOverTempProt ?: ""},${metrics.CellOverDevProt ?: ""},${metrics.BattLowSocWarn ?: ""},${metrics.ChgOverCurrProt ?: ""},${metrics.DchgOverCurrProt ?: ""},${metrics.CellUnderVolWarn ?: ""},${metrics.CellOverVolWarn ?: ""},${metrics.FetTempProt ?: ""},${metrics.ResSocProt ?: ""},${metrics.FetFailure ?: ""},${metrics.TempSenseFault ?: ""},${metrics.PackUnderVolWarn ?: ""},${metrics.PackOverVolWarn ?: ""},${metrics.ChgUnderTempWarn ?: ""},${metrics.ChgOverTempWarn ?: ""},${metrics.DchgUnderTempWarn ?: ""},${metrics.DchgOverTempWarn ?: ""},${metrics.PreChgFetStatus ?: ""},${metrics.ChgFetStatus ?: ""},${metrics.DchgFetStatus ?: ""},${metrics.ResStatus ?: ""},${metrics.ShortCktProt ?: ""},${metrics.DschgPeakProt ?: ""},${metrics.ChgAuth ?: ""},${metrics.ChgPeakProt ?: ""},${metrics.DI1 ?: ""},${metrics.DI2 ?: ""},${metrics.DO1 ?: ""},${metrics.DO2 ?: ""},${metrics.ChargerDetection ?: ""},${metrics.CanCommDetection ?: ""},${metrics.CellBalFeatureStatus ?: ""},${metrics.ImmoChg ?: ""},${metrics.ImmoDchg ?: ""},${metrics.BuzzerStatus ?: ""},${metrics.Side_Stand_Ack ?: ""},${metrics.Direction_Ack ?: ""},${metrics.Ride_Ack ?: ""},${metrics.Hill_hold_Ack ?: ""},${metrics.Wakeup_Ack ?: ""},${metrics.DriveError_Motor_hall ?: ""},${metrics.Motor_Stalling ?: ""},${metrics.Motor_Phase_loss ?: ""},${metrics.Controller_Over_Temeprature ?: ""},${metrics.Motor_Over_Temeprature ?: ""},${metrics.Throttle_Error ?: ""},${metrics.MOSFET_Protection ?: ""},${metrics.DriveStatus_Regenerative_Braking ?: ""},${metrics.ModeR_Pulse ?: ""},${metrics.ModeL_Pulse ?: ""},${metrics.Brake_Pulse ?: ""},${metrics.Park_Pulse ?: ""},${metrics.Reverse_Pulse ?: ""},${metrics.SideStand_Pulse ?: ""},${metrics.ForwardParking_Mode_Ack ?: ""},${metrics.DriveError_Controller_OverVoltag ?: ""},${metrics.Controller_Undervoltage ?: ""},${metrics.Overcurrent_Fault ?: ""},${metrics.DriveStatus1_ride ?: ""},${metrics.Wakeup_Request ?: ""},${metrics.Hill_Hold ?: ""},${metrics.Reverse_REQUEST ?: ""},${metrics.Forward_parkingmode_REQUEST ?: ""},${metrics.Side_stand_Req ?: ""},${metrics.Battery_charge_logic ?: ""},${metrics.Remote_cutoff ?: ""},${metrics.mode_limit ?: ""},${metrics.Geo_fencebuzzer ?: ""},${metrics.Holiday_mode ?: ""},${metrics.Service_request ?: ""},${metrics.Low_Mode_REQUEST ?: ""},${metrics.Medium_Mode_REQUEST ?: ""},${metrics.User_defind_mode_High_REQUEST ?: ""},${metrics.Limp_mode_REQUEST ?: ""}\n"
 )
                 }
             }

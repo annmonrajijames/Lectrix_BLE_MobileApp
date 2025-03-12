@@ -2630,6 +2630,98 @@
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
+<!-- Row for Charger_Hardware_Version_MAJ -->
+<LinearLayout
+    android:id="@+id/rowCharger_Hardware_Version_MAJ"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <CheckBox
+        android:id="@+id/cbCharger_Hardware_Version_MAJ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvCharger_Hardware_Version_MAJ"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Charger_Hardware_Version_MAJ: N/A"
+        android:visibility="visible"
+        android:layout_marginStart="8dp"
+        android:layout_gravity="center_vertical" />
+</LinearLayout>
+
+<!-- Row for Charger_Hardware_Version_MIN -->
+<LinearLayout
+    android:id="@+id/rowCharger_Hardware_Version_MIN"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <CheckBox
+        android:id="@+id/cbCharger_Hardware_Version_MIN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvCharger_Hardware_Version_MIN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Charger_Hardware_Version_MIN: N/A"
+        android:visibility="visible"
+        android:layout_marginStart="8dp"
+        android:layout_gravity="center_vertical" />
+</LinearLayout>
+
+<!-- Row for Charger_Software_Version_MAJ -->
+<LinearLayout
+    android:id="@+id/rowCharger_Software_Version_MAJ"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <CheckBox
+        android:id="@+id/cbCharger_Software_Version_MAJ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvCharger_Software_Version_MAJ"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Charger_Software_Version_MAJ: N/A"
+        android:visibility="visible"
+        android:layout_marginStart="8dp"
+        android:layout_gravity="center_vertical" />
+</LinearLayout>
+
+<!-- Row for Charger_Software_Version_MIN -->
+<LinearLayout
+    android:id="@+id/rowCharger_Software_Version_MIN"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <CheckBox
+        android:id="@+id/cbCharger_Software_Version_MIN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvCharger_Software_Version_MIN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Charger_Software_Version_MIN: N/A"
+        android:visibility="visible"
+        android:layout_marginStart="8dp"
+        android:layout_gravity="center_vertical" />
+</LinearLayout>
+
 <!-- Row for IgnitionStatus -->
 <LinearLayout
     android:id="@+id/rowIgnitionStatus"
