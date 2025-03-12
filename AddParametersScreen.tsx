@@ -15,7 +15,11 @@ type ParameterKeys =
   | 'ConfigVer'
   | 'InternalFWVer'
   | 'InternalFWSubVer'
-  | 'MCU_Firmware_Id';
+  | 'MCU_Firmware_Id'
+  | 'Charger_Hardware_MAJ'
+  | 'Charger_Hardware_MIN'
+  | 'Charger_Software_MAJ'
+  | 'Charger_Software_MIN';
 
 const AddParametersScreen = () => {
   // Updated initial state including the new parameters.
@@ -31,6 +35,10 @@ const AddParametersScreen = () => {
     InternalFWVer: '',
     InternalFWSubVer: '',
     MCU_Firmware_Id: '',
+    Charger_Hardware_MAJ: '',
+    Charger_Hardware_MIN: '',
+    Charger_Software_MAJ: '',
+    Charger_Software_MIN: '',
   });
 
   // Handle input change for parameters.
@@ -99,6 +107,10 @@ const AddParametersScreen = () => {
         InternalFWVer: '',
         InternalFWSubVer: '',
         MCU_Firmware_Id: '',
+        Charger_Hardware_MAJ: '',
+        Charger_Hardware_MIN: '',
+        Charger_Software_MAJ: '',
+        Charger_Software_MIN: '',
       });
     } catch (error) {
       console.error('❌ Error adding document:', error);
