@@ -68,6 +68,13 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
   const [FwVerDecoder, setFwVerDecoder] = useState<string | null>(null);
   const [FWSubVerDecoder, setFWSubVerDecoder] = useState<string | null>(null);
 
+  // Charger parameters
+  const [Charger_Hardware_Version_MAJDecoder, setCharger_Hardware_Version_MAJDecoder] = useState<string | null>(null);
+  const [Charger_Software_Version_MAJDecoder, setCharger_Software_Version_MAJDecoder] = useState<string | null>(null);
+  // New parameters added for MIN versions
+  const [Charger_Hardware_Version_MINDecoder, setCharger_Hardware_Version_MINDecoder] = useState<number | null>(null);
+  const [Charger_Software_Version_MINDecoder, setCharger_Software_Version_MINDecoder] = useState<number | null>(null);
+
   // Firebase Data State (contains the pushed document)
   const [firebaseData, setFirebaseData] = useState<any>(null);
   const [mismatchMessage, setMismatchMessage] = useState<string>("");
@@ -229,7 +236,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         mismatches.push("MCU_Firmware_Id");
       }
 
-      // For additional parameters, allow for either the Decoder key or the plain key.
+      // Check additional parameters
       const fbConfigVer =
         firebaseData.ConfigVerDecoder !== undefined
           ? firebaseData.ConfigVerDecoder
@@ -308,6 +315,59 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         mismatches.push("FWSubVer");
       }
 
+      // Check Charger parameters (MAJ)
+      const fbChargerHardware =
+        firebaseData.Charger_Hardware_Version_MAJDecoder !== undefined
+          ? firebaseData.Charger_Hardware_Version_MAJDecoder
+          : firebaseData.Charger_Hardware_Version_MAJ;
+      if (
+        fbChargerHardware !== undefined &&
+        fbChargerHardware !== null &&
+        Charger_Hardware_Version_MAJDecoder !== null &&
+        fbChargerHardware !== Charger_Hardware_Version_MAJDecoder
+      ) {
+        mismatches.push("Charger_Hardware_Version_MAJ");
+      }
+
+      const fbChargerSoftware =
+        firebaseData.Charger_Software_Version_MAJDecoder !== undefined
+          ? firebaseData.Charger_Software_Version_MAJDecoder
+          : firebaseData.Charger_Software_Version_MAJ;
+      if (
+        fbChargerSoftware !== undefined &&
+        fbChargerSoftware !== null &&
+        Charger_Software_Version_MAJDecoder !== null &&
+        fbChargerSoftware !== Charger_Software_Version_MAJDecoder
+      ) {
+        mismatches.push("Charger_Software_Version_MAJ");
+      }
+
+      const fbChargerHardwareMIN =
+      firebaseData.Charger_Hardware_Version_MINDecoder !== undefined
+        ? firebaseData.Charger_Hardware_Version_MINDecoder
+        : firebaseData.Charger_Hardware_Version_MIN;
+    if (
+      fbChargerHardwareMIN !== undefined &&
+      fbChargerHardwareMIN !== null &&
+      Charger_Hardware_Version_MINDecoder !== null &&
+      Number(fbChargerHardwareMIN) !== Charger_Hardware_Version_MINDecoder
+    ) {
+      mismatches.push("Charger_Hardware_Version_MIN");
+    }
+    
+    const fbChargerSoftwareMIN =
+      firebaseData.Charger_Software_Version_MINDecoder !== undefined
+        ? firebaseData.Charger_Software_Version_MINDecoder
+        : firebaseData.Charger_Software_Version_MIN;
+    if (
+      fbChargerSoftwareMIN !== undefined &&
+      fbChargerSoftwareMIN !== null &&
+      Charger_Software_Version_MINDecoder !== null &&
+      Number(fbChargerSoftwareMIN) !== Charger_Software_Version_MINDecoder
+    ) {
+      mismatches.push("Charger_Software_Version_MIN");
+    }    
+
       setMismatchMessage(
         mismatches.length > 0
           ? `Mismatched parameter(s): ${mismatches.join(", ")}`
@@ -327,6 +387,10 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     HwVerDecoder,
     FwVerDecoder,
     FWSubVerDecoder,
+    Charger_Hardware_Version_MAJDecoder,
+    Charger_Software_Version_MAJDecoder,
+    Charger_Hardware_Version_MINDecoder,
+    Charger_Software_Version_MINDecoder,
   ]);
 
   const decodeData = (data: string) => {
@@ -345,6 +409,12 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     const fwVer = eight_bytes_ascii_decode("06", 13, 14, 15)(data);
     const fwSubVer = eight_bytes_ascii_decode("06", 16, 17)(data);
 
+    // Decode Charger parameters (MAJ and MIN)
+    const chargerHardwareVersionMAJ = eight_bytes_ascii_decode("20", 1)(data);
+    const chargerSoftwareVersionMAJ = eight_bytes_ascii_decode("20", 3)(data);
+    const chargerHardwareVersionMIN = eight_bytes_decode("20", 1.0, 2)(data);
+    const chargerSoftwareVersionMIN = eight_bytes_decode("20", 1.0, 4)(data);
+
     if (MCU_Firmware_Id !== null) setMCU_Firmware_IdDecoder(MCU_Firmware_Id);
     if (SW_MAJ !== null) setSW_Version_MAJDecoder(SW_MAJ);
     if (SW_MIN !== null) setSW_Version_MINDecoder(SW_MIN);
@@ -357,6 +427,11 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
     if (hwVer !== null) setHwVerDecoder(hwVer);
     if (fwVer !== null) setFwVerDecoder(fwVer);
     if (fwSubVer !== null) setFWSubVerDecoder(fwSubVer);
+
+    if (chargerHardwareVersionMAJ !== null) setCharger_Hardware_Version_MAJDecoder(chargerHardwareVersionMAJ);
+    if (chargerSoftwareVersionMAJ !== null) setCharger_Software_Version_MAJDecoder(chargerSoftwareVersionMAJ);
+    if (chargerHardwareVersionMIN !== null) setCharger_Hardware_Version_MINDecoder(chargerHardwareVersionMIN);
+    if (chargerSoftwareVersionMIN !== null) setCharger_Software_Version_MINDecoder(chargerSoftwareVersionMIN);
   };
 
   const pushVehicleData = async () => {
@@ -392,6 +467,10 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         HwVerDecoder,
         FwVerDecoder,
         FWSubVerDecoder,
+        Charger_Hardware_Version_MAJDecoder,
+        Charger_Software_Version_MAJDecoder,
+        Charger_Hardware_Version_MINDecoder,
+        Charger_Software_Version_MINDecoder,
         Admin_timestamp: adminTimestamp,
         Tester_timestamp: testerTimestamp,
       });
@@ -460,6 +539,22 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         <Text style={styles.parameterText}>
           FW Sub Version: {FWSubVerDecoder || "N/A"}
         </Text>
+        <Text style={styles.parameterText}>
+          Charger Hardware Version MAJ:{" "}
+          {Charger_Hardware_Version_MAJDecoder || "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          Charger Software Version MAJ:{" "}
+          {Charger_Software_Version_MAJDecoder || "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          Charger Hardware Version MIN:{" "}
+          {Charger_Hardware_Version_MINDecoder !== null ? Charger_Hardware_Version_MINDecoder : "N/A"}
+        </Text>
+        <Text style={styles.parameterText}>
+          Charger Software Version MIN:{" "}
+          {Charger_Software_Version_MINDecoder !== null ? Charger_Software_Version_MINDecoder : "N/A"}
+        </Text>
 
         {/* Firebase Data Section */}
         {firebaseData && (
@@ -519,6 +614,30 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
               FW Sub Version:{" "}
               {firebaseData.FWSubVerDecoder ||
                 firebaseData.FWSubVer ||
+                "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              Charger Hardware Version MAJ:{" "}
+              {firebaseData.Charger_Hardware_Version_MAJDecoder ||
+                firebaseData.Charger_Hardware_Version_MAJ ||
+                "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              Charger Software Version MAJ:{" "}
+              {firebaseData.Charger_Software_Version_MAJDecoder ||
+                firebaseData.Charger_Software_Version_MAJ ||
+                "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              Charger Hardware Version MIN:{" "}
+              {firebaseData.Charger_Hardware_Version_MINDecoder ||
+                firebaseData.Charger_Hardware_Version_MIN ||
+                "N/A"}
+            </Text>
+            <Text style={styles.parameterText}>
+              Charger Software Version MIN:{" "}
+              {firebaseData.Charger_Software_Version_MINDecoder ||
+                firebaseData.Charger_Software_Version_MIN ||
                 "N/A"}
             </Text>
             <Text style={styles.parameterText}>

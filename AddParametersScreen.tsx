@@ -3,7 +3,7 @@ import { ScrollView, View, Text, TextInput, Button, Alert, StyleSheet } from 're
 import { db } from './firebaseConfig';
 import { collection, setDoc, doc, getDocs } from 'firebase/firestore';
 
-// Define parameter keys, including the new ones.
+// Define parameter keys, including the updated names.
 type ParameterKeys =
   | 'SW_Version_MAJDecoder'
   | 'SW_Version_MINDecoder'
@@ -16,13 +16,13 @@ type ParameterKeys =
   | 'InternalFWVer'
   | 'InternalFWSubVer'
   | 'MCU_Firmware_Id'
-  | 'Charger_Hardware_MAJ'
-  | 'Charger_Hardware_MIN'
-  | 'Charger_Software_MAJ'
-  | 'Charger_Software_MIN';
+  | 'Charger_Hardware_Version_MAJ'
+  | 'Charger_Hardware_Version_MIN'
+  | 'Charger_Software_Version_MAJ'
+  | 'Charger_Software_Version_MIN';
 
 const AddParametersScreen = () => {
-  // Updated initial state including the new parameters.
+  // Updated initial state including the new parameter names.
   const [parameters, setParameters] = useState<Record<ParameterKeys, string>>({
     SW_Version_MAJDecoder: '',
     SW_Version_MINDecoder: '',
@@ -35,10 +35,10 @@ const AddParametersScreen = () => {
     InternalFWVer: '',
     InternalFWSubVer: '',
     MCU_Firmware_Id: '',
-    Charger_Hardware_MAJ: '',
-    Charger_Hardware_MIN: '',
-    Charger_Software_MAJ: '',
-    Charger_Software_MIN: '',
+    Charger_Hardware_Version_MAJ: '',
+    Charger_Hardware_Version_MIN: '',
+    Charger_Software_Version_MAJ: '',
+    Charger_Software_Version_MIN: '',
   });
 
   // Handle input change for parameters.
@@ -107,10 +107,10 @@ const AddParametersScreen = () => {
         InternalFWVer: '',
         InternalFWSubVer: '',
         MCU_Firmware_Id: '',
-        Charger_Hardware_MAJ: '',
-        Charger_Hardware_MIN: '',
-        Charger_Software_MAJ: '',
-        Charger_Software_MIN: '',
+        Charger_Hardware_Version_MAJ: '',
+        Charger_Hardware_Version_MIN: '',
+        Charger_Software_Version_MAJ: '',
+        Charger_Software_Version_MIN: '',
       });
     } catch (error) {
       console.error('❌ Error adding document:', error);
