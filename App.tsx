@@ -9,13 +9,15 @@ import BluetoothStateManager from 'react-native-bluetooth-state-manager';
 import Receive from './Receive'; 
 import PDIEOL from './PDIEOL';
 import AddParametersScreen from './AddParametersScreen';
+import Transmit from './Transmit';  // Import the Transmit component
 
-type RootStackParamList = {
+export type RootStackParamList = {
   Home: undefined;
   DataDirection: { device: Device };
   Receive: { device: Device };
   PDIEOL: { device: Device };
   AddParameters: { device: Device };
+  Transmit: { device: Device };  // New route
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -31,7 +33,6 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
 
   const checkBluetoothState = async () => {
     const state = await BluetoothStateManager.getState();
-
     if (state === 'PoweredOff') {
       Alert.alert(
         'Enable Bluetooth',
@@ -52,7 +53,6 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
         PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
         PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
       ]);
-
       if (result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT] !== PermissionsAndroid.RESULTS.GRANTED ||
           result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN] !== PermissionsAndroid.RESULTS.GRANTED) {
         Alert.alert("Permission Error", "Bluetooth permissions are required to scan for devices.");
@@ -64,9 +64,7 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
   const connectToDevice = (device: Device) => {
     manager.stopDeviceScan();
     device.connect()
-      .then(device => {
-        return device.discoverAllServicesAndCharacteristics();
-      })
+      .then(device => device.discoverAllServicesAndCharacteristics())
       .then(device => {
         navigation.navigate('DataDirection', { device });
       })
@@ -89,7 +87,6 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
         });
       }
     });
-
     setTimeout(() => {
       manager.stopDeviceScan();
     }, 10000); // Stop scanning after 10 seconds
@@ -101,10 +98,7 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
     <View style={styles.container}>
       <Text style={styles.title}>BLE Devices:</Text>
       <View style={styles.checkboxContainer}>
-        <CheckBox
-          value={showAllDevices}
-          onValueChange={setShowAllDevices}
-        />
+        <CheckBox value={showAllDevices} onValueChange={setShowAllDevices} />
         <Text style={styles.label}>Show All Devices</Text>
       </View>
       <FlatList
@@ -130,6 +124,7 @@ const App: React.FC = () => {
         <Stack.Screen name="Receive" component={Receive} options={{ title: 'Receive' }} />
         <Stack.Screen name="PDIEOL" component={PDIEOL} options={{ title: 'PDIEOL' }} />
         <Stack.Screen name="AddParameters" component={AddParametersScreen} options={{ title: 'Add Parameters' }} />
+        <Stack.Screen name="Transmit" component={Transmit} options={{ title: 'Transmit' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

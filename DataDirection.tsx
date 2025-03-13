@@ -4,11 +4,13 @@ import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { NativeModules } from 'react-native';
 
+// Add the 'Transmit' route type to the RootStackParamList.
 type RootStackParamList = {
   DataDirection: { device: Device };
   Receive: { device: Device };
   PDIEOL: { device: Device };
   AddParameters: { device: Device };
+  Transmit: { device: Device }; // New route
 };
 
 type DataDirectionProps = NativeStackScreenProps<RootStackParamList, 'DataDirection'>;
@@ -17,9 +19,9 @@ const { ActivityStarter } = NativeModules;
 
 const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
   const { device } = route.params;
-  console.log("MAC ID:"+device.id);
+  console.log("MAC ID:" + device.id);
+  
   const handleReceivePress = () => {
-    // Call the native module to navigate to the ReceiveActivity in Android
     ActivityStarter.navigateToReceiveActivity({ address: device.id });
   };
 
@@ -32,7 +34,7 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
       />
       <Button
         title="Transmit"
-        onPress={() => console.log('Transmit')}
+        onPress={() => navigation.navigate('Transmit', { device })}  // Navigate to Transmit screen
       />
       <Button
         title="Go to PDIEOL"
