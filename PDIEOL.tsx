@@ -19,7 +19,7 @@ import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 
 type RootStackParamList = {
   PDIEOL: { device: Device };
-  DataDirection: { device: Device }; // Added for navigation
+  DataDirection: { device: Device };
 };
 
 type PDIEOLProps = NativeStackScreenProps<RootStackParamList, "PDIEOL">;
@@ -442,6 +442,24 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     if (chargerSoftwareVersionMIN !== null) setCharger_Software_Version_MINDecoder(chargerSoftwareVersionMIN);
   };
 
+  // Check if all BLE data parameters are available (not null)
+  const allBLEDataAvailable =
+    SW_Version_MAJDecoder !== null &&
+    SW_Version_MINDecoder !== null &&
+    HW_Version_MAJDecoder !== null &&
+    HW_Version_MINDecoder !== null &&
+    MCU_Firmware_IdDecoder !== null &&
+    ConfigVerDecoder !== null &&
+    InternalFWVerDecoder !== null &&
+    InternalFWSubVerDecoder !== null &&
+    HwVerDecoder !== null &&
+    FwVerDecoder !== null &&
+    FWSubVerDecoder !== null &&
+    Charger_Hardware_Version_MAJDecoder !== null &&
+    Charger_Software_Version_MAJDecoder !== null &&
+    Charger_Hardware_Version_MINDecoder !== null &&
+    Charger_Software_Version_MINDecoder !== null;
+
   const pushVehicleData = async () => {
     if (!firebaseData) {
       Alert.alert("Error", "Firebase data is not available.");
@@ -482,13 +500,10 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
         Admin_timestamp: adminTimestamp,
         Tester_timestamp: testerTimestamp,
       });
-      // Show a pop-up alert with an OK button.
       Alert.alert(
         "Check completed & Upload",
         "",
-        [
-          { text: "OK", onPress: () => navigation.navigate('DataDirection', { device }) }
-        ]
+        [{ text: "OK", onPress: () => navigation.navigate("DataDirection", { device }) }]
       );
     } catch (error) {
       Alert.alert("Error", "Failed to push vehicle data.");
@@ -668,7 +683,13 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
         <Button
           title="PUSH Vehicle data along with vehicle number and tester name"
           onPress={pushVehicleData}
-          disabled={!(firebaseData && mismatchMessage === "All parameters match.")}
+          disabled={
+            !(
+              firebaseData &&
+              mismatchMessage === "All parameters match." &&
+              allBLEDataAvailable
+            )
+          }
         />
       </View>
     </SafeAreaView>
