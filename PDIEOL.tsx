@@ -19,6 +19,7 @@ import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 
 type RootStackParamList = {
   PDIEOL: { device: Device };
+  DataDirection: { device: Device }; // Added for navigation
 };
 
 type PDIEOLProps = NativeStackScreenProps<RootStackParamList, "PDIEOL">;
@@ -48,7 +49,7 @@ const formatLocalISO = (date: Date): string => {
   )}.${padMs(date.getMilliseconds())}`;
 };
 
-const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
+const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
   const { device } = route.params;
 
   // Entry Box States
@@ -481,7 +482,14 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
         Admin_timestamp: adminTimestamp,
         Tester_timestamp: testerTimestamp,
       });
-      Alert.alert("Success", "Vehicle data pushed successfully!");
+      // Show a pop-up alert with an OK button.
+      Alert.alert(
+        "Check completed & Upload",
+        "",
+        [
+          { text: "OK", onPress: () => navigation.navigate('DataDirection', { device }) }
+        ]
+      );
     } catch (error) {
       Alert.alert("Error", "Failed to push vehicle data.");
     }
