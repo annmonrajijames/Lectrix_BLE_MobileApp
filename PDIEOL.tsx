@@ -1,3 +1,5 @@
+// PDIEOL.tsx
+
 import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
@@ -125,6 +127,11 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       return null;
     };
   };
+
+  // Automatically fetch Firebase data when the component mounts.
+  useEffect(() => {
+    fetchFirebaseData();
+  }, []);
 
   useEffect(() => {
     let subscription: { remove: () => void } | undefined;
@@ -343,30 +350,30 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
       }
 
       const fbChargerHardwareMIN =
-      firebaseData.Charger_Hardware_Version_MINDecoder !== undefined
-        ? firebaseData.Charger_Hardware_Version_MINDecoder
-        : firebaseData.Charger_Hardware_Version_MIN;
-    if (
-      fbChargerHardwareMIN !== undefined &&
-      fbChargerHardwareMIN !== null &&
-      Charger_Hardware_Version_MINDecoder !== null &&
-      Number(fbChargerHardwareMIN) !== Charger_Hardware_Version_MINDecoder
-    ) {
-      mismatches.push("Charger_Hardware_Version_MIN");
-    }
+        firebaseData.Charger_Hardware_Version_MINDecoder !== undefined
+          ? firebaseData.Charger_Hardware_Version_MINDecoder
+          : firebaseData.Charger_Hardware_Version_MIN;
+      if (
+        fbChargerHardwareMIN !== undefined &&
+        fbChargerHardwareMIN !== null &&
+        Charger_Hardware_Version_MINDecoder !== null &&
+        Number(fbChargerHardwareMIN) !== Charger_Hardware_Version_MINDecoder
+      ) {
+        mismatches.push("Charger_Hardware_Version_MIN");
+      }
     
-    const fbChargerSoftwareMIN =
-      firebaseData.Charger_Software_Version_MINDecoder !== undefined
-        ? firebaseData.Charger_Software_Version_MINDecoder
-        : firebaseData.Charger_Software_Version_MIN;
-    if (
-      fbChargerSoftwareMIN !== undefined &&
-      fbChargerSoftwareMIN !== null &&
-      Charger_Software_Version_MINDecoder !== null &&
-      Number(fbChargerSoftwareMIN) !== Charger_Software_Version_MINDecoder
-    ) {
-      mismatches.push("Charger_Software_Version_MIN");
-    }    
+      const fbChargerSoftwareMIN =
+        firebaseData.Charger_Software_Version_MINDecoder !== undefined
+          ? firebaseData.Charger_Software_Version_MINDecoder
+          : firebaseData.Charger_Software_Version_MIN;
+      if (
+        fbChargerSoftwareMIN !== undefined &&
+        fbChargerSoftwareMIN !== null &&
+        Charger_Software_Version_MINDecoder !== null &&
+        Number(fbChargerSoftwareMIN) !== Charger_Software_Version_MINDecoder
+      ) {
+        mismatches.push("Charger_Software_Version_MIN");
+      }    
 
       setMismatchMessage(
         mismatches.length > 0
@@ -655,8 +662,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route }) => {
           onPress={pushVehicleData}
           disabled={!(firebaseData && mismatchMessage === "All parameters match.")}
         />
-        <View style={{ height: 10 }} />
-        <Button title="Fetch Firebase Data" onPress={fetchFirebaseData} />
       </View>
     </SafeAreaView>
   );
