@@ -29,7 +29,7 @@ class ReceiveActivity : AppCompatActivity() {
     private lateinit var rowCellVol01: LinearLayout
     private lateinit var cbCellVol01: CheckBox
     private lateinit var tvCellVol01: TextView
-    
+
     // File saving
     private var saveFileUri: Uri? = null
     private var headersWritten = false
@@ -84,12 +84,14 @@ class ReceiveActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // 3) Setup Stop Recording & Choose Save Location buttons
+        // 3) Setup Stop Recording, Choose Save Location & Share buttons
         val stopRecordingButton: Button = findViewById(R.id.stopRecordingButton)
         val saveLocationButton: Button = findViewById(R.id.saveLocationButton)
+        val shareButton: Button = findViewById(R.id.shareButton)
 
         stopRecordingButton.setOnClickListener { stopRecording() }
         saveLocationButton.setOnClickListener { openDirectoryChooser() }
+        shareButton.setOnClickListener { shareCSVFile() }
 
         // 4) New Buttons: Enable Selection & Show Selected
         val enableSelectionButton: Button = findViewById(R.id.enableSelectionButton)
@@ -278,6 +280,22 @@ class ReceiveActivity : AppCompatActivity() {
                 // Automatically start recording after file save location is selected
                 startRecording()
             }
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // CSV Sharing
+    // ---------------------------------------------------------------------------------------------
+    private fun shareCSVFile() {
+        if (saveFileUri != null) {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/csv"
+                putExtra(Intent.EXTRA_STREAM, saveFileUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Share CSV file via"))
+        } else {
+            Toast.makeText(this, "No CSV file available to share", Toast.LENGTH_SHORT).show()
         }
     }
 

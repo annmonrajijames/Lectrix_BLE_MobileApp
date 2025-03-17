@@ -5,14 +5,14 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!-- Search box remains at the top -->
+    <!-- Search box -->
     <EditText
         android:id="@+id/searchEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Search parameters" />
 
-    <!-- CHOOSE SAVE LOCATION button (now the first action button) -->
+    <!-- CHOOSE SAVE LOCATION button -->
     <Button
         android:id="@+id/saveLocationButton"
         android:layout_width="match_parent"
@@ -30,16 +30,25 @@
         android:layout_below="@id/saveLocationButton"
         android:layout_marginTop="10dp" />
 
-    <!-- New button: ENABLE SELECTION -->
+    <!-- SHARE button -->
+    <Button
+        android:id="@+id/shareButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Share CSV"
+        android:layout_below="@id/stopRecordingButton"
+        android:layout_marginTop="10dp" />
+
+    <!-- ENABLE SELECTION button -->
     <Button
         android:id="@+id/enableSelectionButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Enable Selection"
-        android:layout_below="@id/stopRecordingButton"
+        android:layout_below="@id/shareButton"
         android:layout_marginTop="10dp" />
 
-    <!-- New button: SHOW SELECTED PARAMETERS -->
+    <!-- SHOW SELECTED PARAMETERS button -->
     <Button
         android:id="@+id/showSelectedButton"
         android:layout_width="match_parent"
