@@ -5,104 +5,110 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!-- Search box -->
+    <!-- Search Parameters EditText at the top -->
     <EditText
         android:id="@+id/searchEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search parameters" />
+        android:hint="Search Parameters" />
 
-    <!-- START RECORDING button (renamed from CHOOSE SAVE LOCATION) -->
-    <Button
-        android:id="@+id/saveLocationButton"
+    <!-- Horizontal layout for Enable Selection & Show Selected Parameters -->
+    <LinearLayout
+        android:id="@+id/selectionButtonsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Start Recording"
+        android:orientation="horizontal"
         android:layout_below="@id/searchEditText"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="10dp">
 
-    <!-- STOP RECORDING button -->
-    <Button
-        android:id="@+id/stopRecordingButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Stop Recording"
-        android:layout_below="@id/saveLocationButton"
-        android:layout_marginTop="10dp" />
+        <Button
+            android:id="@+id/enableSelectionButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Enable Selection" />
 
-    <!-- SHARE button -->
-    <Button
-        android:id="@+id/shareButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Share CSV"
-        android:layout_below="@id/stopRecordingButton"
-        android:layout_marginTop="10dp" />
+        <Button
+            android:id="@+id/showSelectedButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Show Selected Parameters"
+            android:layout_marginStart="10dp" />
+    </LinearLayout>
 
-    <!-- ENABLE SELECTION button -->
-    <Button
-        android:id="@+id/enableSelectionButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Enable Selection"
-        android:layout_below="@id/shareButton"
-        android:layout_marginTop="10dp" />
-
-    <!-- SHOW SELECTED PARAMETERS button -->
-    <Button
-        android:id="@+id/showSelectedButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Show Selected Parameters"
-        android:layout_below="@id/enableSelectionButton"
-        android:layout_marginTop="10dp" />
-
-    <!-- ScrollView for parameter rows (below the new buttons) -->
+    <!-- ScrollView for parameter rows -->
     <ScrollView
+        android:id="@+id/parameterScrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/showSelectedButton"
-        android:layout_marginTop="20dp">
+        android:layout_below="@id/selectionButtonsLayout"
+        android:layout_above="@+id/bottomButtonsLayout"
+        android:layout_marginTop="10dp">
 
         <LinearLayout
+            android:id="@+id/parameterLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Row for CellVol01 -->
+            <!-- Example row for CellVol01 -->
             <LinearLayout
                 android:id="@+id/rowCellVol01"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:padding="8dp">
 
-                <!-- CheckBox (hidden by default) -->
                 <CheckBox
                     android:id="@+id/cbCellVol01"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:visibility="gone" />
 
-                <!-- TextView for displaying CellVol01 -->
                 <TextView
                     android:id="@+id/tvCellVol01"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="CellVol01: N/A"
-                    android:visibility="visible"
-                    android:layout_marginStart="8dp"
-                    android:layout_gravity="center_vertical" />
+                    android:layout_marginStart="8dp" />
             </LinearLayout>
 
-            <!-- Additional rows for other parameters, if needed -->
+            <!-- Additional parameter rows can be added here -->
         </LinearLayout>
     </ScrollView>
 
-    <!-- Placeholder for other controls at the bottom -->
-    <RelativeLayout
-        android:id="@+id/bottomLayout"
+    <!-- Bottom horizontal layout for recording controls -->
+    <LinearLayout
+        android:id="@+id/bottomButtonsLayout"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true">
-    </RelativeLayout>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/stopRecordingButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Stop Recording" />
+
+        <Button
+            android:id="@+id/saveLocationButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Start Recording"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp" />
+
+        <Button
+            android:id="@+id/shareButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Share CSV" />
+    </LinearLayout>
+
 </RelativeLayout>
