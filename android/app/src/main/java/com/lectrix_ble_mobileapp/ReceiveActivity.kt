@@ -25,9 +25,6 @@ class ReceiveActivity : AppCompatActivity() {
     // Last valid values for display
     private var lastValidCellVol01: Double? = null
 
-    // Last data recorded for CSV
-    private var lastdatarecordCellVol01: Double? = null
-
     // Rows, CheckBoxes, and TextViews for each parameter
     private lateinit var rowCellVol01: LinearLayout
     private lateinit var cbCellVol01: CheckBox
@@ -38,9 +35,9 @@ class ReceiveActivity : AppCompatActivity() {
     private var headersWritten = false
     private var job: Job? = null
 
-    // Two new booleans for controlling UI logic
+    // Booleans for controlling UI logic
     private var isSelectionMode = false   // If true, shows checkboxes
-    private var showSelectedOnly = false  // If true, only show rows with checked boxes
+    private var showSelectedOnly = false    // If true, only show rows with checked boxes
 
     companion object {
         const val DEVICE_ADDRESS = "DEVICE_ADDRESS"
@@ -62,7 +59,6 @@ class ReceiveActivity : AppCompatActivity() {
                 }
             }
         }
-
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -73,9 +69,9 @@ class ReceiveActivity : AppCompatActivity() {
         setContentView(R.layout.activity_receive)
 
         // 1) Find row + checkbox + textview references for each parameter
-        rowCellVol01      = findViewById(R.id.rowCellVol01)
-        cbCellVol01       = findViewById(R.id.cbCellVol01)
-        tvCellVol01       = findViewById(R.id.tvCellVol01)
+        rowCellVol01 = findViewById(R.id.rowCellVol01)
+        cbCellVol01  = findViewById(R.id.cbCellVol01)
+        tvCellVol01  = findViewById(R.id.tvCellVol01)
 
         // 2) Setup EditText for search
         val searchEditText: EditText = findViewById(R.id.searchEditText)
@@ -83,47 +79,31 @@ class ReceiveActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val searchQuery = s.toString().lowercase(Locale.getDefault())
-                // Re-apply the logic to show/hide rows
                 updateParameterVisibility(searchQuery)
             }
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // 3) Buttons: Start/Stop/Save
-        val startRecordingButton: Button = findViewById(R.id.startRecordingButton)
+        // 3) Setup Stop Recording & Choose Save Location buttons
         val stopRecordingButton: Button = findViewById(R.id.stopRecordingButton)
         val saveLocationButton: Button = findViewById(R.id.saveLocationButton)
 
-        startRecordingButton.setOnClickListener {
-            if (saveFileUri != null) {
-                startRecording()
-            } else {
-                Log.d(TAG, "Please select a location to save the file first.")
-                Toast.makeText(this, "Please select a location first.", Toast.LENGTH_SHORT).show()
-            }
-        }
         stopRecordingButton.setOnClickListener { stopRecording() }
         saveLocationButton.setOnClickListener { openDirectoryChooser() }
 
         // 4) New Buttons: Enable Selection & Show Selected
         val enableSelectionButton: Button = findViewById(R.id.enableSelectionButton)
-        val showSelectedButton: Button    = findViewById(R.id.showSelectedButton)
+        val showSelectedButton: Button = findViewById(R.id.showSelectedButton)
 
         enableSelectionButton.setOnClickListener {
-            // Toggle isSelectionMode
             isSelectionMode = !isSelectionMode
-            // Optionally change button text
             enableSelectionButton.text = if (isSelectionMode) "Disable Selection" else "Enable Selection"
-            // Update UI
             updateCheckboxVisibility()
         }
 
         showSelectedButton.setOnClickListener {
-            // Toggle showSelectedOnly
             showSelectedOnly = !showSelectedOnly
-            // Optionally change button text
             showSelectedButton.text = if (showSelectedOnly) "Show All Parameters" else "Show Selected Parameters"
-            // Re-apply visibility logic
             val searchQuery = searchEditText.text.toString().lowercase(Locale.getDefault())
             updateParameterVisibility(searchQuery)
         }
@@ -136,8 +116,7 @@ class ReceiveActivity : AppCompatActivity() {
             Log.d(TAG, "Device address not provided")
         }
 
-        // Initial UI update: everything hidden or shown based on layout defaults
-        // If you want them visible initially, call updateCheckboxVisibility() & updateParameterVisibility("")
+        // Initial UI update
         updateCheckboxVisibility()
         updateParameterVisibility("")
     }
@@ -145,14 +124,11 @@ class ReceiveActivity : AppCompatActivity() {
     // ---------------------------------------------------------------------------------------------
     // UI Visibility Methods
     // ---------------------------------------------------------------------------------------------
-
     /**
      * Shows/hides the CheckBoxes depending on isSelectionMode
      */
     private fun updateCheckboxVisibility() {
-        val checkBoxes = listOf(
-    cbCellVol01
-)
+        val checkBoxes = listOf(cbCellVol01)
         checkBoxes.forEach { cb ->
             cb.visibility = if (isSelectionMode) View.VISIBLE else View.GONE
         }
@@ -162,23 +138,11 @@ class ReceiveActivity : AppCompatActivity() {
      * Updates which rows are visible based on search query + showSelectedOnly
      */
     private fun updateParameterVisibility(searchQuery: String) {
-        // For convenience, make a list of (paramName, row, checkBox)
-        val paramRows = listOf(
-            Triple("cellvol01", rowCellVol01, cbCellVol01)
-        )
-
-        // Show/hide each row
+        val paramRows = listOf(Triple("cellvol01", rowCellVol01, cbCellVol01))
         for ((paramName, rowLayout, checkBox) in paramRows) {
-            // 1) Does it match the search?
             val matchesSearch = searchQuery.isEmpty() || paramName.contains(searchQuery)
-
-            // 2) If showSelectedOnly is true, also check if it's checked
             val isChecked = checkBox.isChecked
-
-            // The row is visible if it matches the search query
-            // AND either we are not in showSelectedOnly mode, or if we are, it's checked
             val shouldShow = matchesSearch && (!showSelectedOnly || isChecked)
-
             rowLayout.visibility = if (shouldShow) View.VISIBLE else View.GONE
         }
     }
@@ -232,16 +196,12 @@ class ReceiveActivity : AppCompatActivity() {
             ) {
                 val rawData = characteristic.value
                 val hexString = rawData.joinToString(separator = "") { "%02x".format(it) }
-
                 val decodedCellVol01 = CellVol01Decoder(hexString)
-
                 if (decodedCellVol01 != null) {
                     lastValidCellVol01 = decodedCellVol01
-                }                                
-
-                // Update the UI
+                }
                 runOnUiThread {
-                    tvCellVol01.text       = "CellVol01: ${lastValidCellVol01 ?: "N/A"}"
+                    tvCellVol01.text = "CellVol01: ${lastValidCellVol01 ?: "N/A"}"
                 }
             }
         })
@@ -256,9 +216,7 @@ class ReceiveActivity : AppCompatActivity() {
                 val vehicleMetrics = VehicleMetrics(
                     CellVol01 = lastValidCellVol01
                 )
-
                 saveDataToCSV(vehicleMetrics)
-
                 delay(500)  // Adjust based on how frequently you want to record
             }
         }
@@ -286,10 +244,7 @@ class ReceiveActivity : AppCompatActivity() {
                         headersWritten = true
                     }
                     val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault()).format(Date())
-
-                    writer.append(
-    "$timestamp,${metrics.CellVol01 ?: ""}\n"
-)
+                    writer.append("$timestamp,${metrics.CellVol01 ?: ""}\n")
                 }
             }
         }
@@ -317,7 +272,9 @@ class ReceiveActivity : AppCompatActivity() {
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
                 Log.d("Log", "File save location selected.")
-                Toast.makeText(this, "Save location selected.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Save location selected. Recording started.", Toast.LENGTH_SHORT).show()
+                // Automatically start recording after file save location is selected
+                startRecording()
             }
         }
     }

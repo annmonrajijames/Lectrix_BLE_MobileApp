@@ -5,47 +5,41 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!-- Search box -->
+    <!-- Search box remains at the top -->
     <EditText
         android:id="@+id/searchEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Search parameters" />
 
-    <!-- Start/Stop/Save Location buttons -->
-    <Button
-        android:id="@+id/startRecordingButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start Recording"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="20dp" />
-
-    <Button
-        android:id="@+id/stopRecordingButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Stop Recording"
-        android:layout_below="@id/startRecordingButton"
-        android:layout_marginTop="10dp" />
-
+    <!-- CHOOSE SAVE LOCATION button (now the first action button) -->
     <Button
         android:id="@+id/saveLocationButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Choose Save Location"
-        android:layout_below="@id/stopRecordingButton"
+        android:layout_below="@id/searchEditText"
+        android:layout_marginTop="20dp" />
+
+    <!-- STOP RECORDING button -->
+    <Button
+        android:id="@+id/stopRecordingButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop Recording"
+        android:layout_below="@id/saveLocationButton"
         android:layout_marginTop="10dp" />
 
-    <!-- New buttons: Enable Selection, Show Selected Parameters -->
+    <!-- New button: ENABLE SELECTION -->
     <Button
         android:id="@+id/enableSelectionButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Enable Selection"
-        android:layout_below="@id/saveLocationButton"
+        android:layout_below="@id/stopRecordingButton"
         android:layout_marginTop="10dp" />
 
+    <!-- New button: SHOW SELECTED PARAMETERS -->
     <Button
         android:id="@+id/showSelectedButton"
         android:layout_width="match_parent"
@@ -73,14 +67,14 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <!-- CheckBox hidden by default -->
+                <!-- CheckBox (hidden by default) -->
                 <CheckBox
                     android:id="@+id/cbCellVol01"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:visibility="gone" />
 
-                <!-- TextView visible by default -->
+                <!-- TextView for displaying CellVol01 -->
                 <TextView
                     android:id="@+id/tvCellVol01"
                     android:layout_width="match_parent"
@@ -95,7 +89,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Placeholder for potentially other controls at the bottom -->
+    <!-- Placeholder for other controls at the bottom -->
     <RelativeLayout
         android:id="@+id/bottomLayout"
         android:layout_width="match_parent"
