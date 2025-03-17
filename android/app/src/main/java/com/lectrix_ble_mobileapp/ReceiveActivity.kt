@@ -267,6 +267,8 @@ class ReceiveActivity : AppCompatActivity() {
         if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             data?.data?.also { uri ->
                 saveFileUri = uri
+                // Reset header flag so that header is written for each new recording session
+                headersWritten = false
                 contentResolver.takePersistableUriPermission(
                     uri,
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
