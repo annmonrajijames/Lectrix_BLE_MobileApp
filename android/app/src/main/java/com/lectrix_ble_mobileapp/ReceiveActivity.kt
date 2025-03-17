@@ -6,16 +6,24 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.SystemClock
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.View
-import android.widget.*
+import android.widget.Chronometer
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.*
 import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.*
+import android.view.View
 
 class ReceiveActivity : AppCompatActivity() {
     private lateinit var bluetoothManager: BluetoothManager
@@ -25,10 +33,11 @@ class ReceiveActivity : AppCompatActivity() {
     // Last valid values for display
     private var lastValidCellVol01: Double? = null
 
-    // Rows, CheckBoxes, and TextViews for each parameter
+    // UI references
     private lateinit var rowCellVol01: LinearLayout
     private lateinit var cbCellVol01: CheckBox
     private lateinit var tvCellVol01: TextView
+    private lateinit var stopwatchChronometer: Chronometer
 
     // File saving
     private var saveFileUri: Uri? = null
@@ -36,8 +45,8 @@ class ReceiveActivity : AppCompatActivity() {
     private var job: Job? = null
 
     // Booleans for controlling UI logic
-    private var isSelectionMode = false   // If true, shows checkboxes
-    private var showSelectedOnly = false    // If true, only show rows with checked boxes
+    private var isSelectionMode = false
+    private var showSelectedOnly = false
 
     companion object {
         const val DEVICE_ADDRESS = "DEVICE_ADDRESS"
@@ -61,19 +70,19 @@ class ReceiveActivity : AppCompatActivity() {
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
-    // Activity Lifecycle
-    // ---------------------------------------------------------------------------------------------
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receive)
 
-        // 1) Find row + checkbox + textview references for each parameter
+        // Find UI components
         rowCellVol01 = findViewById(R.id.rowCellVol01)
         cbCellVol01  = findViewById(R.id.cbCellVol01)
         tvCellVol01  = findViewById(R.id.tvCellVol01)
+        stopwatchChronometer = findViewById(R.id.stopwatchChronometer)
+        // Set a format so the elapsed time is clearly visible
+        stopwatchChronometer.format = "Time: %s"
 
-        // 2) Setup EditText for search
+        // Setup search EditText
         val searchEditText: EditText = findViewById(R.id.searchEditText)
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -84,18 +93,16 @@ class ReceiveActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // 3) Setup Stop Recording, Choose Save Location & Share buttons
+        // Setup buttons
         val stopRecordingButton: Button = findViewById(R.id.stopRecordingButton)
         val saveLocationButton: Button = findViewById(R.id.saveLocationButton)
         val shareButton: Button = findViewById(R.id.shareButton)
+        val enableSelectionButton: Button = findViewById(R.id.enableSelectionButton)
+        val showSelectedButton: Button = findViewById(R.id.showSelectedButton)
 
         stopRecordingButton.setOnClickListener { stopRecording() }
         saveLocationButton.setOnClickListener { openDirectoryChooser() }
         shareButton.setOnClickListener { shareCSVFile() }
-
-        // 4) New Buttons: Enable Selection & Show Selected
-        val enableSelectionButton: Button = findViewById(R.id.enableSelectionButton)
-        val showSelectedButton: Button = findViewById(R.id.showSelectedButton)
 
         enableSelectionButton.setOnClickListener {
             isSelectionMode = !isSelectionMode
@@ -110,7 +117,7 @@ class ReceiveActivity : AppCompatActivity() {
             updateParameterVisibility(searchQuery)
         }
 
-        // 5) If device address was provided, connect via BLE
+        // Setup BLE connection if device address is provided
         val deviceAddress = intent.getStringExtra(DEVICE_ADDRESS)
         if (deviceAddress != null) {
             setupBluetooth(deviceAddress)
@@ -118,17 +125,10 @@ class ReceiveActivity : AppCompatActivity() {
             Log.d(TAG, "Device address not provided")
         }
 
-        // Initial UI update
         updateCheckboxVisibility()
         updateParameterVisibility("")
     }
 
-    // ---------------------------------------------------------------------------------------------
-    // UI Visibility Methods
-    // ---------------------------------------------------------------------------------------------
-    /**
-     * Shows/hides the CheckBoxes depending on isSelectionMode
-     */
     private fun updateCheckboxVisibility() {
         val checkBoxes = listOf(cbCellVol01)
         checkBoxes.forEach { cb ->
@@ -136,9 +136,6 @@ class ReceiveActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Updates which rows are visible based on search query + showSelectedOnly
-     */
     private fun updateParameterVisibility(searchQuery: String) {
         val paramRows = listOf(Triple("cellvol01", rowCellVol01, cbCellVol01))
         for ((paramName, rowLayout, checkBox) in paramRows) {
@@ -149,13 +146,9 @@ class ReceiveActivity : AppCompatActivity() {
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
-    // BLE Setup & Callbacks
-    // ---------------------------------------------------------------------------------------------
     private fun setupBluetooth(deviceAddress: String) {
         bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
-
         val device = bluetoothAdapter.getRemoteDevice(deviceAddress)
         connectToDevice(device)
     }
@@ -209,17 +202,12 @@ class ReceiveActivity : AppCompatActivity() {
         })
     }
 
-    // ---------------------------------------------------------------------------------------------
-    // CSV Recording
-    // ---------------------------------------------------------------------------------------------
     private fun startRecording() {
         job = CoroutineScope(Dispatchers.IO).launch {
             while (isActive) {
-                val vehicleMetrics = VehicleMetrics(
-                    CellVol01 = lastValidCellVol01
-                )
+                val vehicleMetrics = VehicleMetrics(CellVol01 = lastValidCellVol01)
                 saveDataToCSV(vehicleMetrics)
-                delay(500)  // Adjust based on how frequently you want to record
+                delay(500)  // Adjust delay as needed
             }
         }
         Log.d("Log", "Recording started.")
@@ -230,12 +218,12 @@ class ReceiveActivity : AppCompatActivity() {
         runOnUiThread {
             Log.d("Log", "Recording stopped.")
             Toast.makeText(this, "Recording stopped.", Toast.LENGTH_SHORT).show()
+            // Stop the stopwatch
+            stopwatchChronometer.stop()
         }
     }
 
-    data class VehicleMetrics(
-        val CellVol01: Double?
-    )
+    data class VehicleMetrics(val CellVol01: Double?)
 
     private fun saveDataToCSV(metrics: VehicleMetrics) {
         saveFileUri?.let { uri ->
@@ -252,9 +240,6 @@ class ReceiveActivity : AppCompatActivity() {
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
-    // File Save Location
-    // ---------------------------------------------------------------------------------------------
     private fun openDirectoryChooser() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -269,7 +254,7 @@ class ReceiveActivity : AppCompatActivity() {
         if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             data?.data?.also { uri ->
                 saveFileUri = uri
-                // Reset header flag so that header is written for each new recording session
+                // Reset header flag for a new recording session
                 headersWritten = false
                 contentResolver.takePersistableUriPermission(
                     uri,
@@ -277,15 +262,16 @@ class ReceiveActivity : AppCompatActivity() {
                 )
                 Log.d("Log", "File save location selected.")
                 Toast.makeText(this, "Save location selected. Recording started.", Toast.LENGTH_SHORT).show()
-                // Automatically start recording after file save location is selected
+                // Start the stopwatch (make sure to update the base and start)
+                stopwatchChronometer.base = SystemClock.elapsedRealtime()
+                stopwatchChronometer.start()
+                Log.d("Log", "Stopwatch started with base: ${stopwatchChronometer.base}")
+                // Start recording data
                 startRecording()
             }
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
-    // CSV Sharing
-    // ---------------------------------------------------------------------------------------------
     private fun shareCSVFile() {
         if (saveFileUri != null) {
             val shareIntent = Intent(Intent.ACTION_SEND).apply {

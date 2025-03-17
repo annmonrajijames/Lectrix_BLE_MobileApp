@@ -12,13 +12,25 @@
         android:layout_height="wrap_content"
         android:hint="Search Parameters" />
 
+    <!-- Stopwatch Chronometer placed just below the search box, aligned to the right -->
+    <Chronometer
+        android:id="@+id/stopwatchChronometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00:00"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/searchEditText"
+        android:layout_marginTop="10dp" />
+
     <!-- Horizontal layout for Enable Selection & Show Selected Parameters -->
     <LinearLayout
         android:id="@+id/selectionButtonsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_below="@id/searchEditText"
+        android:layout_below="@id/stopwatchChronometer"
         android:layout_marginTop="10dp">
 
         <Button
