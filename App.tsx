@@ -106,7 +106,9 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => connectToDevice(item)}>
-            <Text style={styles.deviceInfo}>{item.name || 'Unnamed device'} (ID: {item.id})</Text>
+            <Text style={styles.deviceInfo}>
+              {item.name || 'Unnamed device'} (ID: {item.id}) - RSSI: {item.rssi ?? 'N/A'}
+            </Text>
           </TouchableOpacity>
         )}
       />
