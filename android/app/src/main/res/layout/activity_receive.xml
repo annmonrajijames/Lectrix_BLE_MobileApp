@@ -12,12 +12,12 @@
         android:layout_height="wrap_content"
         android:hint="Search parameters" />
 
-    <!-- CHOOSE SAVE LOCATION button -->
+    <!-- START RECORDING button (renamed from CHOOSE SAVE LOCATION) -->
     <Button
         android:id="@+id/saveLocationButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Choose Save Location"
+        android:text="Start Recording"
         android:layout_below="@id/searchEditText"
         android:layout_marginTop="20dp" />
 
