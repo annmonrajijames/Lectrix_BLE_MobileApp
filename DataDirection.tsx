@@ -55,15 +55,15 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
     <View style={styles.container}>
       <Text>Select Data Direction</Text>
       <Button
-        title="Receive"
+        title="Diagnose"
         onPress={handleReceivePress}
       />
       <Button
-        title="Transmit"
+        title="Service Reset"
         onPress={() => navigation.navigate('Transmit', { device })}
       />
       <Button
-        title="Go to PDIEOL"
+        title="PDI-EOL"
         onPress={() => navigation.navigate('PDIEOL', { device })}
       />
       <Button

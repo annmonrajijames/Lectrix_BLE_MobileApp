@@ -10,6 +10,7 @@ import {
   Alert,
   Button,
   TextInput,
+  Modal,
 } from "react-native";
 import { Device } from "react-native-ble-plx";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -81,6 +82,9 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
   // Firebase Data State (contains the pushed document)
   const [firebaseData, setFirebaseData] = useState<any>(null);
   const [mismatchMessage, setMismatchMessage] = useState<string>("");
+  
+  // Modal visibility state for Firebase Data pop-up
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   const serviceUUID = "00FF";
   const characteristicUUID = "FF01";
@@ -241,7 +245,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
         MCU_Firmware_IdDecoder !== null &&
         firebaseData.MCU_Firmware_Id !== MCU_Firmware_IdDecoder
       ) {
-        mismatches.push("MCU_Firmware_Id");
+        mismatches.push("MCU_Firmware_ID");
       }
 
       // Check additional parameters
@@ -529,8 +533,14 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
           />
         </View>
 
-        {/* BLE Data Section */}
-        <Text style={styles.header}>BLE Data</Text>
+        {/* Info Button Section Above the "Vehicle data" Label */}
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoText}>Press to see Version number set by admin</Text>
+          <Button title="ℹ️" onPress={() => setModalVisible(true)} />
+        </View>
+
+        {/* Vehicle Data Header */}
+        <Text style={styles.header}>Vehicle data</Text>
         <Text style={styles.parameterText}>
           SW_Version_MAJ:{" "}
           {SW_Version_MAJDecoder !== null ? SW_Version_MAJDecoder : "N/A"}
@@ -548,136 +558,43 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
           {HW_Version_MINDecoder !== null ? HW_Version_MINDecoder : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          MCU Firmware Id:{" "}
+          MCU_Firmware_ID:{" "}
           {MCU_Firmware_IdDecoder !== null ? MCU_Firmware_IdDecoder : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Config Version: {ConfigVerDecoder || "N/A"}
+          ConfigVer: {ConfigVerDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Internal FW Version: {InternalFWVerDecoder || "N/A"}
+          InternalFWVer: {InternalFWVerDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Internal FW Sub Version: {InternalFWSubVerDecoder || "N/A"}
+          InternalFWSubVer: {InternalFWSubVerDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          HW Version: {HwVerDecoder || "N/A"}
+          HwVer: {HwVerDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          FW Version: {FwVerDecoder || "N/A"}
+          FwVer: {FwVerDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          FW Sub Version: {FWSubVerDecoder || "N/A"}
+          FWSubVer: {FWSubVerDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Charger Hardware Version MAJ:{" "}
+          Charger_Hardware_Version_MAJ:{" "}
           {Charger_Hardware_Version_MAJDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Charger Software Version MAJ:{" "}
+          Charger_Software_Version_MAJ:{" "}
           {Charger_Software_Version_MAJDecoder || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Charger Hardware Version MIN:{" "}
+          Charger_Hardware_Version_MIN:{" "}
           {Charger_Hardware_Version_MINDecoder !== null ? Charger_Hardware_Version_MINDecoder : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Charger Software Version MIN:{" "}
+          Charger_Software_Version_MIN:{" "}
           {Charger_Software_Version_MINDecoder !== null ? Charger_Software_Version_MINDecoder : "N/A"}
         </Text>
-
-        {/* Firebase Data Section */}
-        {firebaseData && (
-          <View style={styles.firebaseContainer}>
-            <Text style={styles.header}>Firebase Data</Text>
-            <Text style={styles.parameterText}>
-              SW_Version_MAJDecoder:{" "}
-              {firebaseData.SW_Version_MAJDecoder || "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              SW_Version_MINDecoder:{" "}
-              {firebaseData.SW_Version_MINDecoder || "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              HW_Version_MAJDecoder:{" "}
-              {firebaseData.HW_Version_MAJDecoder || "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              HW_Version_MINDecoder:{" "}
-              {firebaseData.HW_Version_MINDecoder || "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              MCU Firmware Id:{" "}
-              {firebaseData.MCU_Firmware_Id || "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              Config Version:{" "}
-              {firebaseData.ConfigVerDecoder ||
-                firebaseData.ConfigVer ||
-                "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              Internal FW Version:{" "}
-              {firebaseData.InternalFWVerDecoder ||
-                firebaseData.InternalFWVer ||
-                "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              Internal FW Sub Version:{" "}
-              {firebaseData.InternalFWSubVerDecoder ||
-                firebaseData.InternalFWSubVer ||
-                "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              HW Version:{" "}
-              {firebaseData.HwVerDecoder ||
-                firebaseData.HwVer ||
-                "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              FW Version:{" "}
-              {firebaseData.FwVerDecoder ||
-                firebaseData.FwVer ||
-                "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              FW Sub Version:{" "}
-              {firebaseData.FWSubVerDecoder ||
-                firebaseData.FWSubVer ||
-                "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              Charger Hardware Version MAJ:{" "}
-              {firebaseData.Charger_Hardware_Version_MAJDecoder ||
-                firebaseData.Charger_Hardware_Version_MAJ ||
-                "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              Charger Software Version MAJ:{" "}
-              {firebaseData.Charger_Software_Version_MAJDecoder ||
-                firebaseData.Charger_Software_Version_MAJ ||
-                "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              Charger Hardware Version MIN:{" "}
-              {firebaseData.Charger_Hardware_Version_MINDecoder ||
-                firebaseData.Charger_Hardware_Version_MIN ||
-                "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              Charger Software Version MIN:{" "}
-              {firebaseData.Charger_Software_Version_MINDecoder ||
-                firebaseData.Charger_Software_Version_MIN ||
-                "N/A"}
-            </Text>
-            <Text style={styles.parameterText}>
-              Timestamp: {firebaseData.timestamp || "N/A"}
-            </Text>
-            {mismatchMessage !== "" && (
-              <Text style={styles.mismatchText}>{mismatchMessage}</Text>
-            )}
-          </View>
-        )}
       </ScrollView>
       <View style={styles.fixedButtonContainer}>
         <Button
@@ -692,6 +609,80 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
           }
         />
       </View>
+
+      {/* Firebase Data Modal */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalHeader}>Firebase Data</Text>
+            <ScrollView style={{ maxHeight: 300 }}>
+              {firebaseData ? (
+                <>
+                  <Text style={styles.parameterText}>
+                    SW_Version_MAJ: {firebaseData.SW_Version_MAJDecoder || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    SW_Version_MIN: {firebaseData.SW_Version_MINDecoder || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    HW_Version_MAJ: {firebaseData.HW_Version_MAJDecoder || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    HW_Version_MINDecoder: {firebaseData.HW_Version_MINDecoder || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    MCU_Firmware_ID: {firebaseData.MCU_Firmware_Id || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    ConfigVer: {firebaseData.ConfigVerDecoder || firebaseData.ConfigVer || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    InternalFWVer: {firebaseData.InternalFWVerDecoder || firebaseData.InternalFWVer || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    InternalFWSubVer: {firebaseData.InternalFWSubVerDecoder || firebaseData.InternalFWSubVer || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    HwVer: {firebaseData.HwVerDecoder || firebaseData.HwVer || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    FwVer: {firebaseData.FwVerDecoder || firebaseData.FwVer || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    FWSubVer: {firebaseData.FWSubVerDecoder || firebaseData.FWSubVer || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    Charger_Hardware_Version_MAJ: {firebaseData.Charger_Hardware_Version_MAJDecoder || firebaseData.Charger_Hardware_Version_MAJ || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    Charger_Software_Version_MAJ: {firebaseData.Charger_Software_Version_MAJDecoder || firebaseData.Charger_Software_Version_MAJ || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    Charger_Hardware_Version_MIN: {firebaseData.Charger_Hardware_Version_MINDecoder || firebaseData.Charger_Hardware_Version_MIN || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    Charger_Software_Version_MIN: {firebaseData.Charger_Software_Version_MINDecoder || firebaseData.Charger_Software_Version_MIN || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    Timestamp: {firebaseData.timestamp || "N/A"}
+                  </Text>
+                  <Text style={styles.parameterText}>
+                    {mismatchMessage}
+                  </Text>
+                </>
+              ) : (
+                <Text style={styles.parameterText}>No Firebase data available.</Text>
+              )}
+            </ScrollView>
+            <Button title="Close" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -720,6 +711,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
   },
+  infoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 5,
+  },
+  infoText: {
+    fontSize: 16,
+    marginRight: 8,
+  },
   header: {
     fontSize: 24,
     fontWeight: "bold",
@@ -731,7 +732,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     textAlign: "center",
   },
-  firebaseContainer: { marginTop: 30, alignItems: "center" },
   fixedButtonContainer: {
     position: "absolute",
     bottom: 20,
@@ -739,11 +739,23 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: "center",
   },
-  mismatchText: {
-    fontSize: 16,
-    color: "red",
-    marginTop: 10,
-    textAlign: "center",
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalHeader: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
 });
 
