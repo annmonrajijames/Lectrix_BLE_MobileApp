@@ -6,7 +6,7 @@ import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { NativeModules } from 'react-native';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from './firebaseConfig'; // Import your configured Firestore instance
+import { db } from './firebaseConfig'; // Import your initialized Firestore instance
 
 type RootStackParamList = {
   DataDirection: { device: Device };
@@ -22,8 +22,13 @@ const { ActivityStarter } = NativeModules;
 
 const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
   const { device } = route.params;
+  // For Service Reset password modal:
   const [modalVisible, setModalVisible] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
+
+  // For PDI-EOL password modal:
+  const [pdiModalVisible, setPdiModalVisible] = useState(false);
+  const [pdiPasswordInput, setPdiPasswordInput] = useState('');
 
   useEffect(() => {
     // Check connection status and attempt reconnection if needed.
@@ -53,32 +58,56 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
     ActivityStarter.navigateToReceiveActivity({ address: device.id });
   };
 
-  // Open modal for password input when "Service Reset" is tapped.
+  // --- Service Reset functionality ---
   const handleServiceResetPress = () => {
     setModalVisible(true);
   };
 
-  // Verify password by comparing the input with the value in Firestore.
   const verifyPassword = async () => {
     try {
-      // Fetch from the "authentication" collection, document "password1"
       const docRef = doc(db, 'authentication', 'password1');
       const docSnapshot = await getDoc(docRef);
       if (docSnapshot.exists()) {
-        // Compare with the "ServiceReset" field.
         const expectedPassword = docSnapshot.data()?.ServiceReset;
         if (passwordInput === expectedPassword) {
           setModalVisible(false);
-          setPasswordInput(''); // Clear password input after successful verification
+          setPasswordInput(''); // Clear after successful verification
           navigation.navigate('Transmit', { device });
         } else {
-          Alert.alert("Error", "Incorrect password.");
+          Alert.alert("Error", "Incorrect password for Service Reset.");
         }
       } else {
-        Alert.alert("Error", "Password not found in database.");
+        Alert.alert("Error", "Password document not found.");
       }
     } catch (error) {
-      console.error("Error verifying password:", error);
+      console.error("Error verifying Service Reset password:", error);
+      Alert.alert("Error", "Failed to verify password.");
+    }
+  };
+
+  // --- PDI-EOL functionality ---
+  const handlePDIEOLPress = () => {
+    setPdiModalVisible(true);
+  };
+
+  const verifyPDIEOLPassword = async () => {
+    try {
+      const docRef = doc(db, 'authentication', 'password');
+      const docSnapshot = await getDoc(docRef);
+      if (docSnapshot.exists()) {
+        const expectedPassword = docSnapshot.data()?.PDIEOL;
+        if (pdiPasswordInput === expectedPassword) {
+          setPdiModalVisible(false);
+          setPdiPasswordInput(''); // Clear after successful verification
+          navigation.navigate('PDIEOL', { device });
+        } else {
+          Alert.alert("Error", "Incorrect password for PDI-EOL.");
+        }
+      } else {
+        Alert.alert("Error", "Password document not found for PDI-EOL.");
+      }
+    } catch (error) {
+      console.error("Error verifying PDI-EOL password:", error);
       Alert.alert("Error", "Failed to verify password.");
     }
   };
@@ -86,24 +115,12 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <Text>Select Data Direction</Text>
-      <Button
-        title="Diagnose"
-        onPress={handleReceivePress}
-      />
-      <Button
-        title="Service Reset"
-        onPress={handleServiceResetPress}
-      />
-      <Button
-        title="PDI-EOL"
-        onPress={() => navigation.navigate('PDIEOL', { device })}
-      />
-      <Button
-        title="Go to Add Parameters"
-        onPress={() => navigation.navigate('AddParameters', { device })}
-      />
+      <Button title="Diagnose" onPress={handleReceivePress} />
+      <Button title="Service Reset" onPress={handleServiceResetPress} />
+      <Button title="PDI-EOL" onPress={handlePDIEOLPress} />
+      <Button title="Go to Add Parameters" onPress={() => navigation.navigate('AddParameters', { device })} />
 
-      {/* Modal for password input */}
+      {/* Modal for Service Reset password */}
       <Modal
         transparent={true}
         visible={modalVisible}
@@ -112,7 +129,7 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Enter Password</Text>
+            <Text style={styles.modalTitle}>Enter Service Reset Password</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter password"
@@ -123,6 +140,31 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
             <View style={styles.modalButtons}>
               <Button title="Cancel" onPress={() => setModalVisible(false)} />
               <Button title="Confirm" onPress={verifyPassword} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal for PDI-EOL password */}
+      <Modal
+        transparent={true}
+        visible={pdiModalVisible}
+        animationType="slide"
+        onRequestClose={() => setPdiModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Enter PDI-EOL Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter password"
+              secureTextEntry
+              value={pdiPasswordInput}
+              onChangeText={setPdiPasswordInput}
+            />
+            <View style={styles.modalButtons}>
+              <Button title="Cancel" onPress={() => setPdiModalVisible(false)} />
+              <Button title="Confirm" onPress={verifyPDIEOLPassword} />
             </View>
           </View>
         </View>
