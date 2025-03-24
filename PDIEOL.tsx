@@ -16,7 +16,7 @@ import { Device } from "react-native-ble-plx";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Buffer } from "buffer";
 import { db } from "./firebaseConfig";
-import { collection, getDocs, doc, setDoc } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
 
 type RootStackParamList = {
   PDIEOL: { device: Device };
