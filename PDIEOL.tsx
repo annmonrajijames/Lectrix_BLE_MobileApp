@@ -514,7 +514,17 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     }
     const adminTimestamp = firebaseData.timestamp;
     const testerTimestamp = formatLocalISO(new Date());
-
+  
+    // Determine the Data_choice value based on the selected option
+    let dataChoice = "";
+    if (selectedDataOption === "all") {
+      dataChoice = "All Vehicle Data";
+    } else if (selectedDataOption === "withoutCharger") {
+      dataChoice = "Without Charger";
+    } else if (selectedDataOption === "onlyCharger") {
+      dataChoice = "Only Charger";
+    }
+  
     // When pushing data, store the BLE-decoded values under keys that include "Decoder"
     const docRef = doc(db, "Matched Vehicle", vehicleNumber);
     try {
@@ -538,6 +548,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
         Charger_Software_Version_MINDecoder,
         Admin_timestamp: adminTimestamp,
         Tester_timestamp: testerTimestamp,
+        Data_choice: dataChoice,
       });
       Alert.alert(
         "Check completed & Upload",
@@ -547,7 +558,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     } catch (error) {
       Alert.alert("Error", "Failed to push vehicle data.");
     }
-  };
+  };  
 
   return (
     <SafeAreaView style={styles.safeArea}>
