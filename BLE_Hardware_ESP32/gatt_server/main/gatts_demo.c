@@ -886,6 +886,7 @@ void notification_task(void *param) {
             count=count+1;
 
         printf("Count %d", count);
+        printf("bytes DEBUG %d %d", byte_35, byte_36); // I noticed sometimes Motor_Temperature value goes to zero
     }
 
     notify_task_handle = NULL;
@@ -909,14 +910,14 @@ static void twai_receive_task(void *arg) {
     last_received_0x18F20315 = now;
 
     // Define your timeouts in ticks (e.g., 400 ms => 400 ms worth of ticks)
-    const TickType_t TIMEOUT_0x01 = pdMS_TO_TICKS(400);
-    const TickType_t TIMEOUT_0x18530902 = pdMS_TO_TICKS(400);
-    const TickType_t TIMEOUT_0x400 = pdMS_TO_TICKS(400);
-    const TickType_t TIMEOUT_0x18F20315 = pdMS_TO_TICKS(400);
+    const TickType_t TIMEOUT_0x01 = pdMS_TO_TICKS(1000);
+    const TickType_t TIMEOUT_0x18530902 = pdMS_TO_TICKS(1000);
+    const TickType_t TIMEOUT_0x400 = pdMS_TO_TICKS(1000);
+    const TickType_t TIMEOUT_0x18F20315 = pdMS_TO_TICKS(1000);
 
     while (1) {
         if (twai_receive(&message, pdMS_TO_TICKS(50)) == ESP_OK) {
-            ESP_LOGI("TWAI Receiver", "CAN ID : 0x%08" PRIx32, message.identifier);
+            // ESP_LOGI("TWAI Receiver", "CAN ID : 0x%08" PRIx32, message.identifier);
             switch (message.identifier) {
                 case 0x14520902: // CAN #1
                  // byte_01=0x1; is to identify the packet number
@@ -1418,11 +1419,11 @@ static void twai_receive_task(void *arg) {
                     break;
       
                 default:
-                    ESP_LOGI("TWAI Receiver", "Unknown CAN ID: 0x%08" PRIx32, message.identifier);
+                    // ESP_LOGI("TWAI Receiver", "Unknown CAN ID: 0x%08" PRIx32, message.identifier);
                     break;
             }
         } else {
-            ESP_LOGE("TWAI Receiver", "Failed to receive message");
+            // ESP_LOGE("TWAI Receiver", "Failed to receive message");
         }
         // After attempting to receive, check if we timed out on 0x01
         TickType_t current_time = xTaskGetTickCount();
@@ -1834,7 +1835,7 @@ static void twai_receive_task(void *arg) {
             byte_395 = 0;
             byte_396 = 0;
 
-            ESP_LOGE("TWAI Receiver", "CAN ID 0x400 not received in last 400 ms!");
+            // ESP_LOGE("TWAI Receiver", "CAN ID 0x400 not received in last 400 ms!");
             // Optionally, do something else (set a flag, notify another task, etc.)
         }
 
