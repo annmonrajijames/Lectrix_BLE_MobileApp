@@ -11,6 +11,7 @@ import {
   Button,
   TextInput,
   Modal,
+  TouchableOpacity,
 } from "react-native";
 import { Device } from "react-native-ble-plx";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -82,9 +83,13 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
   // Firebase Data State (contains the pushed document)
   const [firebaseData, setFirebaseData] = useState<any>(null);
   const [mismatchMessage, setMismatchMessage] = useState<string>("");
-  
+
   // Modal visibility state for Firebase Data pop-up
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+
+  // New state to store the parameter group selection
+  // Options: "all", "withoutCharger", "onlyCharger"
+  const [selectedDataOption, setSelectedDataOption] = useState<string>("all");
 
   const serviceUUID = "00FF";
   const characteristicUUID = "FF01";
@@ -207,179 +212,186 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     }
   };
 
+  // Update mismatch check based on the selected parameter group
   useEffect(() => {
     if (firebaseData) {
       const mismatches: string[] = [];
+      // Flags to determine which set of parameters to check
+      const checkNonCharger = selectedDataOption !== "onlyCharger";
+      const checkCharger = selectedDataOption !== "withoutCharger";
 
-      // Check primary parameters (using Firebase's Decoder keys)
-      if (
-        firebaseData.SW_Version_MAJDecoder !== undefined &&
-        SW_Version_MAJDecoder !== null &&
-        Number(firebaseData.SW_Version_MAJDecoder) !== SW_Version_MAJDecoder
-      ) {
-        mismatches.push("SW_Version_MAJ");
-      }
-      if (
-        firebaseData.SW_Version_MINDecoder !== undefined &&
-        SW_Version_MINDecoder !== null &&
-        Number(firebaseData.SW_Version_MINDecoder) !== SW_Version_MINDecoder
-      ) {
-        mismatches.push("SW_Version_MIN");
-      }
-      if (
-        firebaseData.HW_Version_MAJDecoder !== undefined &&
-        HW_Version_MAJDecoder !== null &&
-        Number(firebaseData.HW_Version_MAJDecoder) !== HW_Version_MAJDecoder
-      ) {
-        mismatches.push("HW_Version_MAJ");
-      }
-      if (
-        firebaseData.HW_Version_MINDecoder !== undefined &&
-        HW_Version_MINDecoder !== null &&
-        Number(firebaseData.HW_Version_MINDecoder) !== HW_Version_MINDecoder
-      ) {
-        mismatches.push("HW_Version_MIN");
-      }
-      if (
-        firebaseData.MCU_Firmware_Id !== undefined &&
-        MCU_Firmware_IdDecoder !== null &&
-        firebaseData.MCU_Firmware_Id !== MCU_Firmware_IdDecoder
-      ) {
-        mismatches.push("MCU_Firmware_ID");
-      }
-
-      // Check additional parameters
-      const fbConfigVer =
-        firebaseData.ConfigVerDecoder !== undefined
-          ? firebaseData.ConfigVerDecoder
-          : firebaseData.ConfigVer;
-      if (
-        fbConfigVer !== undefined &&
-        fbConfigVer !== null &&
-        ConfigVerDecoder !== null &&
-        fbConfigVer !== ConfigVerDecoder
-      ) {
-        mismatches.push("ConfigVer");
-      }
-
-      const fbInternalFWVer =
-        firebaseData.InternalFWVerDecoder !== undefined
-          ? firebaseData.InternalFWVerDecoder
-          : firebaseData.InternalFWVer;
-      if (
-        fbInternalFWVer !== undefined &&
-        fbInternalFWVer !== null &&
-        InternalFWVerDecoder !== null &&
-        fbInternalFWVer !== InternalFWVerDecoder
-      ) {
-        mismatches.push("InternalFWVer");
-      }
-
-      const fbInternalFWSubVer =
-        firebaseData.InternalFWSubVerDecoder !== undefined
-          ? firebaseData.InternalFWSubVerDecoder
-          : firebaseData.InternalFWSubVer;
-      if (
-        fbInternalFWSubVer !== undefined &&
-        fbInternalFWSubVer !== null &&
-        InternalFWSubVerDecoder !== null &&
-        fbInternalFWSubVer !== InternalFWSubVerDecoder
-      ) {
-        mismatches.push("InternalFWSubVer");
-      }
-
-      const fbHwVer =
-        firebaseData.HwVerDecoder !== undefined
-          ? firebaseData.HwVerDecoder
-          : firebaseData.HwVer;
-      if (
-        fbHwVer !== undefined &&
-        fbHwVer !== null &&
-        HwVerDecoder !== null &&
-        fbHwVer !== HwVerDecoder
-      ) {
-        mismatches.push("HwVer");
-      }
-
-      const fbFwVer =
-        firebaseData.FwVerDecoder !== undefined
-          ? firebaseData.FwVerDecoder
-          : firebaseData.FwVer;
-      if (
-        fbFwVer !== undefined &&
-        fbFwVer !== null &&
-        FwVerDecoder !== null &&
-        fbFwVer !== FwVerDecoder
-      ) {
-        mismatches.push("FwVer");
-      }
-
-      const fbFWSubVer =
-        firebaseData.FWSubVerDecoder !== undefined
-          ? firebaseData.FWSubVerDecoder
-          : firebaseData.FWSubVer;
-      if (
-        fbFWSubVer !== undefined &&
-        fbFWSubVer !== null &&
-        FWSubVerDecoder !== null &&
-        fbFWSubVer !== FWSubVerDecoder
-      ) {
-        mismatches.push("FWSubVer");
-      }
-
-      // Check Charger parameters (MAJ)
-      const fbChargerHardware =
-        firebaseData.Charger_Hardware_Version_MAJDecoder !== undefined
-          ? firebaseData.Charger_Hardware_Version_MAJDecoder
-          : firebaseData.Charger_Hardware_Version_MAJ;
-      if (
-        fbChargerHardware !== undefined &&
-        fbChargerHardware !== null &&
-        Charger_Hardware_Version_MAJDecoder !== null &&
-        fbChargerHardware !== Charger_Hardware_Version_MAJDecoder
-      ) {
-        mismatches.push("Charger_Hardware_Version_MAJ");
+      if (checkNonCharger) {
+        // Check primary parameters
+        if (
+          firebaseData.SW_Version_MAJDecoder !== undefined &&
+          SW_Version_MAJDecoder !== null &&
+          Number(firebaseData.SW_Version_MAJDecoder) !== SW_Version_MAJDecoder
+        ) {
+          mismatches.push("SW_Version_MAJ");
+        }
+        if (
+          firebaseData.SW_Version_MINDecoder !== undefined &&
+          SW_Version_MINDecoder !== null &&
+          Number(firebaseData.SW_Version_MINDecoder) !== SW_Version_MINDecoder
+        ) {
+          mismatches.push("SW_Version_MIN");
+        }
+        if (
+          firebaseData.HW_Version_MAJDecoder !== undefined &&
+          HW_Version_MAJDecoder !== null &&
+          Number(firebaseData.HW_Version_MAJDecoder) !== HW_Version_MAJDecoder
+        ) {
+          mismatches.push("HW_Version_MAJ");
+        }
+        if (
+          firebaseData.HW_Version_MINDecoder !== undefined &&
+          HW_Version_MINDecoder !== null &&
+          Number(firebaseData.HW_Version_MINDecoder) !== HW_Version_MINDecoder
+        ) {
+          mismatches.push("HW_Version_MIN");
+        }
+        if (
+          firebaseData.MCU_Firmware_Id !== undefined &&
+          MCU_Firmware_IdDecoder !== null &&
+          firebaseData.MCU_Firmware_Id !== MCU_Firmware_IdDecoder
+        ) {
+          mismatches.push("MCU_Firmware_ID");
+        }
+  
+        const fbConfigVer =
+          firebaseData.ConfigVerDecoder !== undefined
+            ? firebaseData.ConfigVerDecoder
+            : firebaseData.ConfigVer;
+        if (
+          fbConfigVer !== undefined &&
+          fbConfigVer !== null &&
+          ConfigVerDecoder !== null &&
+          fbConfigVer !== ConfigVerDecoder
+        ) {
+          mismatches.push("ConfigVer");
+        }
+  
+        const fbInternalFWVer =
+          firebaseData.InternalFWVerDecoder !== undefined
+            ? firebaseData.InternalFWVerDecoder
+            : firebaseData.InternalFWVer;
+        if (
+          fbInternalFWVer !== undefined &&
+          fbInternalFWVer !== null &&
+          InternalFWVerDecoder !== null &&
+          fbInternalFWVer !== InternalFWVerDecoder
+        ) {
+          mismatches.push("InternalFWVer");
+        }
+  
+        const fbInternalFWSubVer =
+          firebaseData.InternalFWSubVerDecoder !== undefined
+            ? firebaseData.InternalFWSubVerDecoder
+            : firebaseData.InternalFWSubVer;
+        if (
+          fbInternalFWSubVer !== undefined &&
+          fbInternalFWSubVer !== null &&
+          InternalFWSubVerDecoder !== null &&
+          fbInternalFWSubVer !== InternalFWSubVerDecoder
+        ) {
+          mismatches.push("InternalFWSubVer");
+        }
+  
+        const fbHwVer =
+          firebaseData.HwVerDecoder !== undefined
+            ? firebaseData.HwVerDecoder
+            : firebaseData.HwVer;
+        if (
+          fbHwVer !== undefined &&
+          fbHwVer !== null &&
+          HwVerDecoder !== null &&
+          fbHwVer !== HwVerDecoder
+        ) {
+          mismatches.push("HwVer");
+        }
+  
+        const fbFwVer =
+          firebaseData.FwVerDecoder !== undefined
+            ? firebaseData.FwVerDecoder
+            : firebaseData.FwVer;
+        if (
+          fbFwVer !== undefined &&
+          fbFwVer !== null &&
+          FwVerDecoder !== null &&
+          fbFwVer !== FwVerDecoder
+        ) {
+          mismatches.push("FwVer");
+        }
+  
+        const fbFWSubVer =
+          firebaseData.FWSubVerDecoder !== undefined
+            ? firebaseData.FWSubVerDecoder
+            : firebaseData.FWSubVer;
+        if (
+          fbFWSubVer !== undefined &&
+          fbFWSubVer !== null &&
+          FWSubVerDecoder !== null &&
+          fbFWSubVer !== FWSubVerDecoder
+        ) {
+          mismatches.push("FWSubVer");
+        }
       }
 
-      const fbChargerSoftware =
-        firebaseData.Charger_Software_Version_MAJDecoder !== undefined
-          ? firebaseData.Charger_Software_Version_MAJDecoder
-          : firebaseData.Charger_Software_Version_MAJ;
-      if (
-        fbChargerSoftware !== undefined &&
-        fbChargerSoftware !== null &&
-        Charger_Software_Version_MAJDecoder !== null &&
-        fbChargerSoftware !== Charger_Software_Version_MAJDecoder
-      ) {
-        mismatches.push("Charger_Software_Version_MAJ");
+      if (checkCharger) {
+        // Check Charger parameters (MAJ and MIN)
+        const fbChargerHardware =
+          firebaseData.Charger_Hardware_Version_MAJDecoder !== undefined
+            ? firebaseData.Charger_Hardware_Version_MAJDecoder
+            : firebaseData.Charger_Hardware_Version_MAJ;
+        if (
+          fbChargerHardware !== undefined &&
+          fbChargerHardware !== null &&
+          Charger_Hardware_Version_MAJDecoder !== null &&
+          fbChargerHardware !== Charger_Hardware_Version_MAJDecoder
+        ) {
+          mismatches.push("Charger_Hardware_Version_MAJ");
+        }
+  
+        const fbChargerSoftware =
+          firebaseData.Charger_Software_Version_MAJDecoder !== undefined
+            ? firebaseData.Charger_Software_Version_MAJDecoder
+            : firebaseData.Charger_Software_Version_MAJ;
+        if (
+          fbChargerSoftware !== undefined &&
+          fbChargerSoftware !== null &&
+          Charger_Software_Version_MAJDecoder !== null &&
+          fbChargerSoftware !== Charger_Software_Version_MAJDecoder
+        ) {
+          mismatches.push("Charger_Software_Version_MAJ");
+        }
+  
+        const fbChargerHardwareMIN =
+          firebaseData.Charger_Hardware_Version_MINDecoder !== undefined
+            ? firebaseData.Charger_Hardware_Version_MINDecoder
+            : firebaseData.Charger_Hardware_Version_MIN;
+        if (
+          fbChargerHardwareMIN !== undefined &&
+          fbChargerHardwareMIN !== null &&
+          Charger_Hardware_Version_MINDecoder !== null &&
+          Number(fbChargerHardwareMIN) !== Charger_Hardware_Version_MINDecoder
+        ) {
+          mismatches.push("Charger_Hardware_Version_MIN");
+        }
+      
+        const fbChargerSoftwareMIN =
+          firebaseData.Charger_Software_Version_MINDecoder !== undefined
+            ? firebaseData.Charger_Software_Version_MINDecoder
+            : firebaseData.Charger_Software_Version_MIN;
+        if (
+          fbChargerSoftwareMIN !== undefined &&
+          fbChargerSoftwareMIN !== null &&
+          Charger_Software_Version_MINDecoder !== null &&
+          Number(fbChargerSoftwareMIN) !== Charger_Software_Version_MINDecoder
+        ) {
+          mismatches.push("Charger_Software_Version_MIN");
+        }
       }
-
-      const fbChargerHardwareMIN =
-        firebaseData.Charger_Hardware_Version_MINDecoder !== undefined
-          ? firebaseData.Charger_Hardware_Version_MINDecoder
-          : firebaseData.Charger_Hardware_Version_MIN;
-      if (
-        fbChargerHardwareMIN !== undefined &&
-        fbChargerHardwareMIN !== null &&
-        Charger_Hardware_Version_MINDecoder !== null &&
-        Number(fbChargerHardwareMIN) !== Charger_Hardware_Version_MINDecoder
-      ) {
-        mismatches.push("Charger_Hardware_Version_MIN");
-      }
-    
-      const fbChargerSoftwareMIN =
-        firebaseData.Charger_Software_Version_MINDecoder !== undefined
-          ? firebaseData.Charger_Software_Version_MINDecoder
-          : firebaseData.Charger_Software_Version_MIN;
-      if (
-        fbChargerSoftwareMIN !== undefined &&
-        fbChargerSoftwareMIN !== null &&
-        Charger_Software_Version_MINDecoder !== null &&
-        Number(fbChargerSoftwareMIN) !== Charger_Software_Version_MINDecoder
-      ) {
-        mismatches.push("Charger_Software_Version_MIN");
-      }    
-
+      
       setMismatchMessage(
         mismatches.length > 0
           ? `Mismatched parameter(s): ${mismatches.join(", ")}`
@@ -388,6 +400,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     }
   }, [
     firebaseData,
+    selectedDataOption,
     SW_Version_MAJDecoder,
     SW_Version_MINDecoder,
     HW_Version_MAJDecoder,
@@ -446,23 +459,45 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     if (chargerSoftwareVersionMIN !== null) setCharger_Software_Version_MINDecoder(chargerSoftwareVersionMIN);
   };
 
-  // Check if all BLE data parameters are available (not null)
-  const allBLEDataAvailable =
-    SW_Version_MAJDecoder !== null &&
-    SW_Version_MINDecoder !== null &&
-    HW_Version_MAJDecoder !== null &&
-    HW_Version_MINDecoder !== null &&
-    MCU_Firmware_IdDecoder !== null &&
-    ConfigVerDecoder !== null &&
-    InternalFWVerDecoder !== null &&
-    InternalFWSubVerDecoder !== null &&
-    HwVerDecoder !== null &&
-    FwVerDecoder !== null &&
-    FWSubVerDecoder !== null &&
-    Charger_Hardware_Version_MAJDecoder !== null &&
-    Charger_Software_Version_MAJDecoder !== null &&
-    Charger_Hardware_Version_MINDecoder !== null &&
-    Charger_Software_Version_MINDecoder !== null;
+  // Compute the required BLE data based on the selected option
+  let allBLEDataAvailable;
+  if (selectedDataOption === "all") {
+    allBLEDataAvailable =
+      SW_Version_MAJDecoder !== null &&
+      SW_Version_MINDecoder !== null &&
+      HW_Version_MAJDecoder !== null &&
+      HW_Version_MINDecoder !== null &&
+      MCU_Firmware_IdDecoder !== null &&
+      ConfigVerDecoder !== null &&
+      InternalFWVerDecoder !== null &&
+      InternalFWSubVerDecoder !== null &&
+      HwVerDecoder !== null &&
+      FwVerDecoder !== null &&
+      FWSubVerDecoder !== null &&
+      Charger_Hardware_Version_MAJDecoder !== null &&
+      Charger_Software_Version_MAJDecoder !== null &&
+      Charger_Hardware_Version_MINDecoder !== null &&
+      Charger_Software_Version_MINDecoder !== null;
+  } else if (selectedDataOption === "withoutCharger") {
+    allBLEDataAvailable =
+      SW_Version_MAJDecoder !== null &&
+      SW_Version_MINDecoder !== null &&
+      HW_Version_MAJDecoder !== null &&
+      HW_Version_MINDecoder !== null &&
+      MCU_Firmware_IdDecoder !== null &&
+      ConfigVerDecoder !== null &&
+      InternalFWVerDecoder !== null &&
+      InternalFWSubVerDecoder !== null &&
+      HwVerDecoder !== null &&
+      FwVerDecoder !== null &&
+      FWSubVerDecoder !== null;
+  } else if (selectedDataOption === "onlyCharger") {
+    allBLEDataAvailable =
+      Charger_Hardware_Version_MAJDecoder !== null &&
+      Charger_Software_Version_MAJDecoder !== null &&
+      Charger_Hardware_Version_MINDecoder !== null &&
+      Charger_Software_Version_MINDecoder !== null;
+  }
 
   const pushVehicleData = async () => {
     if (!firebaseData) {
@@ -531,6 +566,37 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
             value={testerName}
             onChangeText={setTesterName}
           />
+        </View>
+
+        {/* Radio Buttons for Data Options */}
+        <View style={styles.radioGroup}>
+          <TouchableOpacity
+            style={[
+              styles.radioButton,
+              selectedDataOption === "all" && styles.radioButtonSelected,
+            ]}
+            onPress={() => setSelectedDataOption("all")}
+          >
+            <Text style={styles.radioText}>All Vehicle Data</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.radioButton,
+              selectedDataOption === "withoutCharger" && styles.radioButtonSelected,
+            ]}
+            onPress={() => setSelectedDataOption("withoutCharger")}
+          >
+            <Text style={styles.radioText}>Without Charger</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.radioButton,
+              selectedDataOption === "onlyCharger" && styles.radioButtonSelected,
+            ]}
+            onPress={() => setSelectedDataOption("onlyCharger")}
+          >
+            <Text style={styles.radioText}>Only Charger</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Info Button Section Above the "Vehicle data" Label */}
@@ -633,7 +699,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
                     HW_Version_MAJ: {firebaseData.HW_Version_MAJDecoder || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    HW_Version_MINDecoder: {firebaseData.HW_Version_MINDecoder || "N/A"}
+                    HW_Version_MIN: {firebaseData.HW_Version_MINDecoder || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
                     MCU_Firmware_ID: {firebaseData.MCU_Firmware_Id || "N/A"}
@@ -710,6 +776,26 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 10,
     marginBottom: 10,
+  },
+  radioGroup: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    marginVertical: 10,
+  },
+  radioButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 20,
+  },
+  radioButtonSelected: {
+    backgroundColor: "#ddd",
+    borderColor: "#333",
+  },
+  radioText: {
+    fontSize: 14,
   },
   infoContainer: {
     flexDirection: "row",
