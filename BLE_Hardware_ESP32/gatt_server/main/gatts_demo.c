@@ -1679,7 +1679,7 @@ static void twai_receive_task(void *arg) {
             byte_109 = 0;
             byte_110 = 0;
 
-            ESP_LOGE("TWAI Receiver", "CAN ID 0x01 not received in last 400 ms!");
+            // ESP_LOGE("TWAI Receiver", "CAN ID 0x01 not received in last 400 ms!");
             // Optionally, do something else (set a flag, notify another task, etc.)
         }
 
@@ -1738,7 +1738,7 @@ static void twai_receive_task(void *arg) {
             byte_42 = 0;
             byte_43 = 0;
 
-            ESP_LOGE("TWAI Receiver", "CAN ID 0x18530902 not received in last 400 ms!");
+            // ESP_LOGE("TWAI Receiver", "CAN ID 0x18530902 not received in last 400 ms!");
         }
 
         // For ID 0x400 // Charger CAN loss
@@ -1861,7 +1861,7 @@ static void twai_receive_task(void *arg) {
             byte_100 = 0;
          // byte_101=0x6; is to identify the packet number
             byte_102 = 0;
-            ESP_LOGE("TWAI Receiver", "CAN ID 0x18F20315 not received in last 400 ms!");
+            // ESP_LOGE("TWAI Receiver", "CAN ID 0x18F20315 not received in last 400 ms!");
             // Optionally, do something else (set a flag, notify another task, etc.)
         }
 
