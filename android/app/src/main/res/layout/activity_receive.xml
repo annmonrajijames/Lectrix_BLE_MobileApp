@@ -2490,29 +2490,6 @@
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for Odo_Cluster -->
-<LinearLayout
-    android:id="@+id/rowOdo_Cluster"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
-
-    <CheckBox
-        android:id="@+id/cbOdo_Cluster"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tvOdo_Cluster"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Odo_Cluster: N/A"
-        android:visibility="visible"
-        android:layout_marginStart="8dp"
-        android:layout_gravity="center_vertical" />
-</LinearLayout>
-
 <!-- Row for SW_Version_MAJ -->
 <LinearLayout
     android:id="@+id/rowSW_Version_MAJ"
