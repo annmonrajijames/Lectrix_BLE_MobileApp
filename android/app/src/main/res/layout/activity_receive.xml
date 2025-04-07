@@ -1140,70 +1140,70 @@
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
-<!-- Row for ConfigVer -->
+<!-- Row for Battery_Version_ConfigVer -->
 <LinearLayout
-    android:id="@+id/rowConfigVer"
+    android:id="@+id/rowBattery_Version_ConfigVer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbConfigVer"
+        android:id="@+id/cbBattery_Version_ConfigVer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvConfigVer"
+        android:id="@+id/tvBattery_Version_ConfigVer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ConfigVer: N/A"
+        android:text="Battery_Version_ConfigVer: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for InternalFWVer -->
+<!-- Row for Battery_Version_InternalFWVer -->
 <LinearLayout
-    android:id="@+id/rowInternalFWVer"
+    android:id="@+id/rowBattery_Version_InternalFWVer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbInternalFWVer"
+        android:id="@+id/cbBattery_Version_InternalFWVer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvInternalFWVer"
+        android:id="@+id/tvBattery_Version_InternalFWVer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="InternalFWVer: N/A"
+        android:text="Battery_Version_InternalFWVer: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for InternalFWSubVer -->
+<!-- Row for Battery_Version_InternalFWSubVer -->
 <LinearLayout
-    android:id="@+id/rowInternalFWSubVer"
+    android:id="@+id/rowBattery_Version_InternalFWSubVer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbInternalFWSubVer"
+        android:id="@+id/cbBattery_Version_InternalFWSubVer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvInternalFWSubVer"
+        android:id="@+id/tvBattery_Version_InternalFWSubVer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="InternalFWSubVer: N/A"
+        android:text="Battery_Version_InternalFWSubVer: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
@@ -1483,70 +1483,70 @@
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
-<!-- Row for HwVer -->
+<!-- Row for Battery_Version_HwVer -->
 <LinearLayout
-    android:id="@+id/rowHwVer"
+    android:id="@+id/rowBattery_Version_HwVer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbHwVer"
+        android:id="@+id/cbBattery_Version_HwVer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvHwVer"
+        android:id="@+id/tvBattery_Version_HwVer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="HwVer: N/A"
+        android:text="Battery_Version_HwVer: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for FwVer -->
+<!-- Row for Battery_Version_FwVer -->
 <LinearLayout
-    android:id="@+id/rowFwVer"
+    android:id="@+id/rowBattery_Version_FwVer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbFwVer"
+        android:id="@+id/cbBattery_Version_FwVer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvFwVer"
+        android:id="@+id/tvBattery_Version_FwVer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="FwVer: N/A"
+        android:text="Battery_Version_FwVer: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for FWSubVer -->
+<!-- Row for Battery_Version_FWSubVer -->
 <LinearLayout
-    android:id="@+id/rowFWSubVer"
+    android:id="@+id/rowBattery_Version_FWSubVer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbFWSubVer"
+        android:id="@+id/cbBattery_Version_FWSubVer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvFWSubVer"
+        android:id="@+id/tvBattery_Version_FWSubVer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="FWSubVer: N/A"
+        android:text="Battery_Version_FWSubVer: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
@@ -2490,208 +2490,208 @@
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for SW_Version_MAJ -->
+<!-- Row for Cluster_Version_SW_MAJ -->
 <LinearLayout
-    android:id="@+id/rowSW_Version_MAJ"
+    android:id="@+id/rowCluster_Version_SW_MAJ"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbSW_Version_MAJ"
+        android:id="@+id/cbCluster_Version_SW_MAJ"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvSW_Version_MAJ"
+        android:id="@+id/tvCluster_Version_SW_MAJ"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="SW_Version_MAJ: N/A"
+        android:text="Cluster_Version_SW_MAJ: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for SW_Version_MIN -->
+<!-- Row for Cluster_Version_SW_MIN -->
 <LinearLayout
-    android:id="@+id/rowSW_Version_MIN"
+    android:id="@+id/rowCluster_Version_SW_MIN"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbSW_Version_MIN"
+        android:id="@+id/cbCluster_Version_SW_MIN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvSW_Version_MIN"
+        android:id="@+id/tvCluster_Version_SW_MIN"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="SW_Version_MIN: N/A"
+        android:text="Cluster_Version_SW_MIN: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for HW_Version_MAJ -->
+<!-- Row for Cluster_Version_HW_MAJ -->
 <LinearLayout
-    android:id="@+id/rowHW_Version_MAJ"
+    android:id="@+id/rowCluster_Version_HW_MAJ"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbHW_Version_MAJ"
+        android:id="@+id/cbCluster_Version_HW_MAJ"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvHW_Version_MAJ"
+        android:id="@+id/tvCluster_Version_HW_MAJ"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="HW_Version_MAJ: N/A"
+        android:text="Cluster_Version_HW_MAJ: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for HW_Version_MIN -->
+<!-- Row for Cluster_Version_HW_MIN -->
 <LinearLayout
-    android:id="@+id/rowHW_Version_MIN"
+    android:id="@+id/rowCluster_Version_HW_MIN"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbHW_Version_MIN"
+        android:id="@+id/cbCluster_Version_HW_MIN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvHW_Version_MIN"
+        android:id="@+id/tvCluster_Version_HW_MIN"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="HW_Version_MIN: N/A"
+        android:text="Cluster_Version_HW_MIN: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for MCU_Firmware_Id -->
+<!-- Row for MCU_Version_Firmware_Id -->
 <LinearLayout
-    android:id="@+id/rowMCU_Firmware_Id"
+    android:id="@+id/rowMCU_Version_Firmware_Id"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbMCU_Firmware_Id"
+        android:id="@+id/cbMCU_Version_Firmware_Id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvMCU_Firmware_Id"
+        android:id="@+id/tvMCU_Version_Firmware_Id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="MCU_Firmware_Id: N/A"
+        android:text="MCU_Version_Firmware_Id: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for Charger_Hardware_Version_MAJ -->
+<!-- Row for Charger_Version_Hardware_MAJ -->
 <LinearLayout
-    android:id="@+id/rowCharger_Hardware_Version_MAJ"
+    android:id="@+id/rowCharger_Version_Hardware_MAJ"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbCharger_Hardware_Version_MAJ"
+        android:id="@+id/cbCharger_Version_Hardware_MAJ"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvCharger_Hardware_Version_MAJ"
+        android:id="@+id/tvCharger_Version_Hardware_MAJ"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Charger_Hardware_Version_MAJ: N/A"
+        android:text="Charger_Version_Hardware_MAJ: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for Charger_Hardware_Version_MIN -->
+<!-- Row for Charger_Version_Hardware_MIN -->
 <LinearLayout
-    android:id="@+id/rowCharger_Hardware_Version_MIN"
+    android:id="@+id/rowCharger_Version_Hardware_MIN"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbCharger_Hardware_Version_MIN"
+        android:id="@+id/cbCharger_Version_Hardware_MIN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvCharger_Hardware_Version_MIN"
+        android:id="@+id/tvCharger_Version_Hardware_MIN"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Charger_Hardware_Version_MIN: N/A"
+        android:text="Charger_Version_Hardware_MIN: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for Charger_Software_Version_MAJ -->
+<!-- Row for Charger_Version_Software_MAJ -->
 <LinearLayout
-    android:id="@+id/rowCharger_Software_Version_MAJ"
+    android:id="@+id/rowCharger_Version_Software_MAJ"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbCharger_Software_Version_MAJ"
+        android:id="@+id/cbCharger_Version_Software_MAJ"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvCharger_Software_Version_MAJ"
+        android:id="@+id/tvCharger_Version_Software_MAJ"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Charger_Software_Version_MAJ: N/A"
+        android:text="Charger_Version_Software_MAJ: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for Charger_Software_Version_MIN -->
+<!-- Row for Charger_Version_Software_MIN -->
 <LinearLayout
-    android:id="@+id/rowCharger_Software_Version_MIN"
+    android:id="@+id/rowCharger_Version_Software_MIN"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbCharger_Software_Version_MIN"
+        android:id="@+id/cbCharger_Version_Software_MIN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvCharger_Software_Version_MIN"
+        android:id="@+id/tvCharger_Version_Software_MIN"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Charger_Software_Version_MIN: N/A"
+        android:text="Charger_Version_Software_MIN: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
