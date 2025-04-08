@@ -1,14 +1,15 @@
+// AddParametersScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { db } from './firebaseConfig';
 import { collection, setDoc, doc, getDocs } from 'firebase/firestore';
 
-// Define parameter keys including the updated names for display.
+// Define parameter keys - note that we are not using suffixes.
 type ParameterKeys =
-  | 'Cluster_Version_SW_MAJDecoder'
-  | 'Cluster_Version_SW_MINDecoder'
-  | 'Cluster_Version_HW_MAJDecoder'
-  | 'Cluster_Version_HW_MINDecoder'
+  | 'Cluster_Version_SW_MAJ'
+  | 'Cluster_Version_SW_MIN'
+  | 'Cluster_Version_HW_MAJ'
+  | 'Cluster_Version_HW_MIN'
   | 'Battery_Version_HwVer'
   | 'Battery_Version_FwVer'
   | 'Battery_Version_FWSubVer'
@@ -21,20 +22,13 @@ type ParameterKeys =
   | 'Charger_Version_Software_MAJ'
   | 'Charger_Version_Software_MIN';
 
-// Mapping from the original parameter key to the new key name.
-const displayMapping: Partial<Record<ParameterKeys, string>> = {
-  Cluster_Version_SW_MAJDecoder: 'Cluster_Version_SW_MAJ',
-  Cluster_Version_SW_MINDecoder: 'Cluster_Version_SW_MIN',
-  Cluster_Version_HW_MAJDecoder: 'Cluster_Version_HW_MAJ',
-  Cluster_Version_HW_MINDecoder: 'Cluster_Version_HW_MIN',
-};
-
 const AddParametersScreen = () => {
+  // Initialize state using the exact key names.
   const [parameters, setParameters] = useState<Record<ParameterKeys, string>>({
-    Cluster_Version_SW_MAJDecoder: '',
-    Cluster_Version_SW_MINDecoder: '',
-    Cluster_Version_HW_MAJDecoder: '',
-    Cluster_Version_HW_MINDecoder: '',
+    Cluster_Version_SW_MAJ: '',
+    Cluster_Version_SW_MIN: '',
+    Cluster_Version_HW_MAJ: '',
+    Cluster_Version_HW_MIN: '',
     Battery_Version_HwVer: '',
     Battery_Version_FwVer: '',
     Battery_Version_FWSubVer: '',
@@ -67,11 +61,10 @@ const AddParametersScreen = () => {
         Alert.alert('Firestore Error', 'Failed to connect to Firestore.');
       }
     };
-
     testFirestoreConnection();
   }, []);
 
-  // Generate a local time string in the format YYYY-MM-DDTHH:mm:ss.SSS using the device's local time.
+  // Generate a local time string in the format YYYY-MM-DDTHH:mm:ss.SSS
   const getFormattedLocalTime = (): string => {
     const now = new Date();
     const year = now.getFullYear();
@@ -84,24 +77,15 @@ const AddParametersScreen = () => {
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
   };
 
-  // Modified uploadToFirebase function
+  // Upload data to Firebase without any key mapping.
   const uploadToFirebase = async () => {
     try {
       if (!db) {
         throw new Error('Firestore instance is not initialized.');
       }
-
       const localTime = getFormattedLocalTime();
-
-      // Create a new object with new key names if available from displayMapping.
-      const dataToUpload: Record<string, string> = {};
-      Object.keys(parameters).forEach((key) => {
-        const typedKey = key as ParameterKeys;
-        // Use the mapped key name if exists, otherwise use the original key.
-        const newKey = displayMapping[typedKey] || typedKey;
-        dataToUpload[newKey] = parameters[typedKey];
-      });
-
+      // Create a new object for upload using the same key names.
+      const dataToUpload: Record<string, string> = { ...parameters };
       // Add timestamp to the object.
       dataToUpload.timestamp = localTime;
 
@@ -109,13 +93,12 @@ const AddParametersScreen = () => {
 
       console.log('✅ Document added with ID (Local Time):', localTime);
       Alert.alert('Success', `Parameters added at ${localTime}`);
-
       // Reset parameter input fields.
       setParameters({
-        Cluster_Version_SW_MAJDecoder: '',
-        Cluster_Version_SW_MINDecoder: '',
-        Cluster_Version_HW_MAJDecoder: '',
-        Cluster_Version_HW_MINDecoder: '',
+        Cluster_Version_SW_MAJ: '',
+        Cluster_Version_SW_MIN: '',
+        Cluster_Version_HW_MAJ: '',
+        Cluster_Version_HW_MIN: '',
         Battery_Version_HwVer: '',
         Battery_Version_FwVer: '',
         Battery_Version_FWSubVer: '',
@@ -137,25 +120,19 @@ const AddParametersScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.heading}>Enter Parameter Values</Text>
-
       {/* Render an input for each parameter */}
-      {Object.keys(parameters).map(key => {
-        // Use the mapped display name if it exists, otherwise default to the original key.
-        const displayKey = displayMapping[key as ParameterKeys] || key;
-        return (
-          <View key={key} style={styles.inputContainer}>
-            <Text style={styles.label}>{displayKey}:</Text>
-            <TextInput
-              style={styles.input}
-              value={parameters[key as ParameterKeys]}
-              onChangeText={text => handleInputChange(key as ParameterKeys, text)}
-              keyboardType="default"
-              placeholder="Enter value"
-            />
-          </View>
-        );
-      })}
-
+      {Object.keys(parameters).map(key => (
+        <View key={key} style={styles.inputContainer}>
+          <Text style={styles.label}>{key}:</Text>
+          <TextInput
+            style={styles.input}
+            value={parameters[key as ParameterKeys]}
+            onChangeText={text => handleInputChange(key as ParameterKeys, text)}
+            keyboardType="default"
+            placeholder="Enter value"
+          />
+        </View>
+      ))}
       <Button title="Upload to Firebase" onPress={uploadToFirebase} />
     </ScrollView>
   );

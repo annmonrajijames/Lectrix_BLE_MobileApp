@@ -1,5 +1,4 @@
 // PDIEOL.tsx
-
 import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
@@ -58,43 +57,40 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
   const [vehicleNumber, setVehicleNumber] = useState<string>("");
   const [testerName, setTesterName] = useState<string>("");
 
-  // BLE Data States (decoded from BLE notifications)
-  const [Cluster_Version_SW_MAJDecoder, setCluster_Version_SW_MAJDecoder] = useState<number | null>(null);
-  const [Cluster_Version_SW_MINDecoder, setCluster_Version_SW_MINDecoder] = useState<number | null>(null);
-  const [Cluster_Version_HW_MAJDecoder, setCluster_Version_HW_MAJDecoder] = useState<number | null>(null);
-  const [Cluster_Version_HW_MINDecoder, setCluster_Version_HW_MINDecoder] = useState<number | null>(null);
-  const [MCU_Version_Firmware_IdDecoder, setMCU_Version_Firmware_IdDecoder] = useState<string | null>(null);
+  // BLE Data States for admin parameters (using the exact same keys).
+  const [Cluster_Version_SW_MAJ, setCluster_Version_SW_MAJ] = useState<number | null>(null);
+  const [Cluster_Version_SW_MIN, setCluster_Version_SW_MIN] = useState<number | null>(null);
+  const [Cluster_Version_HW_MAJ, setCluster_Version_HW_MAJ] = useState<number | null>(null);
+  const [Cluster_Version_HW_MIN, setCluster_Version_HW_MIN] = useState<number | null>(null);
+  const [MCU_Version_Firmware_Id, setMCU_Version_Firmware_Id] = useState<string | null>(null);
 
-  // Additional BLE Decoded Parameters
-  const [Battery_Version_ConfigVerDecoder, setBattery_Version_ConfigVerDecoder] = useState<string | null>(null);
-  const [Battery_Version_InternalFWVerDecoder, setBattery_Version_InternalFWVerDecoder] = useState<string | null>(null);
-  const [Battery_Version_InternalFWSubVerDecoder, setBattery_Version_InternalFWSubVerDecoder] = useState<string | null>(null);
-  const [Battery_Version_HwVerDecoder, setBattery_Version_HwVerDecoder] = useState<string | null>(null);
-  const [Battery_Version_FwVerDecoder, setBattery_Version_FwVerDecoder] = useState<string | null>(null);
-  const [Battery_Version_FWSubVerDecoder, setBattery_Version_FWSubVerDecoder] = useState<string | null>(null);
+  // Additional BLE Decoded Parameters (key names remain unchanged).
+  const [Battery_Version_ConfigVer, setBattery_Version_ConfigVer] = useState<string | null>(null);
+  const [Battery_Version_InternalFWVer, setBattery_Version_InternalFWVer] = useState<string | null>(null);
+  const [Battery_Version_InternalFWSubVer, setBattery_Version_InternalFWSubVer] = useState<string | null>(null);
+  const [Battery_Version_HwVer, setBattery_Version_HwVer] = useState<string | null>(null);
+  const [Battery_Version_FwVer, setBattery_Version_FwVer] = useState<string | null>(null);
+  const [Battery_Version_FWSubVer, setBattery_Version_FWSubVer] = useState<string | null>(null);
 
   // Charger parameters
-  const [Charger_Version_Hardware_MAJDecoder, setCharger_Version_Hardware_MAJDecoder] = useState<string | null>(null);
-  const [Charger_Version_Software_MAJDecoder, setCharger_Version_Software_MAJDecoder] = useState<string | null>(null);
-  // New parameters added for MIN versions
-  const [Charger_Version_Hardware_MINDecoder, setCharger_Version_Hardware_MINDecoder] = useState<number | null>(null);
-  const [Charger_Version_Software_MINDecoder, setCharger_Version_Software_MINDecoder] = useState<number | null>(null);
+  const [Charger_Version_Hardware_MAJ, setCharger_Version_Hardware_MAJ] = useState<string | null>(null);
+  const [Charger_Version_Software_MAJ, setCharger_Version_Software_MAJ] = useState<string | null>(null);
+  const [Charger_Version_Hardware_MIN, setCharger_Version_Hardware_MIN] = useState<number | null>(null);
+  const [Charger_Version_Software_MIN, setCharger_Version_Software_MIN] = useState<number | null>(null);
 
   // Firebase Data State (contains the pushed document)
   const [firebaseData, setFirebaseData] = useState<any>(null);
   const [mismatchMessage, setMismatchMessage] = useState<string>("");
-
-  // Modal visibility state for Firebase Data pop-up
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
-  // New state to store the parameter group selection
+  // New state to store the parameter group selection:
   // Options: "all", "withoutCharger", "onlyCharger"
   const [selectedDataOption, setSelectedDataOption] = useState<string>("all");
 
   const serviceUUID = "00FF";
   const characteristicUUID = "FF01";
 
-  // Decodes selected bytes to a number.
+  // Decoding functions (unchanged in logic)
   const eight_bytes_decode = (
     firstByteCheck: string,
     multiplier: number,
@@ -115,7 +111,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     };
   };
 
-  // Decodes selected bytes to an ASCII string.
   const eight_bytes_ascii_decode = (
     firstByteCheck: string,
     ...positions: number[]
@@ -138,11 +133,12 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     };
   };
 
-  // Automatically fetch Firebase data when the component mounts.
+  // Fetch the most recent admin data from Firebase on mount.
   useEffect(() => {
     fetchFirebaseData();
   }, []);
 
+  // Set up BLE subscription on mount.
   useEffect(() => {
     let subscription: { remove: () => void } | undefined;
     const setupBLESubscription = async () => {
@@ -157,20 +153,14 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
           characteristicUUID,
           (error, characteristic) => {
             if (error) {
-              if (
-                error.message &&
-                error.message.includes("Operation was cancelled")
-              ) {
+              if (error.message && error.message.includes("Operation was cancelled")) {
                 return;
               }
               Alert.alert("Subscription Error", error.message);
               return;
             }
             if (characteristic?.value) {
-              const data = Buffer.from(
-                characteristic.value,
-                "base64"
-              ).toString("hex");
+              const data = Buffer.from(characteristic.value, "base64").toString("hex");
               decodeData(data);
             }
           }
@@ -212,186 +202,122 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     }
   };
 
-  // Update mismatch check based on the selected parameter group
+  // Update mismatch check based on the selected parameter group.
   useEffect(() => {
     if (firebaseData) {
       const mismatches: string[] = [];
-      // Flags to determine which set of parameters to check
       const checkNonCharger = selectedDataOption !== "onlyCharger";
       const checkCharger = selectedDataOption !== "withoutCharger";
 
       if (checkNonCharger) {
-        // Check primary parameters
         if (
-          firebaseData.Cluster_Version_SW_MAJDecoder !== undefined &&
-          Cluster_Version_SW_MAJDecoder !== null &&
-          Number(firebaseData.Cluster_Version_SW_MAJDecoder) !== Cluster_Version_SW_MAJDecoder
+          firebaseData.Cluster_Version_SW_MAJ !== undefined &&
+          Cluster_Version_SW_MAJ !== null &&
+          Number(firebaseData.Cluster_Version_SW_MAJ) !== Cluster_Version_SW_MAJ
         ) {
           mismatches.push("Cluster_Version_SW_MAJ");
         }
         if (
-          firebaseData.Cluster_Version_SW_MINDecoder !== undefined &&
-          Cluster_Version_SW_MINDecoder !== null &&
-          Number(firebaseData.Cluster_Version_SW_MINDecoder) !== Cluster_Version_SW_MINDecoder
+          firebaseData.Cluster_Version_SW_MIN !== undefined &&
+          Cluster_Version_SW_MIN !== null &&
+          Number(firebaseData.Cluster_Version_SW_MIN) !== Cluster_Version_SW_MIN
         ) {
           mismatches.push("Cluster_Version_SW_MIN");
         }
         if (
-          firebaseData.Cluster_Version_HW_MAJDecoder !== undefined &&
-          Cluster_Version_HW_MAJDecoder !== null &&
-          Number(firebaseData.Cluster_Version_HW_MAJDecoder) !== Cluster_Version_HW_MAJDecoder
+          firebaseData.Cluster_Version_HW_MAJ !== undefined &&
+          Cluster_Version_HW_MAJ !== null &&
+          Number(firebaseData.Cluster_Version_HW_MAJ) !== Cluster_Version_HW_MAJ
         ) {
           mismatches.push("Cluster_Version_HW_MAJ");
         }
         if (
-          firebaseData.Cluster_Version_HW_MINDecoder !== undefined &&
-          Cluster_Version_HW_MINDecoder !== null &&
-          Number(firebaseData.Cluster_Version_HW_MINDecoder) !== Cluster_Version_HW_MINDecoder
+          firebaseData.Cluster_Version_HW_MIN !== undefined &&
+          Cluster_Version_HW_MIN !== null &&
+          Number(firebaseData.Cluster_Version_HW_MIN) !== Cluster_Version_HW_MIN
         ) {
           mismatches.push("Cluster_Version_HW_MIN");
         }
         if (
           firebaseData.MCU_Version_Firmware_Id !== undefined &&
-          MCU_Version_Firmware_IdDecoder !== null &&
-          firebaseData.MCU_Version_Firmware_Id !== MCU_Version_Firmware_IdDecoder
+          MCU_Version_Firmware_Id !== null &&
+          firebaseData.MCU_Version_Firmware_Id !== MCU_Version_Firmware_Id
         ) {
           mismatches.push("MCU_Version_Firmware_Id");
         }
-  
-        const fbBattery_Version_ConfigVer =
-          firebaseData.Battery_Version_ConfigVerDecoder !== undefined
-            ? firebaseData.Battery_Version_ConfigVerDecoder
-            : firebaseData.Battery_Version_ConfigVer;
         if (
-          fbBattery_Version_ConfigVer !== undefined &&
-          fbBattery_Version_ConfigVer !== null &&
-          Battery_Version_ConfigVerDecoder !== null &&
-          fbBattery_Version_ConfigVer !== Battery_Version_ConfigVerDecoder
+          firebaseData.Battery_Version_ConfigVer !== undefined &&
+          Battery_Version_ConfigVer !== null &&
+          firebaseData.Battery_Version_ConfigVer !== Battery_Version_ConfigVer
         ) {
           mismatches.push("Battery_Version_ConfigVer");
         }
-  
-        const fbBattery_Version_InternalFWVer =
-          firebaseData.Battery_Version_InternalFWVerDecoder !== undefined
-            ? firebaseData.Battery_Version_InternalFWVerDecoder
-            : firebaseData.Battery_Version_InternalFWVer;
         if (
-          fbBattery_Version_InternalFWVer !== undefined &&
-          fbBattery_Version_InternalFWVer !== null &&
-          Battery_Version_InternalFWVerDecoder !== null &&
-          fbBattery_Version_InternalFWVer !== Battery_Version_InternalFWVerDecoder
+          firebaseData.Battery_Version_InternalFWVer !== undefined &&
+          Battery_Version_InternalFWVer !== null &&
+          firebaseData.Battery_Version_InternalFWVer !== Battery_Version_InternalFWVer
         ) {
           mismatches.push("Battery_Version_InternalFWVer");
         }
-  
-        const fbBattery_Version_InternalFWSubVer =
-          firebaseData.Battery_Version_InternalFWSubVerDecoder !== undefined
-            ? firebaseData.Battery_Version_InternalFWSubVerDecoder
-            : firebaseData.Battery_Version_InternalFWSubVer;
         if (
-          fbBattery_Version_InternalFWSubVer !== undefined &&
-          fbBattery_Version_InternalFWSubVer !== null &&
-          Battery_Version_InternalFWSubVerDecoder !== null &&
-          fbBattery_Version_InternalFWSubVer !== Battery_Version_InternalFWSubVerDecoder
+          firebaseData.Battery_Version_InternalFWSubVer !== undefined &&
+          Battery_Version_InternalFWSubVer !== null &&
+          firebaseData.Battery_Version_InternalFWSubVer !== Battery_Version_InternalFWSubVer
         ) {
           mismatches.push("Battery_Version_InternalFWSubVer");
         }
-  
-        const fbBattery_Version_HwVer =
-          firebaseData.Battery_Version_HwVerDecoder !== undefined
-            ? firebaseData.Battery_Version_HwVerDecoder
-            : firebaseData.Battery_Version_HwVer;
         if (
-          fbBattery_Version_HwVer !== undefined &&
-          fbBattery_Version_HwVer !== null &&
-          Battery_Version_HwVerDecoder !== null &&
-          fbBattery_Version_HwVer !== Battery_Version_HwVerDecoder
+          firebaseData.Battery_Version_HwVer !== undefined &&
+          Battery_Version_HwVer !== null &&
+          firebaseData.Battery_Version_HwVer !== Battery_Version_HwVer
         ) {
           mismatches.push("Battery_Version_HwVer");
         }
-  
-        const fbBattery_Version_FwVer =
-          firebaseData.Battery_Version_FwVerDecoder !== undefined
-            ? firebaseData.Battery_Version_FwVerDecoder
-            : firebaseData.Battery_Version_FwVer;
         if (
-          fbBattery_Version_FwVer !== undefined &&
-          fbBattery_Version_FwVer !== null &&
-          Battery_Version_FwVerDecoder !== null &&
-          fbBattery_Version_FwVer !== Battery_Version_FwVerDecoder
+          firebaseData.Battery_Version_FwVer !== undefined &&
+          Battery_Version_FwVer !== null &&
+          firebaseData.Battery_Version_FwVer !== Battery_Version_FwVer
         ) {
           mismatches.push("Battery_Version_FwVer");
         }
-  
-        const fbBattery_Version_FWSubVer =
-          firebaseData.Battery_Version_FWSubVerDecoder !== undefined
-            ? firebaseData.Battery_Version_FWSubVerDecoder
-            : firebaseData.Battery_Version_FWSubVer;
         if (
-          fbBattery_Version_FWSubVer !== undefined &&
-          fbBattery_Version_FWSubVer !== null &&
-          Battery_Version_FWSubVerDecoder !== null &&
-          fbBattery_Version_FWSubVer !== Battery_Version_FWSubVerDecoder
+          firebaseData.Battery_Version_FWSubVer !== undefined &&
+          Battery_Version_FWSubVer !== null &&
+          firebaseData.Battery_Version_FWSubVer !== Battery_Version_FWSubVer
         ) {
           mismatches.push("Battery_Version_FWSubVer");
         }
       }
-
       if (checkCharger) {
-        // Check Charger parameters (MAJ and MIN)
-        const fbChargerHardware =
-          firebaseData.Charger_Version_Hardware_MAJDecoder !== undefined
-            ? firebaseData.Charger_Version_Hardware_MAJDecoder
-            : firebaseData.Charger_Version_Hardware_MAJ;
         if (
-          fbChargerHardware !== undefined &&
-          fbChargerHardware !== null &&
-          Charger_Version_Hardware_MAJDecoder !== null &&
-          fbChargerHardware !== Charger_Version_Hardware_MAJDecoder
+          firebaseData.Charger_Version_Hardware_MAJ !== undefined &&
+          Charger_Version_Hardware_MAJ !== null &&
+          firebaseData.Charger_Version_Hardware_MAJ !== Charger_Version_Hardware_MAJ
         ) {
           mismatches.push("Charger_Version_Hardware_MAJ");
         }
-  
-        const fbChargerSoftware =
-          firebaseData.Charger_Version_Software_MAJDecoder !== undefined
-            ? firebaseData.Charger_Version_Software_MAJDecoder
-            : firebaseData.Charger_Version_Software_MAJ;
         if (
-          fbChargerSoftware !== undefined &&
-          fbChargerSoftware !== null &&
-          Charger_Version_Software_MAJDecoder !== null &&
-          fbChargerSoftware !== Charger_Version_Software_MAJDecoder
+          firebaseData.Charger_Version_Software_MAJ !== undefined &&
+          Charger_Version_Software_MAJ !== null &&
+          firebaseData.Charger_Version_Software_MAJ !== Charger_Version_Software_MAJ
         ) {
           mismatches.push("Charger_Version_Software_MAJ");
         }
-  
-        const fbChargerHardwareMIN =
-          firebaseData.Charger_Version_Hardware_MINDecoder !== undefined
-            ? firebaseData.Charger_Version_Hardware_MINDecoder
-            : firebaseData.Charger_Version_Hardware_MIN;
         if (
-          fbChargerHardwareMIN !== undefined &&
-          fbChargerHardwareMIN !== null &&
-          Charger_Version_Hardware_MINDecoder !== null &&
-          Number(fbChargerHardwareMIN) !== Charger_Version_Hardware_MINDecoder
+          firebaseData.Charger_Version_Hardware_MIN !== undefined &&
+          Charger_Version_Hardware_MIN !== null &&
+          Number(firebaseData.Charger_Version_Hardware_MIN) !== Charger_Version_Hardware_MIN
         ) {
           mismatches.push("Charger_Version_Hardware_MIN");
         }
-      
-        const fbChargerSoftwareMIN =
-          firebaseData.Charger_Version_Software_MINDecoder !== undefined
-            ? firebaseData.Charger_Version_Software_MINDecoder
-            : firebaseData.Charger_Version_Software_MIN;
         if (
-          fbChargerSoftwareMIN !== undefined &&
-          fbChargerSoftwareMIN !== null &&
-          Charger_Version_Software_MINDecoder !== null &&
-          Number(fbChargerSoftwareMIN) !== Charger_Version_Software_MINDecoder
+          firebaseData.Charger_Version_Software_MIN !== undefined &&
+          Charger_Version_Software_MIN !== null &&
+          Number(firebaseData.Charger_Version_Software_MIN) !== Charger_Version_Software_MIN
         ) {
           mismatches.push("Charger_Version_Software_MIN");
         }
       }
-      
       setMismatchMessage(
         mismatches.length > 0
           ? `Mismatched parameter(s): ${mismatches.join(", ")}`
@@ -401,102 +327,102 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
   }, [
     firebaseData,
     selectedDataOption,
-    Cluster_Version_SW_MAJDecoder,
-    Cluster_Version_SW_MINDecoder,
-    Cluster_Version_HW_MAJDecoder,
-    Cluster_Version_HW_MINDecoder,
-    MCU_Version_Firmware_IdDecoder,
-    Battery_Version_ConfigVerDecoder,
-    Battery_Version_InternalFWVerDecoder,
-    Battery_Version_InternalFWSubVerDecoder,
-    Battery_Version_HwVerDecoder,
-    Battery_Version_FwVerDecoder,
-    Battery_Version_FWSubVerDecoder,
-    Charger_Version_Hardware_MAJDecoder,
-    Charger_Version_Software_MAJDecoder,
-    Charger_Version_Hardware_MINDecoder,
-    Charger_Version_Software_MINDecoder,
+    Cluster_Version_SW_MAJ,
+    Cluster_Version_SW_MIN,
+    Cluster_Version_HW_MAJ,
+    Cluster_Version_HW_MIN,
+    MCU_Version_Firmware_Id,
+    Battery_Version_ConfigVer,
+    Battery_Version_InternalFWVer,
+    Battery_Version_InternalFWSubVer,
+    Battery_Version_HwVer,
+    Battery_Version_FwVer,
+    Battery_Version_FWSubVer,
+    Charger_Version_Hardware_MAJ,
+    Charger_Version_Software_MAJ,
+    Charger_Version_Hardware_MIN,
+    Charger_Version_Software_MIN,
   ]);
 
   const decodeData = (data: string) => {
-    // Decode numeric values
+    // Decode numeric values using the updated setters.
     const SW_MAJ = eight_bytes_decode("05", 1.0, 9)(data);
     const SW_MIN = eight_bytes_decode("05", 1.0, 10)(data);
     const HW_MAJ = eight_bytes_decode("05", 1.0, 11)(data);
     const HW_MIN = eight_bytes_decode("05", 1.0, 12)(data);
-    const MCU_Version_Firmware_Id = eight_bytes_ascii_decode("04", 15, 14, 13, 12, 11, 10, 9, 8)(data);
+    const MCU_Id = eight_bytes_ascii_decode("04", 15, 14, 13, 12, 11, 10, 9, 8)(data);
 
-    // Decode additional parameters
-    const battery_Version_ConfigVer = eight_bytes_ascii_decode("14", 2, 3, 4)(data);
-    const battery_Version_InternalFWVer = eight_bytes_ascii_decode("14", 5, 6, 7)(data);
-    const battery_Version_InternalFWSubVer = eight_bytes_ascii_decode("14", 8, 9)(data);
-    const battery_Version_HwVer = eight_bytes_ascii_decode("06", 10, 11, 12)(data);
-    const battery_Version_FwVer = eight_bytes_ascii_decode("06", 13, 14, 15)(data);
-    const battery_Version_FWSubVer = eight_bytes_ascii_decode("06", 16, 17)(data);
+    // Decode additional parameters.
+    const battery_ConfigVer = eight_bytes_ascii_decode("14", 2, 3, 4)(data);
+    const battery_InternalFWVer = eight_bytes_ascii_decode("14", 5, 6, 7)(data);
+    const battery_InternalFWSubVer = eight_bytes_ascii_decode("14", 8, 9)(data);
+    const battery_HwVer = eight_bytes_ascii_decode("06", 10, 11, 12)(data);
+    const battery_FwVer = eight_bytes_ascii_decode("06", 13, 14, 15)(data);
+    const battery_FWSubVer = eight_bytes_ascii_decode("06", 16, 17)(data);
 
-    // Decode Charger parameters (MAJ and MIN)
-    const chargerHardwareVersionMAJ = eight_bytes_ascii_decode("20", 1)(data);
-    const chargerSoftwareVersionMAJ = eight_bytes_ascii_decode("20", 3)(data);
-    const chargerHardwareVersionMIN = eight_bytes_decode("20", 1.0, 2)(data);
-    const chargerSoftwareVersionMIN = eight_bytes_decode("20", 1.0, 4)(data);
+    // Decode Charger parameters.
+    const chargerHardwareMAJ = eight_bytes_ascii_decode("20", 1)(data);
+    const chargerSoftwareMAJ = eight_bytes_ascii_decode("20", 3)(data);
+    const chargerHardwareMIN = eight_bytes_decode("20", 1.0, 2)(data);
+    const chargerSoftwareMIN = eight_bytes_decode("20", 1.0, 4)(data);
 
-    if (MCU_Version_Firmware_Id !== null) setMCU_Version_Firmware_IdDecoder(MCU_Version_Firmware_Id);
-    if (SW_MAJ !== null) setCluster_Version_SW_MAJDecoder(SW_MAJ);
-    if (SW_MIN !== null) setCluster_Version_SW_MINDecoder(SW_MIN);
-    if (HW_MAJ !== null) setCluster_Version_HW_MAJDecoder(HW_MAJ);
-    if (HW_MIN !== null) setCluster_Version_HW_MINDecoder(HW_MIN);
+    if (MCU_Id !== null) setMCU_Version_Firmware_Id(MCU_Id);
+    if (SW_MAJ !== null) setCluster_Version_SW_MAJ(SW_MAJ);
+    if (SW_MIN !== null) setCluster_Version_SW_MIN(SW_MIN);
+    if (HW_MAJ !== null) setCluster_Version_HW_MAJ(HW_MAJ);
+    if (HW_MIN !== null) setCluster_Version_HW_MIN(HW_MIN);
 
-    if (battery_Version_ConfigVer !== null) setBattery_Version_ConfigVerDecoder(battery_Version_ConfigVer);
-    if (battery_Version_InternalFWVer !== null) setBattery_Version_InternalFWVerDecoder(battery_Version_InternalFWVer);
-    if (battery_Version_InternalFWSubVer !== null) setBattery_Version_InternalFWSubVerDecoder(battery_Version_InternalFWSubVer);
-    if (battery_Version_HwVer !== null) setBattery_Version_HwVerDecoder(battery_Version_HwVer);
-    if (battery_Version_FwVer !== null) setBattery_Version_FwVerDecoder(battery_Version_FwVer);
-    if (battery_Version_FWSubVer !== null) setBattery_Version_FWSubVerDecoder(battery_Version_FWSubVer);
+    if (battery_ConfigVer !== null) setBattery_Version_ConfigVer(battery_ConfigVer);
+    if (battery_InternalFWVer !== null) setBattery_Version_InternalFWVer(battery_InternalFWVer);
+    if (battery_InternalFWSubVer !== null) setBattery_Version_InternalFWSubVer(battery_InternalFWSubVer);
+    if (battery_HwVer !== null) setBattery_Version_HwVer(battery_HwVer);
+    if (battery_FwVer !== null) setBattery_Version_FwVer(battery_FwVer);
+    if (battery_FWSubVer !== null) setBattery_Version_FWSubVer(battery_FWSubVer);
 
-    if (chargerHardwareVersionMAJ !== null) setCharger_Version_Hardware_MAJDecoder(chargerHardwareVersionMAJ);
-    if (chargerSoftwareVersionMAJ !== null) setCharger_Version_Software_MAJDecoder(chargerSoftwareVersionMAJ);
-    if (chargerHardwareVersionMIN !== null) setCharger_Version_Hardware_MINDecoder(chargerHardwareVersionMIN);
-    if (chargerSoftwareVersionMIN !== null) setCharger_Version_Software_MINDecoder(chargerSoftwareVersionMIN);
+    if (chargerHardwareMAJ !== null) setCharger_Version_Hardware_MAJ(chargerHardwareMAJ);
+    if (chargerSoftwareMAJ !== null) setCharger_Version_Software_MAJ(chargerSoftwareMAJ);
+    if (chargerHardwareMIN !== null) setCharger_Version_Hardware_MIN(chargerHardwareMIN);
+    if (chargerSoftwareMIN !== null) setCharger_Version_Software_MIN(chargerSoftwareMIN);
   };
 
-  // Compute the required BLE data based on the selected option
+  // Determine if all required BLE data is available based on the chosen option.
   let allBLEDataAvailable;
   if (selectedDataOption === "all") {
     allBLEDataAvailable =
-      Cluster_Version_SW_MAJDecoder !== null &&
-      Cluster_Version_SW_MINDecoder !== null &&
-      Cluster_Version_HW_MAJDecoder !== null &&
-      Cluster_Version_HW_MINDecoder !== null &&
-      MCU_Version_Firmware_IdDecoder !== null &&
-      Battery_Version_ConfigVerDecoder !== null &&
-      Battery_Version_InternalFWVerDecoder !== null &&
-      Battery_Version_InternalFWSubVerDecoder !== null &&
-      Battery_Version_HwVerDecoder !== null &&
-      Battery_Version_FwVerDecoder !== null &&
-      Battery_Version_FWSubVerDecoder !== null &&
-      Charger_Version_Hardware_MAJDecoder !== null &&
-      Charger_Version_Software_MAJDecoder !== null &&
-      Charger_Version_Hardware_MINDecoder !== null &&
-      Charger_Version_Software_MINDecoder !== null;
+      Cluster_Version_SW_MAJ !== null &&
+      Cluster_Version_SW_MIN !== null &&
+      Cluster_Version_HW_MAJ !== null &&
+      Cluster_Version_HW_MIN !== null &&
+      MCU_Version_Firmware_Id !== null &&
+      Battery_Version_ConfigVer !== null &&
+      Battery_Version_InternalFWVer !== null &&
+      Battery_Version_InternalFWSubVer !== null &&
+      Battery_Version_HwVer !== null &&
+      Battery_Version_FwVer !== null &&
+      Battery_Version_FWSubVer !== null &&
+      Charger_Version_Hardware_MAJ !== null &&
+      Charger_Version_Software_MAJ !== null &&
+      Charger_Version_Hardware_MIN !== null &&
+      Charger_Version_Software_MIN !== null;
   } else if (selectedDataOption === "withoutCharger") {
     allBLEDataAvailable =
-      Cluster_Version_SW_MAJDecoder !== null &&
-      Cluster_Version_SW_MINDecoder !== null &&
-      Cluster_Version_HW_MAJDecoder !== null &&
-      Cluster_Version_HW_MINDecoder !== null &&
-      MCU_Version_Firmware_IdDecoder !== null &&
-      Battery_Version_ConfigVerDecoder !== null &&
-      Battery_Version_InternalFWVerDecoder !== null &&
-      Battery_Version_InternalFWSubVerDecoder !== null &&
-      Battery_Version_HwVerDecoder !== null &&
-      Battery_Version_FwVerDecoder !== null &&
-      Battery_Version_FWSubVerDecoder !== null;
+      Cluster_Version_SW_MAJ !== null &&
+      Cluster_Version_SW_MIN !== null &&
+      Cluster_Version_HW_MAJ !== null &&
+      Cluster_Version_HW_MIN !== null &&
+      MCU_Version_Firmware_Id !== null &&
+      Battery_Version_ConfigVer !== null &&
+      Battery_Version_InternalFWVer !== null &&
+      Battery_Version_InternalFWSubVer !== null &&
+      Battery_Version_HwVer !== null &&
+      Battery_Version_FwVer !== null &&
+      Battery_Version_FWSubVer !== null;
   } else if (selectedDataOption === "onlyCharger") {
     allBLEDataAvailable =
-      Charger_Version_Hardware_MAJDecoder !== null &&
-      Charger_Version_Software_MAJDecoder !== null &&
-      Charger_Version_Hardware_MINDecoder !== null &&
-      Charger_Version_Software_MINDecoder !== null;
+      Charger_Version_Hardware_MAJ !== null &&
+      Charger_Version_Software_MAJ !== null &&
+      Charger_Version_Hardware_MIN !== null &&
+      Charger_Version_Software_MIN !== null;
   }
 
   const pushVehicleData = async () => {
@@ -515,7 +441,6 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     const adminTimestamp = firebaseData.timestamp;
     const testerTimestamp = formatLocalISO(new Date());
   
-    // Determine the Data_choice value based on the selected option
     let dataChoice = "";
     if (selectedDataOption === "all") {
       dataChoice = "All Vehicle Data";
@@ -525,27 +450,27 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
       dataChoice = "Only Charger";
     }
   
-    // When pushing data, store the BLE-decoded values under keys that include "Decoder"
+    // Use the exact parameter key names to push vehicle data.
     const docRef = doc(db, "Matched Vehicle", vehicleNumber);
     try {
       await setDoc(docRef, {
         vehicleNumber,
         testerName,
-        Cluster_Version_SW_MAJDecoder,
-        Cluster_Version_SW_MINDecoder,
-        Cluster_Version_HW_MAJDecoder,
-        Cluster_Version_HW_MINDecoder,
-        MCU_Version_Firmware_Id: MCU_Version_Firmware_IdDecoder,
-        Battery_Version_ConfigVerDecoder,
-        Battery_Version_InternalFWVerDecoder,
-        Battery_Version_InternalFWSubVerDecoder,
-        Battery_Version_HwVerDecoder,
-        Battery_Version_FwVerDecoder,
-        Battery_Version_FWSubVerDecoder,
-        Charger_Version_Hardware_MAJDecoder,
-        Charger_Version_Software_MAJDecoder,
-        Charger_Version_Hardware_MINDecoder,
-        Charger_Version_Software_MINDecoder,
+        Cluster_Version_SW_MAJ,
+        Cluster_Version_SW_MIN,
+        Cluster_Version_HW_MAJ,
+        Cluster_Version_HW_MIN,
+        MCU_Version_Firmware_Id,
+        Battery_Version_ConfigVer,
+        Battery_Version_InternalFWVer,
+        Battery_Version_InternalFWSubVer,
+        Battery_Version_HwVer,
+        Battery_Version_FwVer,
+        Battery_Version_FWSubVer,
+        Charger_Version_Hardware_MAJ,
+        Charger_Version_Software_MAJ,
+        Charger_Version_Hardware_MIN,
+        Charger_Version_Software_MIN,
         Admin_timestamp: adminTimestamp,
         Tester_timestamp: testerTimestamp,
         Data_choice: dataChoice,
@@ -610,7 +535,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Info Button Section Above the "Vehicle data" Label */}
+        {/* Info Button Section */}
         <View style={styles.infoContainer}>
           <Text style={styles.infoText}>Press to see Version number set by admin</Text>
           <Button title="ℹ️" onPress={() => setModalVisible(true)} />
@@ -619,58 +544,49 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
         {/* Vehicle Data Header */}
         <Text style={styles.header}>Vehicle data</Text>
         <Text style={styles.parameterText}>
-          Cluster_Version_SW_MAJ:{" "}
-          {Cluster_Version_SW_MAJDecoder !== null ? Cluster_Version_SW_MAJDecoder : "N/A"}
+          Cluster_Version_SW_MAJ: {Cluster_Version_SW_MAJ !== null ? Cluster_Version_SW_MAJ : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Cluster_Version_SW_MIN:{" "}
-          {Cluster_Version_SW_MINDecoder !== null ? Cluster_Version_SW_MINDecoder : "N/A"}
+          Cluster_Version_SW_MIN: {Cluster_Version_SW_MIN !== null ? Cluster_Version_SW_MIN : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Cluster_Version_HW_MAJ:{" "}
-          {Cluster_Version_HW_MAJDecoder !== null ? Cluster_Version_HW_MAJDecoder : "N/A"}
+          Cluster_Version_HW_MAJ: {Cluster_Version_HW_MAJ !== null ? Cluster_Version_HW_MAJ : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Cluster_Version_HW_MIN:{" "}
-          {Cluster_Version_HW_MINDecoder !== null ? Cluster_Version_HW_MINDecoder : "N/A"}
+          Cluster_Version_HW_MIN: {Cluster_Version_HW_MIN !== null ? Cluster_Version_HW_MIN : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          MCU_Version_Firmware_Id:{" "}
-          {MCU_Version_Firmware_IdDecoder !== null ? MCU_Version_Firmware_IdDecoder : "N/A"}
+          MCU_Version_Firmware_Id: {MCU_Version_Firmware_Id !== null ? MCU_Version_Firmware_Id : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Battery_Version_ConfigVer: {Battery_Version_ConfigVerDecoder || "N/A"}
+          Battery_Version_ConfigVer: {Battery_Version_ConfigVer || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Battery_Version_InternalFWVer: {Battery_Version_InternalFWVerDecoder || "N/A"}
+          Battery_Version_InternalFWVer: {Battery_Version_InternalFWVer || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Battery_Version_InternalFWSubVer: {Battery_Version_InternalFWSubVerDecoder || "N/A"}
+          Battery_Version_InternalFWSubVer: {Battery_Version_InternalFWSubVer || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Battery_Version_HwVer: {Battery_Version_HwVerDecoder || "N/A"}
+          Battery_Version_HwVer: {Battery_Version_HwVer || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Battery_Version_FwVer: {Battery_Version_FwVerDecoder || "N/A"}
+          Battery_Version_FwVer: {Battery_Version_FwVer || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Battery_Version_FWSubVer: {Battery_Version_FWSubVerDecoder || "N/A"}
+          Battery_Version_FWSubVer: {Battery_Version_FWSubVer || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Charger_Version_Hardware_MAJ:{" "}
-          {Charger_Version_Hardware_MAJDecoder || "N/A"}
+          Charger_Version_Hardware_MAJ: {Charger_Version_Hardware_MAJ || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Charger_Version_Software_MAJ:{" "}
-          {Charger_Version_Software_MAJDecoder || "N/A"}
+          Charger_Version_Software_MAJ: {Charger_Version_Software_MAJ || "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Charger_Version_Hardware_MIN:{" "}
-          {Charger_Version_Hardware_MINDecoder !== null ? Charger_Version_Hardware_MINDecoder : "N/A"}
+          Charger_Version_Hardware_MIN: {Charger_Version_Hardware_MIN !== null ? Charger_Version_Hardware_MIN : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Charger_Version_Software_MIN:{" "}
-          {Charger_Version_Software_MINDecoder !== null ? Charger_Version_Software_MINDecoder : "N/A"}
+          Charger_Version_Software_MIN: {Charger_Version_Software_MIN !== null ? Charger_Version_Software_MIN : "N/A"}
         </Text>
       </ScrollView>
       <View style={styles.fixedButtonContainer}>
@@ -701,49 +617,49 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
               {firebaseData ? (
                 <>
                   <Text style={styles.parameterText}>
-                    Cluster_Version_SW_MAJ: {firebaseData.Cluster_Version_SW_MAJDecoder || "N/A"}
+                    Cluster_Version_SW_MAJ: {firebaseData.Cluster_Version_SW_MAJ || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Cluster_Version_SW_MIN: {firebaseData.Cluster_Version_SW_MINDecoder || "N/A"}
+                    Cluster_Version_SW_MIN: {firebaseData.Cluster_Version_SW_MIN || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Cluster_Version_HW_MAJ: {firebaseData.Cluster_Version_HW_MAJDecoder || "N/A"}
+                    Cluster_Version_HW_MAJ: {firebaseData.Cluster_Version_HW_MAJ || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Cluster_Version_HW_MIN: {firebaseData.Cluster_Version_HW_MINDecoder || "N/A"}
+                    Cluster_Version_HW_MIN: {firebaseData.Cluster_Version_HW_MIN || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
                     MCU_Version_Firmware_Id: {firebaseData.MCU_Version_Firmware_Id || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Battery_Version_ConfigVer: {firebaseData.Battery_Version_ConfigVerDecoder || firebaseData.Battery_Version_ConfigVer || "N/A"}
+                    Battery_Version_ConfigVer: {firebaseData.Battery_Version_ConfigVer || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Battery_Version_InternalFWVer: {firebaseData.Battery_Version_InternalFWVerDecoder || firebaseData.Battery_Version_InternalFWVer || "N/A"}
+                    Battery_Version_InternalFWVer: {firebaseData.Battery_Version_InternalFWVer || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Battery_Version_InternalFWSubVer: {firebaseData.Battery_Version_InternalFWSubVerDecoder || firebaseData.Battery_Version_InternalFWSubVer || "N/A"}
+                    Battery_Version_InternalFWSubVer: {firebaseData.Battery_Version_InternalFWSubVer || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Battery_Version_HwVer: {firebaseData.Battery_Version_HwVerDecoder || firebaseData.Battery_Version_HwVer || "N/A"}
+                    Battery_Version_HwVer: {firebaseData.Battery_Version_HwVer || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Battery_Version_FwVer: {firebaseData.Battery_Version_FwVerDecoder || firebaseData.Battery_Version_FwVer || "N/A"}
+                    Battery_Version_FwVer: {firebaseData.Battery_Version_FwVer || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Battery_Version_FWSubVer: {firebaseData.Battery_Version_FWSubVerDecoder || firebaseData.Battery_Version_FWSubVer || "N/A"}
+                    Battery_Version_FWSubVer: {firebaseData.Battery_Version_FWSubVer || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Charger_Version_Hardware_MAJ: {firebaseData.Charger_Version_Hardware_MAJDecoder || firebaseData.Charger_Version_Hardware_MAJ || "N/A"}
+                    Charger_Version_Hardware_MAJ: {firebaseData.Charger_Version_Hardware_MAJ || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Charger_Version_Software_MAJ: {firebaseData.Charger_Version_Software_MAJDecoder || firebaseData.Charger_Version_Software_MAJ || "N/A"}
+                    Charger_Version_Software_MAJ: {firebaseData.Charger_Version_Software_MAJ || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Charger_Version_Hardware_MIN: {firebaseData.Charger_Version_Hardware_MINDecoder || firebaseData.Charger_Version_Hardware_MIN || "N/A"}
+                    Charger_Version_Hardware_MIN: {firebaseData.Charger_Version_Hardware_MIN || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Charger_Version_Software_MIN: {firebaseData.Charger_Version_Software_MINDecoder || firebaseData.Charger_Version_Software_MIN || "N/A"}
+                    Charger_Version_Software_MIN: {firebaseData.Charger_Version_Software_MIN || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
                     Timestamp: {firebaseData.timestamp || "N/A"}
