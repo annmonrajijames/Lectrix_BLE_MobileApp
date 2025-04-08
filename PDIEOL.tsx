@@ -59,7 +59,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
 
   // BLE Data States for admin parameters (using the exact same keys).
   const [Cluster_Software_Version, setCluster_Software_Version] = useState<number | null>(null);
-  const [Cluster_Hardware_Version, setCluster_Hardware_Version] = useState<number | null>(null);
+  const [Cluster_Hardware_Version, setCluster_Hardware_Version] = useState<string | null>(null);
   const [MCU_Version_Firmware_Id, setMCU_Version_Firmware_Id] = useState<string | null>(null);
 
   // Additional BLE Decoded Parameters (key names remain unchanged).
@@ -108,7 +108,26 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
       return null;
     };
   };
-
+  const eight_bytes_RawHex_decode = (
+    firstByteCheck: string,
+    ...positions: number[]
+  ) => {
+    return (data: string) => {
+      const maxPos = Math.max(...positions);
+      if (
+        data.length >= 2 * (maxPos + 1) &&
+        data.substring(0, 2) === firstByteCheck
+      ) {
+        // Extract hexadecimal pairs from specified positions and join them directly
+        const rawHex = positions
+          .map((pos) => data.substring(2 * pos, 2 * pos + 2))
+          .join("");
+        return rawHex;
+      }
+      return null;
+    };
+  };
+  
   const eight_bytes_ascii_decode = (
     firstByteCheck: string,
     ...positions: number[]
@@ -218,7 +237,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
         if (
           firebaseData.Cluster_Hardware_Version !== undefined &&
           Cluster_Hardware_Version !== null &&
-          Number(firebaseData.Cluster_Hardware_Version) !== Cluster_Hardware_Version
+          String(firebaseData.Cluster_Hardware_Version) !== Cluster_Hardware_Version
         ) {
           mismatches.push("Cluster_Hardware_Version");
         }
@@ -329,9 +348,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
   const decodeData = (data: string) => {
     // Decode numeric values using the updated setters.
     const SW_MAJ = eight_bytes_decode("05", 1.0, 9)(data);
-    const SW_MIN = eight_bytes_decode("05", 1.0, 10)(data);
-    const HW_MAJ = eight_bytes_decode("05", 1.0, 11)(data);
-    const HW_MIN = eight_bytes_decode("05", 1.0, 12)(data);
+    const SW_MIN = eight_bytes_RawHex_decode ("05", 10)(data);
     const MCU_Id = eight_bytes_ascii_decode("04", 15, 14, 13, 12, 11, 10, 9, 8)(data);
 
     // Decode additional parameters.
