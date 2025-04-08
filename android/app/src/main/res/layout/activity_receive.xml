@@ -2490,93 +2490,47 @@
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for Cluster_Version_SW_MAJ -->
+<!-- Row for Cluster_Version_Software -->
 <LinearLayout
-    android:id="@+id/rowCluster_Version_SW_MAJ"
+    android:id="@+id/rowCluster_Version_Software"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbCluster_Version_SW_MAJ"
+        android:id="@+id/cbCluster_Version_Software"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvCluster_Version_SW_MAJ"
+        android:id="@+id/tvCluster_Version_Software"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cluster_Version_SW_MAJ: N/A"
+        android:text="Cluster_Version_Software: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
 
-<!-- Row for Cluster_Version_SW_MIN -->
+<!-- Row for Cluster_Version_Hardware -->
 <LinearLayout
-    android:id="@+id/rowCluster_Version_SW_MIN"
+    android:id="@+id/rowCluster_Version_Hardware"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <CheckBox
-        android:id="@+id/cbCluster_Version_SW_MIN"
+        android:id="@+id/cbCluster_Version_Hardware"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/tvCluster_Version_SW_MIN"
+        android:id="@+id/tvCluster_Version_Hardware"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cluster_Version_SW_MIN: N/A"
-        android:visibility="visible"
-        android:layout_marginStart="8dp"
-        android:layout_gravity="center_vertical" />
-</LinearLayout>
-
-<!-- Row for Cluster_Version_HW_MAJ -->
-<LinearLayout
-    android:id="@+id/rowCluster_Version_HW_MAJ"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
-
-    <CheckBox
-        android:id="@+id/cbCluster_Version_HW_MAJ"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tvCluster_Version_HW_MAJ"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cluster_Version_HW_MAJ: N/A"
-        android:visibility="visible"
-        android:layout_marginStart="8dp"
-        android:layout_gravity="center_vertical" />
-</LinearLayout>
-
-<!-- Row for Cluster_Version_HW_MIN -->
-<LinearLayout
-    android:id="@+id/rowCluster_Version_HW_MIN"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
-
-    <CheckBox
-        android:id="@+id/cbCluster_Version_HW_MIN"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tvCluster_Version_HW_MIN"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cluster_Version_HW_MIN: N/A"
+        android:text="Cluster_Version_Hardware: N/A"
         android:visibility="visible"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical" />
