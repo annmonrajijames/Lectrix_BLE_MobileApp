@@ -6,10 +6,8 @@ import { collection, setDoc, doc, getDocs } from 'firebase/firestore';
 
 // Define parameter keys - note that we are not using suffixes.
 type ParameterKeys =
-  | 'Cluster_Version_SW_MAJ'
-  | 'Cluster_Version_SW_MIN'
-  | 'Cluster_Version_HW_MAJ'
-  | 'Cluster_Version_HW_MIN'
+  | 'Cluster_Software_Version'
+  | 'Cluster_Hardware_Version'
   | 'Battery_Version_HwVer'
   | 'Battery_Version_FwVer'
   | 'Battery_Version_FWSubVer'
@@ -25,10 +23,8 @@ type ParameterKeys =
 const AddParametersScreen = () => {
   // Initialize state using the exact key names.
   const [parameters, setParameters] = useState<Record<ParameterKeys, string>>({
-    Cluster_Version_SW_MAJ: '',
-    Cluster_Version_SW_MIN: '',
-    Cluster_Version_HW_MAJ: '',
-    Cluster_Version_HW_MIN: '',
+    Cluster_Software_Version: '',
+    Cluster_Hardware_Version: '',
     Battery_Version_HwVer: '',
     Battery_Version_FwVer: '',
     Battery_Version_FWSubVer: '',
@@ -95,10 +91,8 @@ const AddParametersScreen = () => {
       Alert.alert('Success', `Parameters added at ${localTime}`);
       // Reset parameter input fields.
       setParameters({
-        Cluster_Version_SW_MAJ: '',
-        Cluster_Version_SW_MIN: '',
-        Cluster_Version_HW_MAJ: '',
-        Cluster_Version_HW_MIN: '',
+        Cluster_Software_Version: '',
+        Cluster_Hardware_Version: '',
         Battery_Version_HwVer: '',
         Battery_Version_FwVer: '',
         Battery_Version_FWSubVer: '',

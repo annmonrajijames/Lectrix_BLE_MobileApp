@@ -58,10 +58,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
   const [testerName, setTesterName] = useState<string>("");
 
   // BLE Data States for admin parameters (using the exact same keys).
-  const [Cluster_Version_SW_MAJ, setCluster_Version_SW_MAJ] = useState<number | null>(null);
-  const [Cluster_Version_SW_MIN, setCluster_Version_SW_MIN] = useState<number | null>(null);
-  const [Cluster_Version_HW_MAJ, setCluster_Version_HW_MAJ] = useState<number | null>(null);
-  const [Cluster_Version_HW_MIN, setCluster_Version_HW_MIN] = useState<number | null>(null);
+  const [Cluster_Software_Version, setCluster_Software_Version] = useState<number | null>(null);
+  const [Cluster_Hardware_Version, setCluster_Hardware_Version] = useState<number | null>(null);
   const [MCU_Version_Firmware_Id, setMCU_Version_Firmware_Id] = useState<string | null>(null);
 
   // Additional BLE Decoded Parameters (key names remain unchanged).
@@ -211,32 +209,18 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
 
       if (checkNonCharger) {
         if (
-          firebaseData.Cluster_Version_SW_MAJ !== undefined &&
-          Cluster_Version_SW_MAJ !== null &&
-          Number(firebaseData.Cluster_Version_SW_MAJ) !== Cluster_Version_SW_MAJ
+          firebaseData.Cluster_Software_Version !== undefined &&
+          Cluster_Software_Version !== null &&
+          Number(firebaseData.Cluster_Software_Version) !== Cluster_Software_Version
         ) {
-          mismatches.push("Cluster_Version_SW_MAJ");
+          mismatches.push("Cluster_Software_Version");
         }
         if (
-          firebaseData.Cluster_Version_SW_MIN !== undefined &&
-          Cluster_Version_SW_MIN !== null &&
-          Number(firebaseData.Cluster_Version_SW_MIN) !== Cluster_Version_SW_MIN
+          firebaseData.Cluster_Hardware_Version !== undefined &&
+          Cluster_Hardware_Version !== null &&
+          Number(firebaseData.Cluster_Hardware_Version) !== Cluster_Hardware_Version
         ) {
-          mismatches.push("Cluster_Version_SW_MIN");
-        }
-        if (
-          firebaseData.Cluster_Version_HW_MAJ !== undefined &&
-          Cluster_Version_HW_MAJ !== null &&
-          Number(firebaseData.Cluster_Version_HW_MAJ) !== Cluster_Version_HW_MAJ
-        ) {
-          mismatches.push("Cluster_Version_HW_MAJ");
-        }
-        if (
-          firebaseData.Cluster_Version_HW_MIN !== undefined &&
-          Cluster_Version_HW_MIN !== null &&
-          Number(firebaseData.Cluster_Version_HW_MIN) !== Cluster_Version_HW_MIN
-        ) {
-          mismatches.push("Cluster_Version_HW_MIN");
+          mismatches.push("Cluster_Hardware_Version");
         }
         if (
           firebaseData.MCU_Version_Firmware_Id !== undefined &&
@@ -327,10 +311,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
   }, [
     firebaseData,
     selectedDataOption,
-    Cluster_Version_SW_MAJ,
-    Cluster_Version_SW_MIN,
-    Cluster_Version_HW_MAJ,
-    Cluster_Version_HW_MIN,
+    Cluster_Software_Version,
+    Cluster_Hardware_Version,
     MCU_Version_Firmware_Id,
     Battery_Version_ConfigVer,
     Battery_Version_InternalFWVer,
@@ -367,10 +349,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     const chargerSoftwareMIN = eight_bytes_decode("20", 1.0, 4)(data);
 
     if (MCU_Id !== null) setMCU_Version_Firmware_Id(MCU_Id);
-    if (SW_MAJ !== null) setCluster_Version_SW_MAJ(SW_MAJ);
-    if (SW_MIN !== null) setCluster_Version_SW_MIN(SW_MIN);
-    if (HW_MAJ !== null) setCluster_Version_HW_MAJ(HW_MAJ);
-    if (HW_MIN !== null) setCluster_Version_HW_MIN(HW_MIN);
+    if (SW_MAJ !== null) setCluster_Software_Version(SW_MAJ);
+    if (SW_MIN !== null) setCluster_Hardware_Version(SW_MIN);
 
     if (battery_ConfigVer !== null) setBattery_Version_ConfigVer(battery_ConfigVer);
     if (battery_InternalFWVer !== null) setBattery_Version_InternalFWVer(battery_InternalFWVer);
@@ -389,10 +369,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
   let allBLEDataAvailable;
   if (selectedDataOption === "all") {
     allBLEDataAvailable =
-      Cluster_Version_SW_MAJ !== null &&
-      Cluster_Version_SW_MIN !== null &&
-      Cluster_Version_HW_MAJ !== null &&
-      Cluster_Version_HW_MIN !== null &&
+      Cluster_Software_Version !== null &&
+      Cluster_Hardware_Version !== null &&
       MCU_Version_Firmware_Id !== null &&
       Battery_Version_ConfigVer !== null &&
       Battery_Version_InternalFWVer !== null &&
@@ -406,10 +384,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
       Charger_Version_Software_MIN !== null;
   } else if (selectedDataOption === "withoutCharger") {
     allBLEDataAvailable =
-      Cluster_Version_SW_MAJ !== null &&
-      Cluster_Version_SW_MIN !== null &&
-      Cluster_Version_HW_MAJ !== null &&
-      Cluster_Version_HW_MIN !== null &&
+      Cluster_Software_Version !== null &&
+      Cluster_Hardware_Version !== null &&
       MCU_Version_Firmware_Id !== null &&
       Battery_Version_ConfigVer !== null &&
       Battery_Version_InternalFWVer !== null &&
@@ -456,10 +432,8 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
       await setDoc(docRef, {
         vehicleNumber,
         testerName,
-        Cluster_Version_SW_MAJ,
-        Cluster_Version_SW_MIN,
-        Cluster_Version_HW_MAJ,
-        Cluster_Version_HW_MIN,
+        Cluster_Software_Version,
+        Cluster_Hardware_Version,
         MCU_Version_Firmware_Id,
         Battery_Version_ConfigVer,
         Battery_Version_InternalFWVer,
@@ -544,16 +518,10 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
         {/* Vehicle Data Header */}
         <Text style={styles.header}>Vehicle data</Text>
         <Text style={styles.parameterText}>
-          Cluster_Version_SW_MAJ: {Cluster_Version_SW_MAJ !== null ? Cluster_Version_SW_MAJ : "N/A"}
+          Cluster_Software_Version: {Cluster_Software_Version !== null ? Cluster_Software_Version : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
-          Cluster_Version_SW_MIN: {Cluster_Version_SW_MIN !== null ? Cluster_Version_SW_MIN : "N/A"}
-        </Text>
-        <Text style={styles.parameterText}>
-          Cluster_Version_HW_MAJ: {Cluster_Version_HW_MAJ !== null ? Cluster_Version_HW_MAJ : "N/A"}
-        </Text>
-        <Text style={styles.parameterText}>
-          Cluster_Version_HW_MIN: {Cluster_Version_HW_MIN !== null ? Cluster_Version_HW_MIN : "N/A"}
+          Cluster_Hardware_Version: {Cluster_Hardware_Version !== null ? Cluster_Hardware_Version : "N/A"}
         </Text>
         <Text style={styles.parameterText}>
           MCU_Version_Firmware_Id: {MCU_Version_Firmware_Id !== null ? MCU_Version_Firmware_Id : "N/A"}
@@ -617,16 +585,10 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
               {firebaseData ? (
                 <>
                   <Text style={styles.parameterText}>
-                    Cluster_Version_SW_MAJ: {firebaseData.Cluster_Version_SW_MAJ || "N/A"}
+                    Cluster_Software_Version: {firebaseData.Cluster_Software_Version || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
-                    Cluster_Version_SW_MIN: {firebaseData.Cluster_Version_SW_MIN || "N/A"}
-                  </Text>
-                  <Text style={styles.parameterText}>
-                    Cluster_Version_HW_MAJ: {firebaseData.Cluster_Version_HW_MAJ || "N/A"}
-                  </Text>
-                  <Text style={styles.parameterText}>
-                    Cluster_Version_HW_MIN: {firebaseData.Cluster_Version_HW_MIN || "N/A"}
+                    Cluster_Hardware_Version: {firebaseData.Cluster_Hardware_Version || "N/A"}
                   </Text>
                   <Text style={styles.parameterText}>
                     MCU_Version_Firmware_Id: {firebaseData.MCU_Version_Firmware_Id || "N/A"}
