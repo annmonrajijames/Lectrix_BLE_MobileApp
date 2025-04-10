@@ -349,7 +349,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     // Decode numeric values using the updated setters.
     const SW_MAJ = eight_bytes_decode("05", 1.0, 9)(data);
     const SW_MIN = eight_bytes_RawHex_decode ("05", 10)(data);
-    const MCU_Id = eight_bytes_ascii_decode("04", 15, 14, 13, 12, 11, 10, 9, 8)(data);
+    const MCU_Id = eight_bytes_ascii_decode("04", 8, 9, 10, 11, 12, 13, 14, 15)(data);
 
     // Decode additional parameters.
     const battery_ConfigVer = eight_bytes_ascii_decode("14", 2, 3, 4)(data);

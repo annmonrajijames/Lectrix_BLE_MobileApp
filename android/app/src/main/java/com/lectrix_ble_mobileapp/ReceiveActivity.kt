@@ -1155,7 +1155,7 @@ class ReceiveActivity : AppCompatActivity() {
         val Cluster_heartbeatDecoder = eightBytesDecode("05", 1.0, 5)
         val Cluster_Version_SoftwareDecoder = eightBytesDecode("05", 1.0, 9)
         val Cluster_Version_HardwareDecoder = eightBytesRawHexDecode("05", 10)
-        val MCU_Version_Firmware_IdDecoder = eightBytesASCIIDecode("04", 15, 14, 13, 12, 11, 10, 9, 8)
+        val MCU_Version_Firmware_IdDecoder = eightBytesASCIIDecode("04", 8, 9, 10, 11, 12, 13, 14, 15)
 
         val Charger_Version_Hardware_MAJDecoder = eightBytesASCIIDecode("20", 1)
         val Charger_Version_Hardware_MINDecoder = eightBytesDecode("20", 1.0, 2)
