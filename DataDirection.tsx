@@ -1,7 +1,15 @@
 // DataDirection.tsx
 
 import React, { useEffect, useState } from 'react';
-import { View, Button, StyleSheet, Text, Alert, Modal, TextInput } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+  Alert,
+  Modal,
+  TextInput,
+} from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { NativeModules } from 'react-native';
@@ -19,6 +27,20 @@ type RootStackParamList = {
 type DataDirectionProps = NativeStackScreenProps<RootStackParamList, 'DataDirection'>;
 
 const { ActivityStarter } = NativeModules;
+
+// Custom Button component for nicer styling
+interface CustomButtonProps {
+  title: string;
+  onPress: () => void;
+}
+
+const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress }) => {
+  return (
+    <TouchableOpacity style={styles.customButton} onPress={onPress}>
+      <Text style={styles.customButtonText}>{title}</Text>
+    </TouchableOpacity>
+  );
+};
 
 const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
   const { device } = route.params;
@@ -114,11 +136,9 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text>Select Data Direction</Text>
-      <Button title="Diagnose" onPress={handleReceivePress} />
-      <Button title="Service Reset" onPress={handleServiceResetPress} />
-      <Button title="PDI-EOL" onPress={handlePDIEOLPress} />
-      <Button title="Go to Add Parameters" onPress={() => navigation.navigate('AddParameters', { device })} />
+      <CustomButton title="Diagnose" onPress={handleReceivePress} />
+      <CustomButton title="Service Reset" onPress={handleServiceResetPress} />
+      <CustomButton title="PDI-EOL" onPress={handlePDIEOLPress} />
 
       {/* Modal for Service Reset password */}
       <Modal
@@ -138,8 +158,8 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
               onChangeText={setPasswordInput}
             />
             <View style={styles.modalButtons}>
-              <Button title="Cancel" onPress={() => setModalVisible(false)} />
-              <Button title="Confirm" onPress={verifyPassword} />
+              <CustomButton title="Cancel" onPress={() => setModalVisible(false)} />
+              <CustomButton title="Confirm" onPress={verifyPassword} />
             </View>
           </View>
         </View>
@@ -163,8 +183,8 @@ const DataDirection: React.FC<DataDirectionProps> = ({ route, navigation }) => {
               onChangeText={setPdiPasswordInput}
             />
             <View style={styles.modalButtons}>
-              <Button title="Cancel" onPress={() => setPdiModalVisible(false)} />
-              <Button title="Confirm" onPress={verifyPDIEOLPassword} />
+              <CustomButton title="Cancel" onPress={() => setPdiModalVisible(false)} />
+              <CustomButton title="Confirm" onPress={verifyPDIEOLPassword} />
             </View>
           </View>
         </View>
@@ -179,6 +199,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#F5F5F5', // light background color for a cleaner look
+  },
+  customButton: {
+    backgroundColor: '#007AFF', // iOS default blue button color
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+    marginVertical: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  customButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '500',
   },
   modalOverlay: {
     flex: 1,
@@ -207,7 +242,7 @@ const styles = StyleSheet.create({
   },
   modalButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
 });
 
