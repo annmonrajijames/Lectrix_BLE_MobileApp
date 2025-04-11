@@ -83,7 +83,7 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
 
   // New state to store the parameter group selection:
   // Options: "all", "withoutCharger", "onlyCharger"
-  const [selectedDataOption, setSelectedDataOption] = useState<string>("all");
+  const [selectedDataOption, setSelectedDataOption] = useState<string>("withoutCharger");
 
   const serviceUUID = "00FF";
   const characteristicUUID = "FF01";
@@ -435,10 +435,10 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
     const testerTimestamp = formatLocalISO(new Date());
   
     let dataChoice = "";
-    if (selectedDataOption === "all") {
-      dataChoice = "All Vehicle Data";
-    } else if (selectedDataOption === "withoutCharger") {
-      dataChoice = "Without Charger";
+    if (selectedDataOption === "withoutCharger") { 
+      dataChoice = "Without Charger"; 
+    } else if (selectedDataOption === "all") { 
+      dataChoice = "All Vehicle Data"; 
     } else if (selectedDataOption === "onlyCharger") {
       dataChoice = "Only Charger";
     }
@@ -500,20 +500,20 @@ const PDIEOL: React.FC<PDIEOLProps> = ({ route, navigation }) => {
           <TouchableOpacity
             style={[
               styles.radioButton,
-              selectedDataOption === "all" && styles.radioButtonSelected,
-            ]}
-            onPress={() => setSelectedDataOption("all")}
-          >
-            <Text style={styles.radioText}>All Vehicle Data</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.radioButton,
               selectedDataOption === "withoutCharger" && styles.radioButtonSelected,
             ]}
             onPress={() => setSelectedDataOption("withoutCharger")}
           >
             <Text style={styles.radioText}>Without Charger</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.radioButton,
+              selectedDataOption === "all" && styles.radioButtonSelected,
+            ]}
+            onPress={() => setSelectedDataOption("all")}
+          >
+            <Text style={styles.radioText}>All Vehicle Data</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
