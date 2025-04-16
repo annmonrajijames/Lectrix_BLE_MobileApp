@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, StyleSheet, Alert, Text } from 'react-native';
+import { View, Button, StyleSheet, Alert, Text, TextInput } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Geolocation from '@react-native-community/geolocation';  // Import the community geolocation module
+import Geolocation from '@react-native-community/geolocation';
 import { RootStackParamList } from './App';
 import { Buffer } from 'buffer';
 
@@ -20,7 +20,7 @@ type ReceivedInfo = {
   longitude: number;
 };
 
-// Use the provided formatting function (uses local time)
+// Provided timestamp formatter (using local time)
 const formatLocalISO = (date: Date): string => {
   const pad = (num: number) => num.toString().padStart(2, "0");
   const padMs = (num: number) => num.toString().padStart(3, "0");
@@ -29,6 +29,11 @@ const formatLocalISO = (date: Date): string => {
 
 const Transmit: React.FC<Props> = ({ route }) => {
   const { device } = route.params;
+  
+  // State for the two entry fields.
+  const [vehicleNumber, setVehicleNumber] = useState('');
+  const [userName, setUserName] = useState('');
+
   const [receivedData, setReceivedData] = useState<ReceivedInfo | null>(null);
   const [subscription, setSubscription] = useState<any>(null);
 
@@ -59,7 +64,7 @@ const Transmit: React.FC<Props> = ({ route }) => {
     }
   };
 
-  // Function to show a confirmation dialog before sending the reset command.
+  // Confirmation dialog for sending service reset.
   const confirmServiceReset = () => {
     Alert.alert(
       'Service Return icon',
@@ -71,7 +76,7 @@ const Transmit: React.FC<Props> = ({ route }) => {
     );
   };
 
-  // Decoding helper function.
+  // Helper function for decoding the BLE data.
   const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
     return (data: string) => {
       if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
@@ -83,12 +88,12 @@ const Transmit: React.FC<Props> = ({ route }) => {
     };
   };
 
-  // Function to decode data, obtain the timestamp and location, then update the state.
+  // Decodes the data, obtains a timestamp and current location, then updates the state.
   const decodeData = (data: string) => {
     const odoCluster = eight_bytes_decode('05', 0.1, 14, 15)(data);
     if (odoCluster !== null) {
       const timestamp = formatLocalISO(new Date());
-      // Retrieve current location using Geolocation from the community package
+      // Retrieve current location using the community Geolocation module.
       Geolocation.getCurrentPosition(
         position => {
           const { latitude, longitude } = position.coords;
@@ -117,7 +122,7 @@ const Transmit: React.FC<Props> = ({ route }) => {
     }
   };
 
-  // Function to set up BLE characteristic subscription to receive data.
+  // Sets up the BLE characteristic subscription to receive data.
   const receiveData = async () => {
     if (!device.isConnected) {
       Alert.alert('Error', 'Device is not connected. Please reconnect.');
@@ -160,14 +165,45 @@ const Transmit: React.FC<Props> = ({ route }) => {
     };
   }, [subscription]);
 
+  // Check if both input fields are filled.
+  const isResetEnabled = vehicleNumber.trim().length > 0 && userName.trim().length > 0;
+
   return (
     <View style={styles.container}>
       <Text style={styles.description}>
-        NOTE: This will reset your service icon
+        NOTE: This will reset your service icon.
       </Text>
-      <Button title="SEND SERVICE RESET" onPress={confirmServiceReset} color="red" />
+      
+      {/* Vehicle Number input field */}
+      <TextInput
+        style={styles.input}
+        placeholder="Vehicle Number"
+        value={vehicleNumber}
+        onChangeText={setVehicleNumber}
+      />
+      
+      {/* User Name input field */}
+      <TextInput
+        style={styles.input}
+        placeholder="User Name"
+        value={userName}
+        onChangeText={setUserName}
+      />
+      
       <View style={styles.spacer} />
+
+      {/* The "SEND SERVICE RESET" button is enabled only if both fields contain values */}
+      <Button
+        title="SEND SERVICE RESET"
+        onPress={confirmServiceReset}
+        disabled={!isResetEnabled}
+        color={isResetEnabled ? "red" : "gray"}
+      />
+
+      <View style={styles.spacer} />
+      
       <Button title="RECEIVE" onPress={receiveData} />
+
       {receivedData && (
         <View style={styles.receivedContainer}>
           <Text style={styles.receivedText}>OdoCluster: {receivedData.odoCluster}</Text>
@@ -191,6 +227,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
     textAlign: 'center',
+  },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    marginVertical: 10,
+    borderRadius: 4,
   },
   spacer: {
     height: 20,
