@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-native-community/checkbox": "^0.5.17",
+    "@react-native-community/geolocation": "^3.4.0",
     "@react-native-community/slider": "^4.5.2",
     "@react-native-firebase/app": "^21.10.0",
     "@react-native-firebase/firestore": "^21.10.0",

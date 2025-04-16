@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Button, StyleSheet, Alert, Text } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import Geolocation from '@react-native-community/geolocation';  // Import the community geolocation module
 import { RootStackParamList } from './App';
 import { Buffer } from 'buffer';
 
@@ -11,20 +12,19 @@ const CHARACTERISTIC_UUID = 'FF01';       // Replace with actual characteristic 
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Transmit'>;
 
+// Define a type to hold the decoded value, timestamp, and location coordinates.
 type ReceivedInfo = {
   odoCluster: string;
   timestamp: string;
+  latitude: number;
+  longitude: number;
 };
 
-// Use the provided formatting function as-is (it uses local time)
+// Use the provided formatting function (uses local time)
 const formatLocalISO = (date: Date): string => {
   const pad = (num: number) => num.toString().padStart(2, "0");
   const padMs = (num: number) => num.toString().padStart(3, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-    date.getDate()
-  )}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
-    date.getSeconds()
-  )}.${padMs(date.getMilliseconds())}`;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.${padMs(date.getMilliseconds())}`;
 };
 
 const Transmit: React.FC<Props> = ({ route }) => {
@@ -32,17 +32,18 @@ const Transmit: React.FC<Props> = ({ route }) => {
   const [receivedData, setReceivedData] = useState<ReceivedInfo | null>(null);
   const [subscription, setSubscription] = useState<any>(null);
 
+  // Function to send a service reset message via BLE.
   const sendServiceReset = async () => {
     if (!device.isConnected) {
       Alert.alert('Error', 'Device is not connected. Please reconnect.');
       return;
     }
-
     try {
       const canIdBuffer = Buffer.alloc(4);
       canIdBuffer.writeUInt32LE(SERVICE_RESET_CAN_ID);
       const resetBuffer = Buffer.from(RESET_COMMAND, 'utf-8');
-      const flagBuffer = Buffer.from([1]); // Flag is always "on" (1)
+      // Flag is always "on" (1)
+      const flagBuffer = Buffer.from([1]);
       const resetCommand = Buffer.concat([canIdBuffer, resetBuffer, flagBuffer]);
       const resetCommandBase64 = resetCommand.toString('base64');
 
@@ -58,6 +59,7 @@ const Transmit: React.FC<Props> = ({ route }) => {
     }
   };
 
+  // Function to show a confirmation dialog before sending the reset command.
   const confirmServiceReset = () => {
     Alert.alert(
       'Service Return icon',
@@ -69,6 +71,7 @@ const Transmit: React.FC<Props> = ({ route }) => {
     );
   };
 
+  // Decoding helper function.
   const eight_bytes_decode = (firstByteCheck: string, multiplier: number, ...positions: number[]) => {
     return (data: string) => {
       if (data.length >= 2 * positions.length && data.substring(0, 2) === firstByteCheck) {
@@ -80,17 +83,41 @@ const Transmit: React.FC<Props> = ({ route }) => {
     };
   };
 
+  // Function to decode data, obtain the timestamp and location, then update the state.
   const decodeData = (data: string) => {
     const odoCluster = eight_bytes_decode('05', 0.1, 14, 15)(data);
     if (odoCluster !== null) {
       const timestamp = formatLocalISO(new Date());
-      console.log("Decoded Odo Cluster:", odoCluster, "at", timestamp);
-      setReceivedData({ odoCluster: odoCluster.toString(), timestamp });
+      // Retrieve current location using Geolocation from the community package
+      Geolocation.getCurrentPosition(
+        position => {
+          const { latitude, longitude } = position.coords;
+          console.log("Decoded Odo Cluster:", odoCluster, "at", timestamp, "with", latitude, longitude);
+          setReceivedData({
+            odoCluster: odoCluster.toString(),
+            timestamp,
+            latitude,
+            longitude
+          });
+        },
+        error => {
+          console.error("Error getting location", error);
+          // If location retrieval fails, update without location (or use fallback values)
+          setReceivedData({
+            odoCluster: odoCluster.toString(),
+            timestamp,
+            latitude: 0,
+            longitude: 0
+          });
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      );
     } else {
       console.log("Packet does not match the expected format, ignoring...");
     }
   };
 
+  // Function to set up BLE characteristic subscription to receive data.
   const receiveData = async () => {
     if (!device.isConnected) {
       Alert.alert('Error', 'Device is not connected. Please reconnect.');
@@ -106,7 +133,6 @@ const Transmit: React.FC<Props> = ({ route }) => {
             Alert.alert("Subscription Error", `Error subscribing to characteristic: ${(error as Error).message}`);
             return;
           }
-  
           if (characteristic?.value) {
             const data = Buffer.from(characteristic.value, 'base64').toString('hex');
             console.log('Received raw data:', data);
@@ -121,6 +147,7 @@ const Transmit: React.FC<Props> = ({ route }) => {
     }
   };
 
+  // Clean up subscription on component unmount.
   useEffect(() => {
     return () => {
       if (subscription) {
@@ -145,6 +172,8 @@ const Transmit: React.FC<Props> = ({ route }) => {
         <View style={styles.receivedContainer}>
           <Text style={styles.receivedText}>OdoCluster: {receivedData.odoCluster}</Text>
           <Text style={styles.receivedText}>Timestamp: {receivedData.timestamp}</Text>
+          <Text style={styles.receivedText}>Latitude: {receivedData.latitude}</Text>
+          <Text style={styles.receivedText}>Longitude: {receivedData.longitude}</Text>
         </View>
       )}
     </View>
