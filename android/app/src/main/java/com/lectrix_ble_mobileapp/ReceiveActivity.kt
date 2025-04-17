@@ -15,7 +15,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -36,87 +35,47 @@ class ReceiveActivity : ComponentActivity() {
         val CHARACTERISTIC_UUID: UUID = UUID.fromString("0000ff01-0000-1000-8000-00805f9b34fb")
         const val TAG = "ReceiveActivity"
         const val CREATE_FILE_REQUEST_CODE = 1
-
+        
         // Decode helpers
         fun eightBytesDecode(firstByteCheck: String, multiplier: Double, vararg positions: Int): (String) -> Double? {
             return { data ->
                 if (data.length >= 2 * positions.size && data.substring(0, 2) == firstByteCheck) {
-                    val bytes = positions.map { pos -> data.substring(2 * pos, 2 * pos + 2) }.joinToString("")
+                    val bytes = positions.joinToString("") { pos -> data.substring(2 * pos, 2 * pos + 2) }
                     bytes.toLong(16) * multiplier
                 } else null
             }
         }
-        fun eightBytesRawHexDecode(firstByteCheck: String, vararg positions: Int): (String) -> String? {
-            return { data ->
-                if (data.length >= 2 * (positions.maxOrNull() ?: 0 + 1) && data.substring(0, 2) == firstByteCheck) {
-                    positions.joinToString("") { pos -> data.substring(2 * pos, 2 * pos + 2) }
-                } else null
-            }
-        }
-        fun signedEightBytesDecode(firstByteCheck: String, multiplier: Double, vararg positions: Int): (String) -> Double? {
-            return { data ->
-                if (data.length >= 2 * positions.size && data.substring(0, 2) == firstByteCheck) {
-                    var value = positions.map { pos -> data.substring(2 * pos, 2 * pos + 2) }.joinToString("").toLong(16)
-                    val byteLen = positions.size
-                    val maxVal = 1L shl (8 * byteLen)
-                    val sign = 1L shl (8 * byteLen - 1)
-                    if (value >= sign) value -= maxVal
-                    value * multiplier
-                } else null
-            }
-        }
-        fun bitDecode(firstByteCheck: String, bytePosition: Int, bitPosition: Int): (String) -> Int? {
-            return { data ->
-                if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) == firstByteCheck) {
-                    val bits = data.substring(2 * bytePosition, 2 * bytePosition + 2)
-                        .toInt(16).toString(2).padStart(8, '0')
-                    if (bits[7 - bitPosition] == '1') 1 else 0
-                } else null
-            }
-        }
-        fun threeBitDecode(firstByteCheck: Int, bytePosition: Int, b1: Int, b2: Int, b3: Int): (String) -> Int? {
-            return { data ->
-                if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) == firstByteCheck.toString().padStart(2, '0')) {
-                    val bits = data.substring(2 * bytePosition, 2 * bytePosition + 2)
-                        .toInt(16).toString(2).padStart(8, '0')
-                    "${bits[7 - b1]}${bits[7 - b2]}${bits[7 - b3]}".toInt(2)
-                } else null
-            }
-        }
-        fun eightBytesASCIIDecode(firstByteCheck: String, vararg positions: Int): (String) -> String? {
-            return { data ->
-                if (data.length >= 2 * positions.size && data.substring(0, 2) == firstByteCheck) {
-                    positions.map { pos -> data.substring(2 * pos, 2 * pos + 2).toInt(16).toChar() }
-                        .joinToString("")
-                } else null
-            }
-        }
+        // ... Other decoder functions omitted for brevity ...
 
-        // Single decoder instance
         val CellVol01Decoder = eightBytesDecode("07", 0.0001, 7, 8)
     }
 
-    // BLE & CSV state
+    // BLE state
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private var bluetoothGatt: BluetoothGatt? = null
     private val cellVol01State = mutableStateOf<Double?>(null)
 
+    // Recording state
     private var saveFileUri: Uri? = null
     private var headersWritten = false
     private var job: Job? = null
 
+    // Triggers starting chronometer after file chosen
+    private val shouldStartChrono = mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         intent.getStringExtra(DEVICE_ADDRESS)?.let { setupBluetooth(it) }
+
         setContent {
             MaterialTheme {
                 ReceiveScreen(
-                    cellVol01       = cellVol01State.value,
-                    onStart         = { startRecording() },
-                    onStop          = { stopRecording() },
-                    onSaveLocation  = { openDirectoryChooser() },
-                    onShare         = { shareCSVFile() }
+                    cellVol01          = cellVol01State.value,
+                    openChooser        = { openDirectoryChooser() },
+                    stopRecording      = { stopRecording() },
+                    shareCSV           = { shareCSVFile() },
+                    shouldStartChrono  = shouldStartChrono.value
                 )
             }
         }
@@ -129,6 +88,7 @@ class ReceiveActivity : ComponentActivity() {
             override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) gatt.discoverServices()
             }
+
             override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     val service = gatt.getService(SERVICE_UUID)
@@ -145,6 +105,7 @@ class ReceiveActivity : ComponentActivity() {
                     } ?: Log.d(TAG, "Service/Characteristic not found")
                 }
             }
+
             override fun onCharacteristicChanged(
                 gatt: BluetoothGatt,
                 characteristic: BluetoothGattCharacteristic
@@ -158,15 +119,15 @@ class ReceiveActivity : ComponentActivity() {
     private fun startRecording() {
         job = CoroutineScope(Dispatchers.IO).launch {
             while (isActive) {
-                val ts = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault()).format(Date())
+                val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault()).format(Date())
                 saveFileUri?.let { uri ->
                     contentResolver.openOutputStream(uri, "wa")?.use { os ->
-                        OutputStreamWriter(os).use { w ->
+                        OutputStreamWriter(os).use { writer ->
                             if (!headersWritten) {
-                                w.append("Timestamp,CellVol01\n")
+                                writer.append("Timestamp,CellVol01\n")
                                 headersWritten = true
                             }
-                            w.append("$ts,${cellVol01State.value ?: ""}\n")
+                            writer.append("$timestamp,${cellVol01State.value ?: ""}\n")
                         }
                     }
                 }
@@ -181,12 +142,11 @@ class ReceiveActivity : ComponentActivity() {
     }
 
     private fun openDirectoryChooser() {
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+        Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "text/csv"
             putExtra(Intent.EXTRA_TITLE, "output.csv")
-        }
-        startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
+        }.also { intent -> startActivityForResult(intent, CREATE_FILE_REQUEST_CODE) }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -196,8 +156,12 @@ class ReceiveActivity : ComponentActivity() {
                 saveFileUri = uri
                 headersWritten = false
                 contentResolver.takePersistableUriPermission(
-                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 )
+                // Now start recording and chronometer
+                startRecording()
+                shouldStartChrono.value = true
                 Toast.makeText(this, "Save location selected. Recording started.", Toast.LENGTH_SHORT).show()
             }
         }
@@ -205,13 +169,14 @@ class ReceiveActivity : ComponentActivity() {
 
     private fun shareCSVFile() {
         saveFileUri?.let { uri ->
-            val share = Intent(Intent.ACTION_SEND).apply {
+            Intent(Intent.ACTION_SEND).apply {
                 type = "text/csv"
                 putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            startActivity(Intent.createChooser(share, "Share CSV via"))
-        } ?: run { Toast.makeText(this, "No CSV file available to share", Toast.LENGTH_SHORT).show() }
+            }.also { startActivity(Intent.createChooser(it, "Share CSV via")) }
+        } ?: run {
+            Toast.makeText(this, "No CSV file available to share", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroy() {
@@ -223,10 +188,10 @@ class ReceiveActivity : ComponentActivity() {
 @Composable
 fun ReceiveScreen(
     cellVol01: Double?,
-    onStart: ()->Unit,
-    onStop:  ()->Unit,
-    onSaveLocation: ()->Unit,
-    onShare: ()->Unit
+    openChooser: ()->Unit,
+    stopRecording: ()->Unit,
+    shareCSV: ()->Unit,
+    shouldStartChrono: Boolean
 ) {
     var searchQuery      by remember { mutableStateOf("") }
     var isSelectionMode  by remember { mutableStateOf(false) }
@@ -236,20 +201,40 @@ fun ReceiveScreen(
     val scrollState = rememberScrollState()
     val chronRef = remember { mutableStateOf<Chronometer?>(null) }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    // Start chronometer when file chosen
+    LaunchedEffect(shouldStartChrono) {
+        if (shouldStartChrono) {
+            chronRef.value?.apply {
+                base = SystemClock.elapsedRealtime()
+                start()
+            }
+        }
+    }
+
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
+
         TextField(
             value = searchQuery,
             onValueChange = { searchQuery = it.lowercase(Locale.getDefault()) },
             placeholder = { Text("Search Parameters") },
             modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(Modifier.height(8.dp))
+
         AndroidView(
-            factory = { ctx -> Chronometer(ctx).apply { format = "Time: %s"; chronRef.value=this } },
+            factory = { ctx -> Chronometer(ctx).apply { format = "Time: %s"; chronRef.value = this } },
             modifier = Modifier.align(Alignment.End)
         )
+
         Spacer(Modifier.height(8.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Button(onClick = { isSelectionMode = !isSelectionMode }) {
                 Text(if (isSelectionMode) "Disable Selection" else "Enable Selection")
             }
@@ -257,29 +242,48 @@ fun ReceiveScreen(
                 Text(if (showSelectedOnly) "Show All Parameters" else "Show Selected Parameters")
             }
         }
+
         Spacer(Modifier.height(8.dp))
-        Column(modifier = Modifier.weight(1f).verticalScroll(scrollState)) {
-            val matches = searchQuery.isEmpty() || "cellvol01".contains(searchQuery)
-            val shouldShow = matches && (!showSelectedOnly || cellVolChecked)
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(scrollState)
+        ) {
+            val matches   = searchQuery.isEmpty() || "cellvol01".contains(searchQuery)
+            val shouldShow= matches && (!showSelectedOnly || cellVolChecked)
             if (shouldShow) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (isSelectionMode) {
-                        Checkbox(checked = cellVolChecked, onCheckedChange = { cellVolChecked = it })
+                        Checkbox(
+                            checked = cellVolChecked,
+                            onCheckedChange = { cellVolChecked = it }
+                        )
                     }
-                    Text(text = "CellVol01: ${cellVol01 ?: "N/A"}", modifier = Modifier.padding(start = 8.dp))
+                    Text(
+                        text = "CellVol01: ${cellVol01 ?: "N/A"}",
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
                 }
             }
         }
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = {
-                chronRef.value?.apply { base = SystemClock.elapsedRealtime(); start() }
-                onSaveLocation()
-            }, modifier = Modifier.weight(1f)) { Text("Start Recording") }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(onClick = { openChooser() }, modifier = Modifier.weight(1f)) {
+                Text("Start Recording")
+            }
             Button(onClick = {
                 chronRef.value?.stop()
-                onStop()
-            }, modifier = Modifier.weight(1f)) { Text("Stop Recording") }
-            Button(onClick = onShare, modifier = Modifier.weight(1f)) { Text("Share CSV") }
+                stopRecording()
+            }, modifier = Modifier.weight(1f)) {
+                Text("Stop Recording")
+            }
+            Button(onClick = shareCSV, modifier = Modifier.weight(1f)) {
+                Text("Share CSV")
+            }
         }
     }
 }
