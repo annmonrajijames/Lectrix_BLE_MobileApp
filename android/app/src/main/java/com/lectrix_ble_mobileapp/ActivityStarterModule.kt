@@ -1,20 +1,31 @@
 package com.lectrix_ble_mobileapp
 
 import android.content.Intent
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.*
 
-class ActivityStarterModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
-    override fun getName() = "ActivityStarter"
+class ActivityStarterModule(
+    private val reactContext: ReactApplicationContext
+) : ReactContextBaseJavaModule(reactContext) {
 
+    override fun getName(): String = "ActivityStarter"
+
+    /**
+     * Exposed to JS as ActivityStarter.navigateToReceiveActivity({ address: string })
+     */
     @ReactMethod
-    fun navigateToReceiveActivity(deviceInfo: ReadableMap) {
-        val intent = Intent(reactApplicationContext, ReceiveActivity::class.java).apply {
-            putExtra(ReceiveActivity.DEVICE_ADDRESS, deviceInfo.getString("address"))
+    fun navigateToReceiveActivity(options: ReadableMap) {
+        val address = options.getString("address")
+        if (address == null) {
+            // invalid call from JS
+            return
         }
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        reactApplicationContext.startActivity(intent)
+        // Grab the current Activity
+        val activity = currentActivity ?: return
+
+        // Create intent for your Compose Activity (or rename here if your class is named differently)
+        val intent = Intent(activity, ReceiveActivity::class.java).apply {
+            putExtra(ReceiveActivity.DEVICE_ADDRESS, address)
+        }
+        activity.startActivity(intent)
     }
 }

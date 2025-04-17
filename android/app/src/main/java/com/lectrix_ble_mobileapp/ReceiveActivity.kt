@@ -1,383 +1,194 @@
 package com.lectrix_ble_mobileapp
 
-import android.app.Activity
-import android.bluetooth.*
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.widget.Chronometer
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import kotlinx.coroutines.*
 import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.*
-import android.view.View
 
-class ReceiveActivity : AppCompatActivity() {
-    private lateinit var bluetoothManager: BluetoothManager
-    private lateinit var bluetoothAdapter: BluetoothAdapter
-    private var bluetoothGatt: BluetoothGatt? = null
-
-    // Last valid values for display
-    private var lastValidCellVol01: Double? = null
-
-    // UI references
-    // Rows, CheckBoxes, and TextViews for each parameter
-    private lateinit var rowCellVol01: LinearLayout
-    private lateinit var cbCellVol01: CheckBox
-    private lateinit var tvCellVol01: TextView
-
-    private lateinit var stopwatchChronometer: Chronometer
-
-    // File saving
-    private var saveFileUri: Uri? = null
-    private var headersWritten = false
-    private var job: Job? = null
-
-    // Booleans for controlling UI logic
-    private var isSelectionMode = false
-    private var showSelectedOnly = false
-
+class ReceiveActivity : ComponentActivity() {
     companion object {
         const val DEVICE_ADDRESS = "DEVICE_ADDRESS"
-        val SERVICE_UUID: UUID = UUID.fromString("000000ff-0000-1000-8000-00805f9b34fb")
-        val CHARACTERISTIC_UUID: UUID = UUID.fromString("0000ff01-0000-1000-8000-00805f9b34fb")
-        const val TAG = "ReceiveActivity"
-        const val CREATE_FILE_REQUEST_CODE = 1
-
-        val CellVol01Decoder = eightBytesDecode("07", 0.0001, 7, 8)
-
-        fun eightBytesDecode(firstByteCheck: String, multiplier: Double, vararg positions: Int): (String) -> Double? {
-            return { data ->
-                if (data.length >= 2 * positions.size && data.substring(0, 2) == firstByteCheck) {
-                    val bytes = positions.map { pos -> data.substring(2 * pos, 2 * pos + 2) }.joinToString("")
-                    val decimalValue = bytes.toLong(16)
-                    decimalValue * multiplier
-                } else {
-                    null
-                }
-            }
-        }
-
-        fun eightBytesRawHexDecode(firstByteCheck: String, vararg positions: Int): (String) -> String? {
-            return { data ->
-                if (data.length >= 2 * (positions.maxOrNull() ?: 0 + 1) && data.substring(0, 2) == firstByteCheck) {
-                    positions.joinToString("") { pos ->
-                        data.substring(2 * pos, 2 * pos + 2)
-                    }
-                } else {
-                    null
-                }
-            }
-        }            
-        
-        
-       fun signedEightBytesDecode(firstByteCheck: String, multiplier: Double, vararg positions: Int): (String) -> Double? {
-            return { data ->
-                if (data.length >= 2 * positions.size && data.substring(0, 2) == firstByteCheck) {
-                    val bytes = positions.map { pos -> data.substring(2 * pos, 2 * pos + 2) }.joinToString("")
-                    var decimalValue = bytes.toLong(16)
-
-                    val byteLength = positions.size
-                    val maxByteValue = 1L shl (8 * byteLength)
-                    val signBit = 1L shl (8 * byteLength - 1)
-
-                    if (decimalValue >= signBit) {
-                        decimalValue -= maxByteValue
-                    }
-                    decimalValue * multiplier
-                } else {
-                    null
-                }
-            }
-        }
-
-        fun bitDecode(firstByteCheck: String, bytePosition: Int, bitPosition: Int): (String) -> Int? {
-            return { data ->
-                if (data.length >= 2 * (bytePosition + 1) && data.substring(0, 2) == firstByteCheck) {
-                    val byte = data.substring(2 * bytePosition, 2 * bytePosition + 2)
-                    val bits = byte.toInt(16).toString(2).padStart(8, '0')
-                    if (bits[7 - bitPosition] == '1') 1 else 0
-                } else {
-                    null
-                }
-            }
-        }
-
-        fun threeBitDecode(firstByteCheck: Int, bytePosition: Int, bit1: Int, bit2: Int, bit3: Int): (String) -> Int? {
-            return { data ->
-                if (data.length >= 2 * (bytePosition + 1) &&
-                    data.substring(0, 2) == firstByteCheck.toString().padStart(2, '0')
-                ) {
-                    val byte = data.substring(2 * bytePosition, 2 * bytePosition + 2)
-                    val bits = byte.toInt(16).toString(2).padStart(8, '0')
-                    val resultBits = "${bits[7 - bit1]}${bits[7 - bit2]}${bits[7 - bit3]}"
-                    resultBits.toInt(2)
-                } else {
-                    null
-                }
-            }
-        }
-        fun eightBytesASCIIDecode(firstByteCheck: String, vararg positions: Int): (String) -> String? {
-            return { data ->
-                if (data.length >= 2 * positions.size && data.substring(0, 2) == firstByteCheck) {
-                    val bytes = positions.map { pos ->
-                        val hexValue = data.substring(2 * pos, 2 * pos + 2)
-                        val decimalValue = hexValue.toInt(16)
-                        decimalValue.toChar()
-                    }.joinToString("")
-                    bytes
-                } else {
-                    null
-                }
-            }
-        }
     }
+
+    private var lastValidCellVol01 by mutableStateOf<Double?>(null)
+    private var saveFileUri: android.net.Uri? = null
+    private var headersWritten = false
+    private var recordJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_receive)
 
-        // Find UI components
-        // 1) Find row + checkbox + textview references for each parameter
-        rowCellVol01      = findViewById(R.id.rowCellVol01)
-        cbCellVol01       = findViewById(R.id.cbCellVol01)
-        tvCellVol01       = findViewById(R.id.tvCellVol01)
-
-        stopwatchChronometer = findViewById(R.id.stopwatchChronometer)
-        // Set a format so the elapsed time is clearly visible
-        stopwatchChronometer.format = "Time: %s"
-
-        // Setup search EditText
-        val searchEditText: EditText = findViewById(R.id.searchEditText)
-        searchEditText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val searchQuery = s.toString().lowercase(Locale.getDefault())
-                updateParameterVisibility(searchQuery)
+        // Launch document picker
+        val createCsvLauncher = registerForActivityResult(CreateDocument("text/csv")) { uri ->
+            uri?.let {
+                saveFileUri = it
+                headersWritten = false
+                contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+                startRecording()
             }
-            override fun afterTextChanged(s: Editable?) {}
-        })
-
-        // Setup buttons
-        val stopRecordingButton: Button = findViewById(R.id.stopRecordingButton)
-        val saveLocationButton: Button = findViewById(R.id.saveLocationButton)
-        val shareButton: Button = findViewById(R.id.shareButton)
-        val enableSelectionButton: Button = findViewById(R.id.enableSelectionButton)
-        val showSelectedButton: Button = findViewById(R.id.showSelectedButton)
-
-        stopRecordingButton.setOnClickListener { stopRecording() }
-        saveLocationButton.setOnClickListener { openDirectoryChooser() }
-        shareButton.setOnClickListener { shareCSVFile() }
-
-        enableSelectionButton.setOnClickListener {
-            isSelectionMode = !isSelectionMode
-            enableSelectionButton.text = if (isSelectionMode) "Disable Selection" else "Enable Selection"
-            updateCheckboxVisibility()
         }
 
-        showSelectedButton.setOnClickListener {
-            showSelectedOnly = !showSelectedOnly
-            showSelectedButton.text = if (showSelectedOnly) "Show All Parameters" else "Show Selected Parameters"
-            val searchQuery = searchEditText.text.toString().lowercase(Locale.getDefault())
-            updateParameterVisibility(searchQuery)
-        }
+        // If RN passed us the device address, you can read it here:
+        val deviceAddr = intent.getStringExtra(DEVICE_ADDRESS)
 
-        // Setup BLE connection if device address is provided
-        val deviceAddress = intent.getStringExtra(DEVICE_ADDRESS)
-        if (deviceAddress != null) {
-            setupBluetooth(deviceAddress)
-        } else {
-            Log.d(TAG, "Device address not provided")
-        }
-
-        updateCheckboxVisibility()
-        updateParameterVisibility("")
-    }
-
-    private fun updateCheckboxVisibility() {
-                val checkBoxes = listOf(
-    cbCellVol01
-)
-        checkBoxes.forEach { cb ->
-            cb.visibility = if (isSelectionMode) View.VISIBLE else View.GONE
-        }
-    }
-
-    private fun updateParameterVisibility(searchQuery: String) {
-        val paramRows = listOf(
-            Triple("cellvol01", rowCellVol01, cbCellVol01)
-        )
-        for ((paramName, rowLayout, checkBox) in paramRows) {
-            val matchesSearch = searchQuery.isEmpty() || paramName.contains(searchQuery)
-            val isChecked = checkBox.isChecked
-            val shouldShow = matchesSearch && (!showSelectedOnly || isChecked)
-            rowLayout.visibility = if (shouldShow) View.VISIBLE else View.GONE
-        }
-    }
-
-    private fun setupBluetooth(deviceAddress: String) {
-        bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        bluetoothAdapter = bluetoothManager.adapter
-        val device = bluetoothAdapter.getRemoteDevice(deviceAddress)
-        connectToDevice(device)
-    }
-
-    private fun connectToDevice(device: BluetoothDevice) {
-        bluetoothGatt = device.connectGatt(this, false, object : BluetoothGattCallback() {
-            override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
-                if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    gatt.discoverServices()
-                } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    Log.d("Log", "Disconnected")
-                }
+        setContent {
+            MaterialTheme {
+                ReceiveScreen(
+                    cellVol01 = lastValidCellVol01,
+                    onStartRecording = { createCsvLauncher.launch("output.csv") },
+                    onStopRecording  = { stopRecording() },
+                    onShare          = { shareCsv() }
+                )
             }
+        }
 
-            override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
-                if (status == BluetoothGatt.GATT_SUCCESS) {
-                    val service = gatt.getService(SERVICE_UUID)
-                    val characteristic = service?.getCharacteristic(CHARACTERISTIC_UUID)
-                    if (characteristic != null) {
-                        gatt.setCharacteristicNotification(characteristic, true)
-                        val descriptor = characteristic.getDescriptor(
-                            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
-                        )?.apply {
-                            value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                        }
-                        if (descriptor != null) {
-                            gatt.writeDescriptor(descriptor)
-                        }
-                    } else {
-                        Log.d("Log", "Service/Characteristic not found")
+        // (Re)connect your BLE device here using deviceAddr if needed...
+    }
+
+    @Composable
+    private fun ReceiveScreen(
+        cellVol01: Double?,
+        onStartRecording: () -> Unit,
+        onStopRecording:  () -> Unit,
+        onShare:          () -> Unit
+    ) {
+        var searchQuery     by remember { mutableStateOf("") }
+        var isSelectionMode by remember { mutableStateOf(false) }
+        var showOnlySel     by remember { mutableStateOf(false) }
+        val selected        = remember { mutableStateMapOf("cellvol01" to false) }
+
+        Column(
+            Modifier
+              .fillMaxSize()
+              .padding(16.dp)
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it.lowercase(Locale.getDefault()) },
+                label = { Text("Search Parameters") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            // Chronometer via AndroidView
+            Box(Modifier.fillMaxWidth()) {
+                AndroidView({ ctx ->
+                    Chronometer(ctx).apply {
+                        format = "Time: %s"
                     }
-                } else {
-                    Log.d("Log", "Service discovery failed")
+                }, Modifier.align(androidx.compose.ui.Alignment.CenterEnd))
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { isSelectionMode = !isSelectionMode }, Modifier.weight(1f)) {
+                    Text(if (isSelectionMode) "Disable Selection" else "Enable Selection")
+                }
+                Button(onClick = { showOnlySel = !showOnlySel }, Modifier.weight(1f)) {
+                    Text(if (showOnlySel) "Show All" else "Show Selected")
                 }
             }
 
-            override fun onCharacteristicChanged(
-                gatt: BluetoothGatt,
-                characteristic: BluetoothGattCharacteristic
+            Spacer(Modifier.height(8.dp))
+
+            Column(
+                Modifier
+                  .weight(1f)
+                  .verticalScroll(rememberScrollState())
             ) {
-                val rawData = characteristic.value
-                val hexString = rawData.joinToString(separator = "") { "%02x".format(it) }
-                val decodedCellVol01 = CellVol01Decoder(hexString)
-
-                if (decodedCellVol01 != null) {
-                    lastValidCellVol01 = decodedCellVol01
-                }                           
-
-                // Update the UI
-                runOnUiThread {
-                    tvCellVol01.text       = "CellVol01: ${lastValidCellVol01 ?: "N/A"}"
+                val params = listOf("cellvol01")
+                params.forEach { name ->
+                    val matches = searchQuery.isEmpty() || name.contains(searchQuery)
+                    val checked = selected[name] ?: false
+                    if (matches && (!showOnlySel || checked)) {
+                        Row(
+                            Modifier
+                              .fillMaxWidth()
+                              .padding(vertical = 4.dp),
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        ) {
+                            if (isSelectionMode) {
+                                Checkbox(
+                                    checked = checked,
+                                    onCheckedChange = { selected[name] = it }
+                                )
+                                Spacer(Modifier.width(8.dp))
+                            }
+                            Text("CellVol01: ${cellVol01 ?: "N/A"}")
+                        }
+                    }
                 }
             }
-        })
+
+            Spacer(Modifier.height(8.dp))
+
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onStopRecording, Modifier.weight(1f)) { Text("Stop Recording") }
+                Button(onClick = onStartRecording, Modifier.weight(1f)) { Text("Start Recording") }
+                Button(onClick = onShare, Modifier.weight(1f)) { Text("Share CSV") }
+            }
+        }
     }
 
     private fun startRecording() {
-        job = CoroutineScope(Dispatchers.IO).launch {
+        recordJob = CoroutineScope(Dispatchers.IO).launch {
             while (isActive) {
-                val vehicleMetrics = VehicleMetrics(
-                    CellVol01 = lastValidCellVol01
-                )
-                saveDataToCSV(vehicleMetrics)
-                delay(500)  // Adjust delay as needed
+                saveCsvData()
+                delay(500)
             }
         }
-        Log.d("Log", "Recording started.")
     }
 
     private fun stopRecording() {
-        job?.cancel()
-        runOnUiThread {
-            Log.d("Log", "Recording stopped.")
-            Toast.makeText(this, "Recording stopped.", Toast.LENGTH_SHORT).show()
-            // Stop the stopwatch
-            stopwatchChronometer.stop()
-        }
+        recordJob?.cancel()
     }
 
-    data class VehicleMetrics(
-        val CellVol01: Double?
-    )
-
-    private fun saveDataToCSV(metrics: VehicleMetrics) {
+    private fun saveCsvData() {
         saveFileUri?.let { uri ->
-            contentResolver.openOutputStream(uri, "wa")?.use { outputStream ->
-                OutputStreamWriter(outputStream).use { writer ->
+            contentResolver.openOutputStream(uri, "wa")?.use { os ->
+                OutputStreamWriter(os).use { writer ->
                     if (!headersWritten) {
                         writer.append("Timestamp,CellVol01\n")
                         headersWritten = true
                     }
-                    val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault()).format(Date())
-                    writer.append(
-                        "$timestamp,${metrics.CellVol01 ?: ""}\n"
-                    )
+                    val ts = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
+                              .format(Date())
+                    writer.append("$ts,${lastValidCellVol01 ?: ""}\n")
                 }
             }
         }
     }
 
-    private fun openDirectoryChooser() {
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "text/csv"
-            putExtra(Intent.EXTRA_TITLE, "output.csv")
-        }
-        startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            data?.data?.also { uri ->
-                saveFileUri = uri
-                // Reset header flag for a new recording session
-                headersWritten = false
-                contentResolver.takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
-                Log.d("Log", "File save location selected.")
-                Toast.makeText(this, "Save location selected. Recording started.", Toast.LENGTH_SHORT).show()
-                // Start the stopwatch (make sure to update the base and start)
-                stopwatchChronometer.base = SystemClock.elapsedRealtime()
-                stopwatchChronometer.start()
-                Log.d("Log", "Stopwatch started with base: ${stopwatchChronometer.base}")
-                // Start recording data
-                startRecording()
-            }
-        }
-    }
-
-    private fun shareCSVFile() {
-        if (saveFileUri != null) {
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+    private fun shareCsv() {
+        saveFileUri?.let {
+            startActivity(
+              Intent(Intent.ACTION_SEND).apply {
                 type = "text/csv"
-                putExtra(Intent.EXTRA_STREAM, saveFileUri)
+                putExtra(Intent.EXTRA_STREAM, it)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            startActivity(Intent.createChooser(shareIntent, "Share CSV file via"))
-        } else {
-            Toast.makeText(this, "No CSV file available to share", Toast.LENGTH_SHORT).show()
+              }
+            )
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        bluetoothGatt?.close()
     }
 }
