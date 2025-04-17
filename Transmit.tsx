@@ -80,6 +80,7 @@ const Transmit: React.FC<Props> = ({ route }) => {
   };
 
   useEffect(() => { receiveData(); }, []);
+
   useEffect(() => {
     return () => {
       if (subscription) {
@@ -93,14 +94,13 @@ const Transmit: React.FC<Props> = ({ route }) => {
   const isResetEnabled = !!vehicleNumber.trim() && !!userName.trim();
 
   const handleServiceReset = async () => {
-    // Ensure connection
     try {
       if (!device.isConnected) {
         await device.connect();
         await device.discoverAllServicesAndCharacteristics();
       }
     } catch {
-      // ignore
+      // ignore connection errors
     }
 
     const canBuf = Buffer.alloc(4);
@@ -110,38 +110,21 @@ const Transmit: React.FC<Props> = ({ route }) => {
     const payload = Buffer.concat([canBuf, resetBuf, flagBuf]).toString('base64');
 
     let bleOk = false;
-    // Try withResponse first
     try {
-      await device.writeCharacteristicWithResponseForService(
-        SERVICE_UUID,
-        CHARACTERISTIC_UUID,
-        payload
-      );
+      await device.writeCharacteristicWithResponseForService(SERVICE_UUID, CHARACTERISTIC_UUID, payload);
       bleOk = true;
-    } catch (e1) {
-      console.warn('withResponse timeout:', e1);
-      // Retry without response
+    } catch {
       try {
-        await device.writeCharacteristicWithoutResponseForService(
-          SERVICE_UUID,
-          CHARACTERISTIC_UUID,
-          payload
-        );
+        await device.writeCharacteristicWithoutResponseForService(SERVICE_UUID, CHARACTERISTIC_UUID, payload);
         bleOk = true;
-      } catch (e2) {
-        console.warn('withoutResponse failed:', e2);
-        // Attempt reconnect and retry
+      } catch {
         try {
           await device.connect();
           await device.discoverAllServicesAndCharacteristics();
-          await device.writeCharacteristicWithoutResponseForService(
-            SERVICE_UUID,
-            CHARACTERISTIC_UUID,
-            payload
-          );
+          await device.writeCharacteristicWithoutResponseForService(SERVICE_UUID, CHARACTERISTIC_UUID, payload);
           bleOk = true;
-        } catch (e3) {
-          console.error('Reconnect/write failed:', e3);
+        } catch (e) {
+          console.error('BLE write failed:', e);
         }
       }
     }
@@ -161,7 +144,16 @@ const Transmit: React.FC<Props> = ({ route }) => {
           latitude: receivedData.latitude,
           longitude: receivedData.longitude,
         });
-        Alert.alert('Success', 'Data pushed to Firebase.');
+        Alert.alert(
+          'Success',
+          `Service reset message sent to the device and also data has been uploaded.\n\n` +
+          `Vehicle Number: ${vehicleNumber}\n` +
+          `User Name: ${userName}\n` +
+          `OdoCluster: ${receivedData.odoCluster}\n` +
+          `Timestamp: ${receivedData.timestamp}\n` +
+          `Latitude: ${receivedData.latitude}\n` +
+          `Longitude: ${receivedData.longitude}`
+        );
       } catch (fb) {
         console.error('FB error:', fb);
         Alert.alert('Firebase Error', 'Failed to push data.');
@@ -177,7 +169,10 @@ const Transmit: React.FC<Props> = ({ route }) => {
     }
     Alert.alert(
       'Service Return icon',
-      `OdoCluster: ${receivedData.odoCluster}\nLatitude: ${receivedData.latitude}\nLongitude: ${receivedData.longitude}`,
+      `Do you want to send the service reset command?\n\n` +
+      `OdoCluster: ${receivedData.odoCluster}\n` +
+      `Latitude: ${receivedData.latitude}\n` +
+      `Longitude: ${receivedData.longitude}`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Confirm', onPress: handleServiceReset }
