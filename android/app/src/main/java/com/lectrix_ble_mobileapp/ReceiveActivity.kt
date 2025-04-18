@@ -89,17 +89,19 @@ class ReceiveActivity : ComponentActivity() {
         }
     }
 
-    // Build a list of your current 5 parameters (can expand to 200 easily)
+    // Build a list of your 7 parameters (extendable to 200+)
     private val paramConfigs = listOf(
         ParamConfig("CellVol01",               "07", eightBytesDecode("07", 0.0001, 7, 8), mutableStateOf(null)),
         ParamConfig("PackCurr",                "09", signedEightBytesDecode("09", 0.001, 9, 10, 11, 12), mutableStateOf(null)),
         ParamConfig("Mode_Ack",                "02", threeBitDecode(2, 7, 2, 1, 0), mutableStateOf(null)),
-        ParamConfig("MCU_Version_Firmware_Id", "04", eightBytesASCIIDecode("04", 8,9,10,11,12,13,14,15), mutableStateOf(null)),
-        ParamConfig("IgnitionStatus",          "11", bitDecode("11", 18, 0), mutableStateOf(null))
+        ParamConfig("MCU_Version_Firmware_Id", "04", eightBytesASCIIDecode("04", 8, 9, 10, 11, 12, 13, 14, 15), mutableStateOf(null)),
+        ParamConfig("IgnitionStatus",          "11", bitDecode("11", 18, 0), mutableStateOf(null)),
+        ParamConfig("Throttle_Error",          "02", bitDecode("02", 8, 5), mutableStateOf(null)),
+        ParamConfig("Overcurrent_Fault",       "02", bitDecode("02", 10, 2), mutableStateOf(null))
     )
 
-    // Quick lookup by prefix
-    private val configMap = paramConfigs.associateBy { it.prefix }
+    // Group by prefix so multiple decoders on same prefix are handled
+    private val configMap: Map<String, List<ParamConfig>> = paramConfigs.groupBy { it.prefix }
 
     // BLE & file I/O state
     private lateinit var bluetoothManager: BluetoothManager
@@ -110,7 +112,7 @@ class ReceiveActivity : ComponentActivity() {
     private var headersWritten = false
     private var job: Job? = null
 
-    // This flag tells Compose when to start the chronometer
+    // Flag for starting chronometer
     private val recordingStartedState = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -151,8 +153,8 @@ class ReceiveActivity : ComponentActivity() {
             }
             override fun onCharacteristicChanged(g: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
                 val hex = characteristic.value.joinToString("") { "%02x".format(it) }
-                // look up matching config by prefix
-                configMap[hex.substring(0,2)]?.let { cfg ->
+                // Look up all configs for this prefix and attempt decode
+                configMap[hex.substring(0,2)]?.forEach { cfg ->
                     cfg.decoder(hex)?.also { decoded ->
                         cfg.lastValid = decoded
                         runOnUiThread { cfg.state.value = decoded }
@@ -217,7 +219,6 @@ class ReceiveActivity : ComponentActivity() {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 )
                 Toast.makeText(this, "Save location selected. Recording started.", Toast.LENGTH_SHORT).show()
-                // Now start your recording loop **and** fire the Compose chronometer
                 startRecording()
                 recordingStartedState.value = true
             }
@@ -253,18 +254,20 @@ fun ReceiveScreen(
     var isSelectionMode  by remember { mutableStateOf(false) }
     var showSelectedOnly by remember { mutableStateOf(false) }
 
-    // dynamic checkbox states
-    val checks = remember { configs.associate { it.name to mutableStateOf(false) } }
+    // Dynamic checkbox states
+    val checks = remember {
+        configs.associate { it.name to mutableStateOf(false) }
+    }
 
     val scroll = rememberScrollState()
     val chronoRef = remember { mutableStateOf<Chronometer?>(null) }
 
-    // When recordingStarted flips to true, start the chronometer here:
+    // Start chronometer when recordingStarted flips true
     LaunchedEffect(recordingStarted) {
         if (recordingStarted) {
-            chronoRef.value?.let {
-                it.base = SystemClock.elapsedRealtime()
-                it.start()
+            chronoRef.value?.apply {
+                base = SystemClock.elapsedRealtime()
+                start()
             }
         }
     }
