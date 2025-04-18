@@ -105,9 +105,13 @@ class ReceiveActivity : ComponentActivity() {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private var bluetoothGatt: BluetoothGatt? = null
+
     private var saveFileUri: Uri? = null
     private var headersWritten = false
     private var job: Job? = null
+
+    // This flag tells Compose when to start the chronometer
+    private val recordingStartedState = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,10 +120,11 @@ class ReceiveActivity : ComponentActivity() {
 
         setContent {
             ReceiveScreen(
-                configs         = paramConfigs,
-                onStartRecording= { openDirectoryChooser() },
-                onStopRecording = { stopRecording() },
-                onShareCSV      = { shareCSVFile() }
+                configs          = paramConfigs,
+                recordingStarted = recordingStartedState.value,
+                onChooseLocation = { openDirectoryChooser() },
+                onStopRecording  = { stopRecording() },
+                onShareCSV       = { shareCSVFile() }
             )
         }
     }
@@ -183,10 +188,12 @@ class ReceiveActivity : ComponentActivity() {
                 delay(500)
             }
         }
+        Log.d(TAG, "Recording coroutine started.")
     }
 
     private fun stopRecording() {
         job?.cancel()
+        recordingStartedState.value = false
         Toast.makeText(this, "Recording stopped.", Toast.LENGTH_SHORT).show()
     }
 
@@ -210,7 +217,9 @@ class ReceiveActivity : ComponentActivity() {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 )
                 Toast.makeText(this, "Save location selected. Recording started.", Toast.LENGTH_SHORT).show()
+                // Now start your recording loop **and** fire the Compose chronometer
                 startRecording()
+                recordingStartedState.value = true
             }
         }
     }
@@ -235,7 +244,8 @@ class ReceiveActivity : ComponentActivity() {
 @Composable
 fun ReceiveScreen(
     configs          : List<ParamConfig>,
-    onStartRecording : () -> Unit,
+    recordingStarted : Boolean,
+    onChooseLocation : () -> Unit,
     onStopRecording  : () -> Unit,
     onShareCSV       : () -> Unit
 ) {
@@ -243,13 +253,21 @@ fun ReceiveScreen(
     var isSelectionMode  by remember { mutableStateOf(false) }
     var showSelectedOnly by remember { mutableStateOf(false) }
 
-    // track checkboxes dynamically
-    val checks = remember {
-        configs.associate { it.name to mutableStateOf(true) }
-    }
+    // dynamic checkbox states
+    val checks = remember { configs.associate { it.name to mutableStateOf(true) } }
 
     val scroll = rememberScrollState()
     val chronoRef = remember { mutableStateOf<Chronometer?>(null) }
+
+    // When recordingStarted flips to true, start the chronometer here:
+    LaunchedEffect(recordingStarted) {
+        if (recordingStarted) {
+            chronoRef.value?.let {
+                it.base = SystemClock.elapsedRealtime()
+                it.start()
+            }
+        }
+    }
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         TextField(
@@ -278,27 +296,27 @@ fun ReceiveScreen(
         Column(Modifier.weight(1f).verticalScroll(scroll)) {
             configs.forEach { cfg ->
                 val checkedState = checks[cfg.name]!!
-                val matches = searchQuery.isEmpty() || cfg.name.lowercase().contains(searchQuery)
+                val matches = searchQuery.isEmpty() ||
+                              cfg.name.lowercase().contains(searchQuery)
                 if (matches && (!showSelectedOnly || checkedState.value)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (isSelectionMode) {
-                            Checkbox(checked = checkedState.value, onCheckedChange = { checkedState.value = it })
+                            Checkbox(
+                                checked = checkedState.value,
+                                onCheckedChange = { checkedState.value = it }
+                            )
                         }
-                        Text("${cfg.name}: ${cfg.state.value?.toString() ?: "N/A"}",
-                             Modifier.padding(start = 8.dp))
+                        Text(
+                            "${cfg.name}: ${cfg.state.value?.toString() ?: "N/A"}",
+                            Modifier.padding(start = 8.dp)
+                        )
                     }
                 }
             }
         }
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = {
-                chronoRef.value?.apply {
-                    base = SystemClock.elapsedRealtime()
-                    start()
-                }
-                onStartRecording()
-            }, Modifier.weight(1f)) {
+            Button(onClick = onChooseLocation, Modifier.weight(1f)) {
                 Text("Start Recording")
             }
             Button(onClick = {
