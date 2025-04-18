@@ -254,133 +254,135 @@ fun Error_check(configs: List<ParamConfig>): List<String> =
            .filter { it.state.value == 1 }
            .map { it.name }
 
-@Composable
-fun ReceiveScreen(
-    configs          : List<ParamConfig>,
-    recordingStarted : Boolean,
-    onChooseLocation : () -> Unit,
-    onStopRecording  : () -> Unit,
-    onShareCSV       : () -> Unit
-) {
-    var searchQuery      by remember { mutableStateOf("") }
-    var isSelectionMode  by remember { mutableStateOf(false) }
-    var showSelectedOnly by remember { mutableStateOf(false) }
-    var showErrors       by remember { mutableStateOf(false) }
-
-    // dynamic checkbox states
-    val checks = remember { configs.associate { it.name to mutableStateOf(false) } }
-
-    val scroll = rememberScrollState()
-    val chronoRef = remember { mutableStateOf<Chronometer?>(null) }
-
-    // Launch chronometer when recording really starts
-    LaunchedEffect(recordingStarted) {
-        if (recordingStarted) {
-            chronoRef.value?.apply {
-                base = SystemClock.elapsedRealtime()
-                start()
-            }
-        }
-    }
-
-    // get screen height for box sizing
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-
-    Column(Modifier.fillMaxSize().padding(16.dp)) {
-        // Search field
-        TextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it.lowercase(Locale.getDefault()) },
-            placeholder = { Text("Search Parameters") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(8.dp))
-
-        // Chronometer
-        AndroidView(factory = { ctx ->
-            Chronometer(ctx).apply {
-                format = "Time: %s"
-                chronoRef.value = this
-            }
-        }, modifier = Modifier.align(Alignment.End))
-        Spacer(Modifier.height(8.dp))
-
-        // Buttons row: Enable, Show Selected, Show Errors
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = { isSelectionMode = !isSelectionMode }) {
-                Text(if (isSelectionMode) "Disable Selection" else "Enable Selection")
-            }
-            Button(onClick = { showSelectedOnly = !showSelectedOnly }) {
-                Text(if (showSelectedOnly) "Show All Params" else "Show Selected Params")
-            }
-            Button(onClick = { showErrors = !showErrors }) {
-                Text(if (showErrors) "Hide Errors" else "Show Errors")
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-
-        // Error box, 1/4 screen height
-        if (showErrors) {
-            val errors = Error_check(configs)
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(screenHeight * 0.25f)
-                    .border(1.dp, MaterialTheme.colors.onSurface)
-                    .padding(8.dp)
-            ) {
-                if (errors.isEmpty()) {
-                    Text("No errors", Modifier.align(Alignment.Center))
-                } else {
-                    Column {
-                        errors.forEach { err ->
-                            Text(err)
-                        }
-                    }
-                }
-            }
-            Spacer(Modifier.height(8.dp))
-        }
-
-        // Parameter list
-        Column(Modifier.weight(1f).verticalScroll(scroll)) {
-            fun shouldShow(name: String, checked: Boolean): Boolean {
-                val matches = searchQuery.isEmpty() || name.lowercase().contains(searchQuery)
-                return matches && (!showSelectedOnly || checked)
-            }
-            configs.forEach { cfg ->
-                val checkedState = checks[cfg.name]!!
-                if (shouldShow(cfg.name, checkedState.value)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (isSelectionMode) {
-                            Checkbox(
-                                checked = checkedState.value,
-                                onCheckedChange = { checkedState.value = it }
-                            )
-                        }
-                        Text(
-                            "${cfg.name}: ${cfg.state.value?.toString() ?: "N/A"}",
-                            Modifier.padding(start = 8.dp)
-                        )
-                    }
-                }
-            }
-        }
-
-        // Bottom controls
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = onChooseLocation, Modifier.weight(1f)) {
-                Text("Start Recording")
-            }
-            Button(onClick = {
-                chronoRef.value?.stop()
-                onStopRecording()
-            }, Modifier.weight(1f)) {
-                Text("Stop Recording")
-            }
-            Button(onClick = onShareCSV, Modifier.weight(1f)) {
-                Text("Share CSV")
-            }
-        }
-    }
-}
+           @Composable
+           fun ReceiveScreen(
+               configs          : List<ParamConfig>,
+               recordingStarted : Boolean,
+               onChooseLocation : () -> Unit,
+               onStopRecording  : () -> Unit,
+               onShareCSV       : () -> Unit
+           ) {
+               var searchQuery      by remember { mutableStateOf("") }
+               var isSelectionMode  by remember { mutableStateOf(false) }
+               var showSelectedOnly by remember { mutableStateOf(false) }
+               var showErrors       by remember { mutableStateOf(false) }
+           
+               // dynamic checkbox states
+               val checks = remember { configs.associate { it.name to mutableStateOf(false) } }
+           
+               val scroll = rememberScrollState()
+               val chronoRef = remember { mutableStateOf<Chronometer?>(null) }
+           
+               // Kick off chrono when recording really starts
+               LaunchedEffect(recordingStarted) {
+                   if (recordingStarted) {
+                       chronoRef.value?.apply {
+                           base = SystemClock.elapsedRealtime()
+                           start()
+                       }
+                   }
+               }
+           
+               // calculate 1/4 screen height for error box
+               val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+           
+               Column(Modifier.fillMaxSize().padding(16.dp)) {
+                   // 1) Search field
+                   TextField(
+                       value = searchQuery,
+                       onValueChange = { searchQuery = it.lowercase(Locale.getDefault()) },
+                       placeholder = { Text("Search Parameters") },
+                       modifier = Modifier.fillMaxWidth()
+                   )
+                   Spacer(Modifier.height(8.dp))
+           
+                   // 2) Chronometer
+                   AndroidView(factory = { ctx ->
+                       Chronometer(ctx).apply {
+                           format = "Time: %s"
+                           chronoRef.value = this
+                       }
+                   }, modifier = Modifier.align(Alignment.End))
+                   Spacer(Modifier.height(8.dp))
+           
+                   // 3) First row: Enable Selection & Show Selected
+                   Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                       Button(onClick = { isSelectionMode = !isSelectionMode }) {
+                           Text(if (isSelectionMode) "Disable Selection" else "Enable Selection")
+                       }
+                       Button(onClick = { showSelectedOnly = !showSelectedOnly }) {
+                           Text(if (showSelectedOnly) "Show All Params" else "Show Selected Params")
+                       }
+                   }
+                   Spacer(Modifier.height(8.dp))
+           
+                   // 4) Second row: Show Errors alone
+                   Button(onClick = { showErrors = !showErrors }) {
+                       Text(if (showErrors) "Hide Errors" else "Show Errors")
+                   }
+                   Spacer(Modifier.height(8.dp))
+           
+                   // 5) Error box below Show Errors button
+                   if (showErrors) {
+                       val errors = Error_check(configs)
+                       Box(
+                           Modifier
+                               .fillMaxWidth()
+                               .height(screenHeight * 0.25f)
+                               .border(1.dp, MaterialTheme.colors.onSurface)
+                               .padding(8.dp)
+                       ) {
+                           if (errors.isEmpty()) {
+                               Text("No errors", Modifier.align(Alignment.Center))
+                           } else {
+                               Column {
+                                   errors.forEach { err ->
+                                       Text(err)
+                                   }
+                               }
+                           }
+                       }
+                       Spacer(Modifier.height(8.dp))
+                   }
+           
+                   // 6) Parameter list
+                   Column(Modifier.weight(1f).verticalScroll(scroll)) {
+                       configs.forEach { cfg ->
+                           val checkedState = checks[cfg.name]!!
+                           val matches = searchQuery.isEmpty() ||
+                                         cfg.name.lowercase().contains(searchQuery)
+                           if (matches && (!showSelectedOnly || checkedState.value)) {
+                               Row(verticalAlignment = Alignment.CenterVertically) {
+                                   if (isSelectionMode) {
+                                       Checkbox(
+                                           checked = checkedState.value,
+                                           onCheckedChange = { checkedState.value = it }
+                                       )
+                                   }
+                                   Text(
+                                       "${cfg.name}: ${cfg.state.value?.toString() ?: "N/A"}",
+                                       Modifier.padding(start = 8.dp)
+                                   )
+                               }
+                           }
+                       }
+                   }
+           
+                   // 7) Bottom controls
+                   Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                       Button(onClick = onChooseLocation, Modifier.weight(1f)) {
+                           Text("Start Recording")
+                       }
+                       Button(onClick = {
+                           chronoRef.value?.stop()
+                           onStopRecording()
+                       }, Modifier.weight(1f)) {
+                           Text("Stop Recording")
+                       }
+                       Button(onClick = onShareCSV, Modifier.weight(1f)) {
+                           Text("Share CSV")
+                       }
+                   }
+               }
+           }
+           
