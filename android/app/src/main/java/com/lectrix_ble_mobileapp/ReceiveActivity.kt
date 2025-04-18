@@ -254,7 +254,7 @@ fun ReceiveScreen(
     var showSelectedOnly by remember { mutableStateOf(false) }
 
     // dynamic checkbox states
-    val checks = remember { configs.associate { it.name to mutableStateOf(true) } }
+    val checks = remember { configs.associate { it.name to mutableStateOf(false) } }
 
     val scroll = rememberScrollState()
     val chronoRef = remember { mutableStateOf<Chronometer?>(null) }
