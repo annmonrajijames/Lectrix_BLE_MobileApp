@@ -13,6 +13,7 @@ import android.widget.Chronometer
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,7 +21,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import kotlinx.coroutines.*
@@ -66,8 +67,8 @@ class ReceiveActivity : ComponentActivity() {
             } else null
         }
         fun threeBitDecode(firstByteInt: Int, bytePos: Int, b1: Int, b2: Int, b3: Int) = { data: String ->
-            val firstByte = firstByteInt.toString().padStart(2,'0')
-            if (data.startsWith(firstByte) && data.length >= 2*(bytePos+1)) {
+            val fb = firstByteInt.toString().padStart(2,'0')
+            if (data.startsWith(fb) && data.length >= 2*(bytePos+1)) {
                 val byte = data.substring(2*bytePos, 2*bytePos+2).toInt(16)
                 val bits = byte.toString(2).padStart(8,'0')
                 "${bits[7-b1]}${bits[7-b2]}${bits[7-b3]}".toInt(2)
@@ -89,7 +90,7 @@ class ReceiveActivity : ComponentActivity() {
         }
     }
 
-    // Build a list of your 7 parameters (extendable to 200+)
+    // Start with 7 for now, ready for 200+
     private val paramConfigs = listOf(
         ParamConfig("CellVol01",               "07", eightBytesDecode("07", 0.0001, 7, 8), mutableStateOf(null)),
         ParamConfig("PackCurr",                "09", signedEightBytesDecode("09", 0.001, 9, 10, 11, 12), mutableStateOf(null)),
@@ -100,10 +101,10 @@ class ReceiveActivity : ComponentActivity() {
         ParamConfig("Overcurrent_Fault",       "02", bitDecode("02", 10, 2), mutableStateOf(null))
     )
 
-    // Group by prefix so multiple decoders on same prefix are handled
-    private val configMap: Map<String, List<ParamConfig>> = paramConfigs.groupBy { it.prefix }
+    // Map prefix → list of configs
+    private val configMap = paramConfigs.groupBy { it.prefix }
 
-    // BLE & file I/O state
+    // BLE & CSV state
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private var bluetoothGatt: BluetoothGatt? = null
@@ -112,12 +113,11 @@ class ReceiveActivity : ComponentActivity() {
     private var headersWritten = false
     private var job: Job? = null
 
-    // Flag for starting chronometer
+    // Signals Compose to start chronometer
     private val recordingStartedState = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Start BLE if address provided
         intent.getStringExtra(DEVICE_ADDRESS)?.let { setupBluetooth(it) }
 
         setContent {
@@ -141,19 +141,22 @@ class ReceiveActivity : ComponentActivity() {
             }
             override fun onServicesDiscovered(g: BluetoothGatt, status: Int) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
-                    val svc = g.getService(SERVICE_UUID)
+                    val svc  = g.getService(SERVICE_UUID)
                     val char = svc?.getCharacteristic(CHARACTERISTIC_UUID)
                     if (char != null) {
                         g.setCharacteristicNotification(char, true)
-                        char.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
-                            ?.apply { value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE }
-                            ?.also { g.writeDescriptor(it) }
+                        char.getDescriptor(
+                            UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+                        )?.apply { value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE }
+                         ?.also { g.writeDescriptor(it) }
                     }
                 }
             }
-            override fun onCharacteristicChanged(g: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
+            override fun onCharacteristicChanged(
+                g: BluetoothGatt,
+                characteristic: BluetoothGattCharacteristic
+            ) {
                 val hex = characteristic.value.joinToString("") { "%02x".format(it) }
-                // Look up all configs for this prefix and attempt decode
                 configMap[hex.substring(0,2)]?.forEach { cfg ->
                     cfg.decoder(hex)?.also { decoded ->
                         cfg.lastValid = decoded
@@ -176,8 +179,10 @@ class ReceiveActivity : ComponentActivity() {
                                 w.append("\n")
                                 headersWritten = true
                             }
-                            val ts = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
-                                .format(Date())
+                            val ts = SimpleDateFormat(
+                                "yyyy-MM-dd'T'HH:mm:ss.SSS",
+                                Locale.getDefault()
+                            ).format(Date())
                             w.append(ts)
                             paramConfigs.forEach { cfg ->
                                 w.append(",")
@@ -212,8 +217,8 @@ class ReceiveActivity : ComponentActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             data?.data?.also { uri ->
-                saveFileUri = uri
-                headersWritten = false
+                saveFileUri       = uri
+                headersWritten    = false
                 contentResolver.takePersistableUriPermission(
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -242,6 +247,13 @@ class ReceiveActivity : ComponentActivity() {
     }
 }
 
+/** Returns the names of any parameters whose value == 1 (Throttle_Error or Overcurrent_Fault). */
+@Composable
+fun Error_check(configs: List<ParamConfig>): List<String> =
+    configs.filter { it.name == "Throttle_Error" || it.name == "Overcurrent_Fault" }
+           .filter { it.state.value == 1 }
+           .map { it.name }
+
 @Composable
 fun ReceiveScreen(
     configs          : List<ParamConfig>,
@@ -253,16 +265,15 @@ fun ReceiveScreen(
     var searchQuery      by remember { mutableStateOf("") }
     var isSelectionMode  by remember { mutableStateOf(false) }
     var showSelectedOnly by remember { mutableStateOf(false) }
+    var showErrors       by remember { mutableStateOf(false) }
 
-    // Dynamic checkbox states
-    val checks = remember {
-        configs.associate { it.name to mutableStateOf(false) }
-    }
+    // dynamic checkbox states
+    val checks = remember { configs.associate { it.name to mutableStateOf(false) } }
 
     val scroll = rememberScrollState()
     val chronoRef = remember { mutableStateOf<Chronometer?>(null) }
 
-    // Start chronometer when recordingStarted flips true
+    // Launch chronometer when recording really starts
     LaunchedEffect(recordingStarted) {
         if (recordingStarted) {
             chronoRef.value?.apply {
@@ -272,7 +283,11 @@ fun ReceiveScreen(
         }
     }
 
+    // get screen height for box sizing
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+
     Column(Modifier.fillMaxSize().padding(16.dp)) {
+        // Search field
         TextField(
             value = searchQuery,
             onValueChange = { searchQuery = it.lowercase(Locale.getDefault()) },
@@ -281,11 +296,16 @@ fun ReceiveScreen(
         )
         Spacer(Modifier.height(8.dp))
 
+        // Chronometer
         AndroidView(factory = { ctx ->
-            Chronometer(ctx).apply { format = "Time: %s"; chronoRef.value = this }
+            Chronometer(ctx).apply {
+                format = "Time: %s"
+                chronoRef.value = this
+            }
         }, modifier = Modifier.align(Alignment.End))
         Spacer(Modifier.height(8.dp))
 
+        // Buttons row: Enable, Show Selected, Show Errors
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = { isSelectionMode = !isSelectionMode }) {
                 Text(if (isSelectionMode) "Disable Selection" else "Enable Selection")
@@ -293,15 +313,44 @@ fun ReceiveScreen(
             Button(onClick = { showSelectedOnly = !showSelectedOnly }) {
                 Text(if (showSelectedOnly) "Show All Params" else "Show Selected Params")
             }
+            Button(onClick = { showErrors = !showErrors }) {
+                Text(if (showErrors) "Hide Errors" else "Show Errors")
+            }
         }
         Spacer(Modifier.height(8.dp))
 
+        // Error box, 1/4 screen height
+        if (showErrors) {
+            val errors = Error_check(configs)
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(screenHeight * 0.25f)
+                    .border(1.dp, MaterialTheme.colors.onSurface)
+                    .padding(8.dp)
+            ) {
+                if (errors.isEmpty()) {
+                    Text("No errors", Modifier.align(Alignment.Center))
+                } else {
+                    Column {
+                        errors.forEach { err ->
+                            Text(err)
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+        }
+
+        // Parameter list
         Column(Modifier.weight(1f).verticalScroll(scroll)) {
+            fun shouldShow(name: String, checked: Boolean): Boolean {
+                val matches = searchQuery.isEmpty() || name.lowercase().contains(searchQuery)
+                return matches && (!showSelectedOnly || checked)
+            }
             configs.forEach { cfg ->
                 val checkedState = checks[cfg.name]!!
-                val matches = searchQuery.isEmpty() ||
-                              cfg.name.lowercase().contains(searchQuery)
-                if (matches && (!showSelectedOnly || checkedState.value)) {
+                if (shouldShow(cfg.name, checkedState.value)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (isSelectionMode) {
                             Checkbox(
@@ -318,6 +367,7 @@ fun ReceiveScreen(
             }
         }
 
+        // Bottom controls
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = onChooseLocation, Modifier.weight(1f)) {
                 Text("Start Recording")
