@@ -270,7 +270,7 @@ fun Error_check(configs: List<ParamConfig>): List<String> =
                // dynamic checkbox states
                val checks = remember { configs.associate { it.name to mutableStateOf(false) } }
            
-               val scroll = rememberScrollState()
+               val scroll   = rememberScrollState()
                val chronoRef = remember { mutableStateOf<Chronometer?>(null) }
            
                // Kick off chrono when recording really starts
@@ -287,7 +287,7 @@ fun Error_check(configs: List<ParamConfig>): List<String> =
                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
            
                Column(Modifier.fillMaxSize().padding(16.dp)) {
-                   // 1) Search field
+                   // Search field
                    TextField(
                        value = searchQuery,
                        onValueChange = { searchQuery = it.lowercase(Locale.getDefault()) },
@@ -296,7 +296,7 @@ fun Error_check(configs: List<ParamConfig>): List<String> =
                    )
                    Spacer(Modifier.height(8.dp))
            
-                   // 2) Chronometer
+                   // Chronometer
                    AndroidView(factory = { ctx ->
                        Chronometer(ctx).apply {
                            format = "Time: %s"
@@ -305,7 +305,7 @@ fun Error_check(configs: List<ParamConfig>): List<String> =
                    }, modifier = Modifier.align(Alignment.End))
                    Spacer(Modifier.height(8.dp))
            
-                   // 3) First row: Enable Selection & Show Selected
+                   // Enable / Show Selected row
                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                        Button(onClick = { isSelectionMode = !isSelectionMode }) {
                            Text(if (isSelectionMode) "Disable Selection" else "Enable Selection")
@@ -316,15 +316,19 @@ fun Error_check(configs: List<ParamConfig>): List<String> =
                    }
                    Spacer(Modifier.height(8.dp))
            
-                   // 4) Second row: Show Errors alone
+                   // Show Errors button
                    Button(onClick = { showErrors = !showErrors }) {
                        Text(if (showErrors) "Hide Errors" else "Show Errors")
                    }
                    Spacer(Modifier.height(8.dp))
            
-                   // 5) Error box below Show Errors button
+                   // Error box – shows any error parameters (Throttle_Error, Overcurrent_Fault) whose value == 1
                    if (showErrors) {
-                       val errors = Error_check(configs)
+                       // Filter the two error params
+                       val errors = configs.filter { cfg ->
+                           (cfg.name == "Throttle_Error" || cfg.name == "Overcurrent_Fault")
+                           && cfg.state.value == 1
+                       }
                        Box(
                            Modifier
                                .fillMaxWidth()
@@ -336,8 +340,12 @@ fun Error_check(configs: List<ParamConfig>): List<String> =
                                Text("No errors", Modifier.align(Alignment.Center))
                            } else {
                                Column {
-                                   errors.forEach { err ->
-                                       Text(err)
+                                   errors.forEach { errCfg ->
+                                       Text(
+                                           text = "${errCfg.name}: ${errCfg.state.value}",
+                                           color = MaterialTheme.colors.error,
+                                           modifier = Modifier.padding(vertical = 2.dp)
+                                       )
                                    }
                                }
                            }
@@ -345,7 +353,7 @@ fun Error_check(configs: List<ParamConfig>): List<String> =
                        Spacer(Modifier.height(8.dp))
                    }
            
-                   // 6) Parameter list
+                   // Parameter list
                    Column(Modifier.weight(1f).verticalScroll(scroll)) {
                        configs.forEach { cfg ->
                            val checkedState = checks[cfg.name]!!
@@ -368,7 +376,7 @@ fun Error_check(configs: List<ParamConfig>): List<String> =
                        }
                    }
            
-                   // 7) Bottom controls
+                   // Bottom controls
                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                        Button(onClick = onChooseLocation, Modifier.weight(1f)) {
                            Text("Start Recording")
