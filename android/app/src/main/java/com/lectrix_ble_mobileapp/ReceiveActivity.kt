@@ -86,10 +86,6 @@ class ReceiveActivity : ComponentActivity() {
                     .joinToString("")
             } else null
         }
-
-        // New decoders to add:
-        val Motor_TemperatureDecoder = eightBytesDecode("02", 1.0, 16)
-        val MCU_TemperatureDecoder   = eightBytesDecode("02", 1.0, 15, 14)
     }
 
     // List of parameters; just add new ones here as needed
@@ -102,8 +98,8 @@ class ReceiveActivity : ComponentActivity() {
         ParamConfig("Throttle_Error",          "02", bitDecode("02", 8, 5), mutableStateOf(null)),
         ParamConfig("Overcurrent_Fault",       "02", bitDecode("02", 10, 2), mutableStateOf(null)),
         // Newly added temperature parameters:
-        ParamConfig("Motor_Temperature",       "02", Motor_TemperatureDecoder, mutableStateOf(null)),
-        ParamConfig("MCU_Temperature",         "02", MCU_TemperatureDecoder, mutableStateOf(null))
+        ParamConfig("Motor_Temperature",       "02", eightBytesDecode("02", 1.0, 16), mutableStateOf(null)),
+        ParamConfig("MCU_Temperature",         "02", eightBytesDecode("02", 1.0, 15, 14), mutableStateOf(null))
     )
 
     // Group by prefix so we can decode all sharing the same first‐byte
