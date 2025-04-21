@@ -1,4 +1,3 @@
-// ReceiveActivity.kt
 package com.lectrix_ble_mobileapp
 
 import android.app.Activity
@@ -21,6 +20,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -29,7 +29,11 @@ import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.*
 
-/** Holds configuration for each parameter. */
+/** Returns true if [value] (a Double) is outside the [lower]–[upper] range. */
+fun abnormality_check(value: Any?, lower: Double, upper: Double): Boolean =
+    (value as? Double)?.let { it < lower || it > upper } ?: false
+
+/** Holds configuration for a single parameter. */
 data class ParamConfig(
     val name: String,
     val prefix: String,
@@ -61,7 +65,7 @@ class ReceiveActivity : ComponentActivity() {
                 var v = hex.toLong(16)
                 val bytes = pos.size
                 val signBit = 1L shl (8*bytes - 1)
-                if (v >= signBit) v -= 1L shl (8*bytes)
+                if (v >= signBit) v -= (1L shl (8*bytes))
                 v * multiplier
             } else null
         }
@@ -88,24 +92,22 @@ class ReceiveActivity : ComponentActivity() {
         }
     }
 
-    // List of parameters; just add new ones here as needed
+    // List of parameters (easily extendable)
     private val paramConfigs = listOf(
-        ParamConfig("CellVol01",               "07", eightBytesDecode("07", 0.0001, 7, 8), mutableStateOf(null)),
-        ParamConfig("PackCurr",                "09", signedEightBytesDecode("09", 0.001, 9, 10, 11, 12), mutableStateOf(null)),
-        ParamConfig("Mode_Ack",                "02", threeBitDecode(2, 7, 2, 1, 0), mutableStateOf(null)),
-        ParamConfig("MCU_Version_Firmware_Id", "04", eightBytesASCIIDecode("04", 8, 9, 10, 11, 12, 13, 14, 15), mutableStateOf(null)),
-        ParamConfig("IgnitionStatus",          "11", bitDecode("11", 18, 0), mutableStateOf(null)),
-        ParamConfig("Throttle_Error",          "02", bitDecode("02", 8, 5), mutableStateOf(null)),
-        ParamConfig("Overcurrent_Fault",       "02", bitDecode("02", 10, 2), mutableStateOf(null)),
-        // Newly added temperature parameters:
-        ParamConfig("Motor_Temperature",       "02", eightBytesDecode("02", 1.0, 16), mutableStateOf(null)),
-        ParamConfig("MCU_Temperature",         "02", eightBytesDecode("02", 1.0, 15, 14), mutableStateOf(null))
+        ParamConfig("CellVol01",               "07",  eightBytesDecode("07", 0.0001, 7, 8),            mutableStateOf(null)),
+        ParamConfig("PackCurr",                "09",  signedEightBytesDecode("09", 0.001, 9,10,11,12), mutableStateOf(null)),
+        ParamConfig("Mode_Ack",                "02",  threeBitDecode(2, 7, 2,1,0),                   mutableStateOf(null)),
+        ParamConfig("MCU_Version_Firmware_Id", "04",  eightBytesASCIIDecode("04", 8,9,10,11,12,13,14,15), mutableStateOf(null)),
+        ParamConfig("IgnitionStatus",          "11",  bitDecode("11", 18, 0),                         mutableStateOf(null)),
+        ParamConfig("Throttle_Error",          "02",  bitDecode("02", 8, 5),                          mutableStateOf(null)),
+        ParamConfig("Overcurrent_Fault",       "02",  bitDecode("02",10, 2),                          mutableStateOf(null)),
+        ParamConfig("Motor_Temperature",       "02",  eightBytesDecode("02", 1.0, 16),                mutableStateOf(null)),
+        ParamConfig("MCU_Temperature",         "02",  eightBytesDecode("02", 1.0, 15, 14),            mutableStateOf(null))
     )
 
-    // Group by prefix so we can decode all sharing the same first‐byte
+    // Group by prefix for decoding
     private val configMap = paramConfigs.groupBy { it.prefix }
 
-    // BLE & recording state
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private var bluetoothGatt: BluetoothGatt? = null
@@ -114,7 +116,7 @@ class ReceiveActivity : ComponentActivity() {
     private var headersWritten = false
     private var job: Job? = null
 
-    // Signal to start the chronometer in Compose
+    // Controls when Compose should start the chronometer
     private val recordingStartedState = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -147,9 +149,10 @@ class ReceiveActivity : ComponentActivity() {
                         val char = svc?.getCharacteristic(CHARACTERISTIC_UUID)
                         if (char != null) {
                             g.setCharacteristicNotification(char, true)
-                            char.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
-                                ?.apply { value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE }
-                                ?.also { g.writeDescriptor(it) }
+                            char.getDescriptor(
+                                UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+                            )?.apply { value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE }
+                             ?.also { g.writeDescriptor(it) }
                         }
                     }
                 }
@@ -180,8 +183,9 @@ class ReceiveActivity : ComponentActivity() {
                                 w.append("\n")
                                 headersWritten = true
                             }
-                            val ts = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
-                                .format(Date())
+                            val ts = SimpleDateFormat(
+                                "yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault()
+                            ).format(Date())
                             w.append(ts)
                             paramConfigs.forEach { cfg ->
                                 w.append(",${cfg.lastValid ?: ""}")
@@ -258,10 +262,8 @@ fun ReceiveScreen(
     var showSelectedOnly by remember { mutableStateOf(false) }
     var showErrors       by remember { mutableStateOf(false) }
 
-    // dynamic checkbox states
-    val checks = remember { configs.associate { it.name to mutableStateOf(false) } }
-
-    val scroll   = rememberScrollState()
+    val checks    = remember { configs.associate { it.name to mutableStateOf(false) } }
+    val scroll    = rememberScrollState()
     val chronoRef = remember { mutableStateOf<Chronometer?>(null) }
 
     LaunchedEffect(recordingStarted) {
@@ -308,9 +310,13 @@ fun ReceiveScreen(
         Spacer(Modifier.height(8.dp))
 
         if (showErrors) {
-            val errors = configs.filter { cfg ->
-                (cfg.name == "Throttle_Error" || cfg.name == "Overcurrent_Fault")
-                && cfg.state.value == 1
+            val errorFlags = configs.filter { 
+                (it.name == "Throttle_Error" || it.name == "Overcurrent_Fault") &&
+                it.state.value == 1
+            }
+            val abnormalTemps = configs.filter {
+                (it.name == "MCU_Temperature" && abnormality_check(it.state.value, 12.0, 100.0)) ||
+                (it.name == "Motor_Temperature" && abnormality_check(it.state.value, 15.0, 90.0))
             }
             Box(
                 Modifier
@@ -319,14 +325,21 @@ fun ReceiveScreen(
                     .border(1.dp, MaterialTheme.colors.onSurface)
                     .padding(8.dp)
             ) {
-                if (errors.isEmpty()) {
+                if (errorFlags.isEmpty() && abnormalTemps.isEmpty()) {
                     Text("No errors", Modifier.align(Alignment.Center))
                 } else {
                     Column {
-                        errors.forEach { errCfg ->
+                        errorFlags.forEach {
                             Text(
-                                "${errCfg.name}: ${errCfg.state.value}",
+                                "${it.name}: ${it.state.value}",
                                 color = MaterialTheme.colors.error,
+                                modifier = Modifier.padding(vertical = 2.dp)
+                            )
+                        }
+                        abnormalTemps.forEach {
+                            Text(
+                                "${it.name}: ${it.state.value}",
+                                color = Color(0xFFFFA500),
                                 modifier = Modifier.padding(vertical = 2.dp)
                             )
                         }
