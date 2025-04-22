@@ -33,6 +33,10 @@ import java.util.*
 fun abnormality_check(value: Any?, lower: Double, upper: Double): Boolean =
     (value as? Double)?.let { it < lower || it > upper } ?: false
 
+/** Returns true if [value] (a Double) is outside the [lower]–[upper] range. */
+fun abnormality_check_integer(value: Any?, lower: Int, upper: Int): Boolean =
+    (value as? Double)?.let { it < lower || it > upper } ?: false
+
 /** Holds configuration for a single parameter. */
 data class ParamConfig(
     val name: String,
@@ -544,8 +548,17 @@ fun ReceiveScreen(
             }            
             
             val abnormalTemps = configs.filter {
-                (it.name == "MCU_Temperature" && abnormality_check(it.state.value, 12.0, 100.0)) ||
-                (it.name == "Motor_Temperature" && abnormality_check(it.state.value, 15.0, 90.0))
+                (it.name == "Cluster_heartbeat"     && abnormality_check_integer(it.state.value, 255,    255))    ||
+                (it.name == "MCU_Temperature"      && abnormality_check(it.state.value, -1000.0, 110.0))  ||
+                (it.name == "Motor_Temperature"    && abnormality_check(it.state.value, -1000.0, 170.0))  ||
+                (it.name == "MaxTemp"              && abnormality_check(it.state.value, -1000.0, 61.9))   ||
+                (it.name == "MinTemp"              && abnormality_check(it.state.value, 0.1,      1000.0))||
+                (it.name == "MaxCellVol"           && abnormality_check(it.state.value, -1000.0, 3.64))   ||
+                (it.name == "MinCellVol"           && abnormality_check(it.state.value, 2.91,    1000.0))||
+                (it.name == "FetTemp"              && abnormality_check(it.state.value, -1000.0, 79.9))   ||
+                (it.name == "CellVolMinMaxDev"     && abnormality_check(it.state.value, -1000.0, 299.9)) ||
+                (it.name == "PackCurr"             && abnormality_check(it.state.value, -1000.0, 61.9)) ||
+                (it.name == "PackVol"              && abnormality_check(it.state.value, 46.5,     56.9))
             }
             Box(
                 Modifier
