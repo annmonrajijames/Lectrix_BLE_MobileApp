@@ -324,7 +324,16 @@ class ReceiveActivity : ComponentActivity() {
         ParamConfig("Low_Mode_REQUEST",        "03", bitDecode("03",11,4),                                mutableStateOf(null)),
         ParamConfig("Medium_Mode_REQUEST",     "03", bitDecode("03",11,5),                                mutableStateOf(null)),
         ParamConfig("User_defind_mode_High_REQUEST","03", bitDecode("03",11,6),                          mutableStateOf(null)),
-        ParamConfig("Limp_mode_REQUEST",       "03", bitDecode("03",11,7),                                mutableStateOf(null))
+        ParamConfig("Limp_mode_REQUEST",       "03", bitDecode("03",11,7),                                mutableStateOf(null)),
+
+        ParamConfig("Battery_disconnected","19", bitDecode("19",19,0),                          mutableStateOf(null)),
+        ParamConfig("AC_Voltage_out_of_range","19", bitDecode("19",19,1),                          mutableStateOf(null)),
+        ParamConfig("AC_Frequency_out_of_range","19", bitDecode("19",19,2),                          mutableStateOf(null)),
+        ParamConfig("Charger_short_ckt","19", bitDecode("19",19,3),                          mutableStateOf(null)),
+        ParamConfig("Current_derate_due_to_temp","19", bitDecode("19",19,4),                          mutableStateOf(null)),
+        ParamConfig("Charger_Over_under_temp","19", bitDecode("19",19,5),                          mutableStateOf(null)),
+        ParamConfig("Battery_reverse_connection","19", bitDecode("19",19,6),                          mutableStateOf(null)),
+        ParamConfig("CHG_Communication_fault","19", bitDecode("19",19,7),                          mutableStateOf(null))
     )    
 
     // Group by prefix for decoding
@@ -488,6 +497,9 @@ fun ReceiveScreen(
     val scroll    = rememberScrollState()
     val chronoRef = remember { mutableStateOf<Chronometer?>(null) }
 
+    // <-- NEW: scroll state for the error box
+    val errorScroll = rememberScrollState()
+
     LaunchedEffect(recordingStarted) {
         if (recordingStarted) {
             chronoRef.value?.apply {
@@ -543,7 +555,10 @@ fun ReceiveScreen(
                     "ChgUnderTempProt", "ChgOverTempProt", "DchgUnderTempProt", "DchgOverTempProt",
                     "CellOverDevProt", "ChgOverCurrProt", "DchgOverCurrProt",
                     "FetTempProt", "ResSocProt", "FetFailure", "TempSenseFault",
-                    "ShortCktProt", "DschgPeakProt", "ChgPeakProt"
+                    "ShortCktProt", "DschgPeakProt", "ChgPeakProt", "Battery_disconnected",
+                    "AC_Voltage_out_of_range", "AC_Frequency_out_of_range", "Charger_short_ckt",
+                    "Current_derate_due_to_temp","Charger_Over_under_temp", "Battery_reverse_connection",
+                    "CHG_Communication_fault"
                 )
             }            
             
@@ -570,7 +585,11 @@ fun ReceiveScreen(
                 if (errorFlags.isEmpty() && abnormalTemps.isEmpty()) {
                     Text("No errors", Modifier.align(Alignment.Center))
                 } else {
-                    Column {
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .verticalScroll(errorScroll)  // <— make this scrollable
+                    ) {
                         errorFlags.forEach {
                             Text(
                                 "${it.name}: ${it.state.value}",
