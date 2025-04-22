@@ -528,10 +528,21 @@ fun ReceiveScreen(
         Spacer(Modifier.height(8.dp))
 
         if (showErrors) {
-            val errorFlags = configs.filter { 
-                (it.name == "Throttle_Error" || it.name == "Overcurrent_Fault") &&
-                it.state.value == 1
-            }
+            val errorFlags = configs.filter { config ->
+                config.state.value == 1 && config.name in setOf(
+                    "Throttle_Error", "Overcurrent_Fault",
+                    "DriveError_Motor_hall", "Motor_Stalling", "Motor_Phase_loss",
+                    "Controller_Over_Temeprature", "Motor_Over_Temeprature",
+                    "MOSFET_Protection", "DriveError_Controller_OverVoltag",
+                    "Controller_Undervoltage", "Drive_Error_Flag",
+                    "CellUnderVolProt", "CellOverVolProt", "PackUnderVolProt", "PackOverVolProt",
+                    "ChgUnderTempProt", "ChgOverTempProt", "DchgUnderTempProt", "DchgOverTempProt",
+                    "CellOverDevProt", "ChgOverCurrProt", "DchgOverCurrProt",
+                    "FetTempProt", "ResSocProt", "FetFailure", "TempSenseFault",
+                    "ShortCktProt", "DschgPeakProt", "ChgPeakProt"
+                )
+            }            
+            
             val abnormalTemps = configs.filter {
                 (it.name == "MCU_Temperature" && abnormality_check(it.state.value, 12.0, 100.0)) ||
                 (it.name == "Motor_Temperature" && abnormality_check(it.state.value, 15.0, 90.0))
