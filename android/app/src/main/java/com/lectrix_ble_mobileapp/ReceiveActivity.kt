@@ -573,7 +573,8 @@ fun ReceiveScreen(
                 (it.name == "FetTemp"              && abnormality_check(it.state.value, -1000.0, 79.9))   ||
                 (it.name == "CellVolMinMaxDev"     && abnormality_check(it.state.value, -1000.0, 299.9)) ||
                 (it.name == "PackCurr"             && abnormality_check(it.state.value, -1000.0, 61.9)) ||
-                (it.name == "PackVol"              && abnormality_check(it.state.value, 46.5,     56.9))
+                (it.name == "PackVol"              && abnormality_check(it.state.value, 46.5,     56.9)) ||
+                (it.name == "chgr_msg_temp"              && abnormality_check_integer(it.state.value, -1000,     84))
             }
             Box(
                 Modifier
