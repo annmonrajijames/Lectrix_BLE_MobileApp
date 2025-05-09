@@ -1914,9 +1914,9 @@ void transmit_task(uint8_t tenth_byte) {
 }
 
 void can_init() {
-    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(GPIO_NUM_21, GPIO_NUM_22, TWAI_MODE_NORMAL);
-    g_config.tx_io = GPIO_NUM_21;
-    g_config.rx_io = GPIO_NUM_22;
+    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(GPIO_NUM_4, GPIO_NUM_5, TWAI_MODE_NORMAL);
+    g_config.tx_io = GPIO_NUM_4;
+    g_config.rx_io = GPIO_NUM_5;
 
     twai_timing_config_t t_config = {
         .brp = 8,
