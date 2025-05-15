@@ -1,20 +1,20 @@
 #include "i2c_oled.h"
 #include "driver/i2c.h"
+#include "driver/gpio.h"
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
-// Tag for logging
 static const char* TAG = "OLED";
 
-// hard-coded I2C pins & port
-#define OLED_I2C_PORT      0
-#define OLED_I2C_SDA_GPIO  21
-#define OLED_I2C_SCL_GPIO  22
-#define OLED_RESET_GPIO    -1
+#define OLED_I2C_PORT     0
+#define OLED_I2C_SDA_GPIO 21
+#define OLED_I2C_SCL_GPIO 22
+#define OLED_RESET_GPIO   -1
 
 void i2c_oled_init(void)
 {
-    ESP_LOGI(TAG, "Initializing I2C for OLED (port %d)", OLED_I2C_PORT);
-
+    ESP_LOGI(TAG, "Init I2C port %d", OLED_I2C_PORT);
     i2c_config_t cfg = {
         .mode = I2C_MODE_MASTER,
         .sda_io_num = OLED_I2C_SDA_GPIO,
@@ -29,21 +29,25 @@ void i2c_oled_init(void)
     if (OLED_RESET_GPIO >= 0) {
         gpio_reset_pin(OLED_RESET_GPIO);
         gpio_set_direction(OLED_RESET_GPIO, GPIO_MODE_OUTPUT);
-        // toggle reset line if your OLED needs it
         gpio_set_level(OLED_RESET_GPIO, 0);
         vTaskDelay(pdMS_TO_TICKS(100));
         gpio_set_level(OLED_RESET_GPIO, 1);
     }
 
-    // TODO: call your SSD1306/SH1106 init sequence here
-    ESP_LOGI(TAG, "OLED I2C driver installed");
+    // TODO: insert your SSD1306/SH1106 init here
 }
 
 void i2c_oled_display(void)
 {
-    ESP_LOGI(TAG, "Updating OLED display");
-    // TODO: insert your draw/flush calls here, for example:
-    // ssd1306_clear_screen();
-    // ssd1306_draw_string(0, 0, "Hello, ESP32!");
-    // ssd1306_refresh();
+    ESP_LOGI(TAG, "OLED: display update");
+    // TODO: clear, draw text/graphics, then flush to screen
+}
+
+void run_oled_mode(int button_gpio)
+{
+    // stay in OLED mode while button is pressed (level=0)
+    while (gpio_get_level(button_gpio) == 0) {
+        i2c_oled_display();
+        vTaskDelay(pdMS_TO_TICKS(200));  // give CPU + debounce
+    }
 }
