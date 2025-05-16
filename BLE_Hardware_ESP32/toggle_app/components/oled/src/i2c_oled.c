@@ -1,5 +1,3 @@
-// components/oled/src/i2c_oled.c
-
 #include "i2c_oled.h"
 #include "driver/i2c.h"
 #include "driver/gpio.h"
@@ -36,20 +34,30 @@ void i2c_oled_init(void)
         gpio_set_level(OLED_RESET_GPIO, 1);
     }
 
-    // TODO: your OLED controller init (e.g. SSD1306 init sequence)
+    // TODO: your OLED controller init (SSD1306/SH1106 sequence)
 }
 
 void i2c_oled_display(void)
 {
     ESP_LOGI(TAG, "OLED: display update");
-    // TODO: clear/draw/flush frame
+    // TODO: clear, draw, and flush your frame here
 }
 
 void run_oled_mode(int button_gpio)
 {
-    // stay here while button is pressed (level = 0)
+    ESP_LOGI(TAG, "Entering OLED loop; will exit when button released");
+
+    // stay here while button is held down (level == 0)
     while (gpio_get_level(button_gpio) == 0) {
         i2c_oled_display();
-        vTaskDelay(pdMS_TO_TICKS(200));  // yield + debounce
+
+        // check button at end of each pass
+        if (gpio_get_level(button_gpio) != 0) {
+            ESP_LOGI(TAG, "Button released → exiting OLED loop");
+            break;
+        }
+
+        // small delay to debounce + let other tasks run
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
