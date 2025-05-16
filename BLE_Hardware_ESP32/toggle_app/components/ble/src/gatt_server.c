@@ -1,5 +1,3 @@
-// components/ble/src/gatt_server.c
-
 #include "gatt_server.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
@@ -21,7 +19,6 @@ void gatt_server_init(void)
 {
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
-
     esp_bt_controller_config_t cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_bt_controller_init(&cfg));
     ESP_ERROR_CHECK(esp_bt_controller_enable(ESP_BT_MODE_BLE));
@@ -34,18 +31,23 @@ void gatt_server_init(void)
     // TODO: register your GAP & GATTS callbacks, create service & char
 }
 
-void gatt_server_run(void)
+void gatt_server_run(int button_gpio)
 {
-    ESP_LOGI(TAG, "GATTS: run cycle");
-    // TODO: start advertising or handle notifications/events
-}
+    ESP_LOGI(TAG, "Entering BLE loop; will exit when button pressed");
 
-void run_ble_mode(int button_gpio)
-{
-    // stay here while button is released (level = 1)
-    while (gpio_get_level(button_gpio) == 1) {
-        gatt_server_run();
-        // no vTaskDelay() here
-        // gatt_server_run() must block or yield internally
+    while (1) {
+        // ----- your infinite BLE work goes here -----
+        // e.g. start advertising, handle events, notifications, etc.
+        ESP_LOGI(TAG, "GATTS: run cycle");
+
+        // ------------------------------------------------
+        // Now check for your button at the end of each pass:
+        if (gpio_get_level(button_gpio) == 0) {
+            ESP_LOGI(TAG, "Button pressed → exiting BLE loop");
+            break;
+        }
+
+        // Optionally yield briefly so you don’t starve lower-priority tasks:
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }

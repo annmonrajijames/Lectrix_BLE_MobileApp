@@ -1,8 +1,7 @@
-// components/ble/include/gatt_server.h
-
 #pragma once
 
 void gatt_server_init(void);
-void gatt_server_run(void);
-// loops in BLE mode until button is pressed
-void run_ble_mode(int button_gpio);
+
+// Now takes the button GPIO pin number
+// and will return as soon as that pin reads low (pressed).
+void gatt_server_run(int button_gpio);

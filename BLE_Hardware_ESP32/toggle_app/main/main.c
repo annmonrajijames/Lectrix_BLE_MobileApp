@@ -1,5 +1,3 @@
-// main/main.c
-
 #include <stdio.h>
 #include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
@@ -11,26 +9,25 @@
 
 void app_main(void)
 {
-    // 1) Button GPIO setup
+    // init button
     gpio_reset_pin(BUTTON_GPIO);
     gpio_set_direction(BUTTON_GPIO, GPIO_MODE_INPUT);
     gpio_set_pull_mode(BUTTON_GPIO, GPIO_PULLUP_ONLY);
 
-    // 2) Init both subsystems
+    // init peripherals
     i2c_oled_init();
     gatt_server_init();
 
-    // 3) Dispatch loop
     while (1) {
-        int lvl = gpio_get_level(BUTTON_GPIO);
-        if (lvl == 0) {
-            printf(">> ENTER OLED MODE\n");
+        if (gpio_get_level(BUTTON_GPIO) == 0) {
+            printf(">> OLED mode\n");
             run_oled_mode(BUTTON_GPIO);
         } else {
-            printf(">> ENTER BLE MODE\n");
-            run_ble_mode(BUTTON_GPIO);
+            printf(">> BLE mode\n");
+            // now hands off control to BLE; it will return when button pressed
+            gatt_server_run(BUTTON_GPIO);
         }
-        // small debounce delay before re-checking mode
+        // small debounce
         vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
