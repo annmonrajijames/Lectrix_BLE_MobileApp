@@ -1,3 +1,5 @@
+// components/oled/src/i2c_oled.c
+
 #include "i2c_oled.h"
 #include "driver/i2c.h"
 #include "driver/gpio.h"
@@ -14,7 +16,7 @@ static const char* TAG = "OLED";
 
 void i2c_oled_init(void)
 {
-    ESP_LOGI(TAG, "Init I2C port %d", OLED_I2C_PORT);
+    ESP_LOGI(TAG, "I2C init on port %d", OLED_I2C_PORT);
     i2c_config_t cfg = {
         .mode = I2C_MODE_MASTER,
         .sda_io_num = OLED_I2C_SDA_GPIO,
@@ -34,20 +36,20 @@ void i2c_oled_init(void)
         gpio_set_level(OLED_RESET_GPIO, 1);
     }
 
-    // TODO: insert your SSD1306/SH1106 init here
+    // TODO: your OLED controller init (e.g. SSD1306 init sequence)
 }
 
 void i2c_oled_display(void)
 {
     ESP_LOGI(TAG, "OLED: display update");
-    // TODO: clear, draw text/graphics, then flush to screen
+    // TODO: clear/draw/flush frame
 }
 
 void run_oled_mode(int button_gpio)
 {
-    // stay in OLED mode while button is pressed (level=0)
+    // stay here while button is pressed (level = 0)
     while (gpio_get_level(button_gpio) == 0) {
         i2c_oled_display();
-        vTaskDelay(pdMS_TO_TICKS(200));  // give CPU + debounce
+        vTaskDelay(pdMS_TO_TICKS(200));  // yield + debounce
     }
 }

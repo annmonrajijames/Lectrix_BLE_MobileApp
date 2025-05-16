@@ -1,10 +1,8 @@
+// components/ble/include/gatt_server.h
+
 #pragma once
 
-// call once at startup
 void gatt_server_init(void);
-
-// one‐shot BLE work (e.g. start advertising once)
 void gatt_server_run(void);
-
-// loop in “BLE mode” until button state != 1
+// loops in BLE mode until button is pressed
 void run_ble_mode(int button_gpio);
