@@ -1,12 +1,11 @@
 #include "gatt_server.h"
+#include "driver/gpio.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
 #include "esp_bt.h"
 #include "esp_bt_main.h"
-#include "esp_bt_device.h"
 #include "esp_gap_ble_api.h"
 #include "esp_gatts_api.h"
-#include "driver/gpio.h"
 
 static const char* TAG = "GATTS";
 
@@ -15,8 +14,9 @@ static const char* TAG = "GATTS";
 #define GATTS_CHAR_UUID       0xFF01
 #define GATTS_ADV_INTERVAL_MS 100
 
-void gatt_server_init(void)
+void ble_app(int button_gpio)
 {
+    // -- init --
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
     esp_bt_controller_config_t cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
@@ -28,26 +28,12 @@ void gatt_server_init(void)
     ESP_LOGI(TAG, "BLE init, name=%s", GATTS_DEVICE_NAME);
     ESP_ERROR_CHECK(esp_ble_gap_set_device_name(GATTS_DEVICE_NAME));
 
-    // TODO: register your GAP & GATTS callbacks, create service & char
-}
+    // TODO: register GAP & GATTS callbacks, create service & char
 
-void gatt_server_run(int button_gpio)
-{
-    ESP_LOGI(TAG, "Entering BLE loop; will exit when button pressed");
-
-    while (1) {
-        // ----- your infinite BLE work goes here -----
-        // e.g. start advertising, handle events, notifications, etc.
+    // -- loop until button pressed (level != 1) --
+    while (gpio_get_level(button_gpio) == 1) {
         ESP_LOGI(TAG, "GATTS: run cycle");
-
-        // ------------------------------------------------
-        // Now check for your button at the end of each pass:
-        if (gpio_get_level(button_gpio) == 0) {
-            ESP_LOGI(TAG, "Button pressed → exiting BLE loop");
-            break;
-        }
-
-        // Optionally yield briefly so you don’t starve lower-priority tasks:
-        vTaskDelay(pdMS_TO_TICKS(10));
+        // TODO: start/maintain advertising, notifications, etc.
+        vTaskDelay(pdMS_TO_TICKS(200));  // yield + debounce
     }
 }

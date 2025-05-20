@@ -1,6 +1,7 @@
-# toggle_app/main/CMakeLists.txt
+# main/CMakeLists.txt
+
 idf_component_register(
   SRCS         "main.c"
   INCLUDE_DIRS "."
-  REQUIRES     freertos driver oled ble log
+  REQUIRES     driver oled ble
 )
