@@ -1,4 +1,7 @@
 {
     "idf.flashType": "UART",
-    "idf.portWin": "COM3"
+    "idf.portWin": "COM6",
+    "files.associations": {
+        "esp_lcd_sh1107.h": "c"
+    }
 }

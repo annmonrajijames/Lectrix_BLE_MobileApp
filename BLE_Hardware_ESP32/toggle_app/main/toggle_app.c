@@ -3,10 +3,10 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "driver/gpio.h"
-#include "i2c_oled.h"
+#include "oled.h"
 #include "gatt_server.h"
 
-#define BUTTON_GPIO    18
+#define BUTTON_GPIO    14
 #define MODE_OLED      BIT0
 #define MODE_BLE       BIT1
 

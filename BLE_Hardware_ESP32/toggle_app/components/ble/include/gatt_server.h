@@ -1,6 +1,6 @@
 #pragma once
 
-void gatt_server_init(void);
+// void gatt_server_init(void);
 
 // Now takes the button GPIO pin number
 // and will return as soon as that pin reads low (pressed).
