@@ -74,6 +74,31 @@ class ReceiveActivity : ComponentActivity() {
                 }
             }
         }
+
+fun eightBytesCANLossDecode(
+    firstByteCheck: String,
+    vararg positions: Int
+): (String) -> String? {
+    // label the lambda so we can return from it
+    val decoder = lambda@ { data: String ->
+        // 1) make sure we have at least (maxPos+1)*2 hex chars
+        val maxPos = positions.maxOrNull() ?: return@lambda null
+        if (data.length < (maxPos + 1) * 2 || data.substring(0, 2) != firstByteCheck) {
+            return@lambda null
+        }
+
+        // 2) pull out each byte‐pair
+        val bytes = positions.map { pos ->
+            data.substring(pos * 2, pos * 2 + 2)
+        }
+
+        // 3) if *all* are "00" → "1", otherwise → "0"
+        if (bytes.all { it == "00" }) "1" else "0"
+    }
+
+    return decoder
+}
+
         fun signedEightBytesDecode(firstByte: String, multiplier: Double, vararg pos: Int) = { data: String ->
             if (data.startsWith(firstByte) && data.length >= 2 * pos.size) {
                 val hex = pos.joinToString("") { p -> data.substring(2*p, 2*p+2) }
@@ -333,7 +358,11 @@ class ReceiveActivity : ComponentActivity() {
         ParamConfig("Current_derate_due_to_temp","19", bitDecode("19",19,4),                          mutableStateOf(null)),
         ParamConfig("Charger_Over_under_temp","19", bitDecode("19",19,5),                          mutableStateOf(null)),
         ParamConfig("Battery_reverse_connection","19", bitDecode("19",19,6),                          mutableStateOf(null)),
-        ParamConfig("CHG_Communication_fault","19", bitDecode("19",19,7),                          mutableStateOf(null))
+        ParamConfig("CHG_Communication_fault","19", bitDecode("19",19,7),                          mutableStateOf(null)),
+        ParamConfig("Battery_CAN_Loss",        "07", eightBytesCANLossDecode("07",7,8,9,10,11,12,13,14),                     mutableStateOf(null)),
+        ParamConfig("MCU_CAN_Loss",      "02", eightBytesCANLossDecode("02",6,7,8,9,10,11,12,13),                        mutableStateOf(null)),
+        ParamConfig("Cluster_CAN_Loss",         "05", eightBytesCANLossDecode("05",5,6,7,8,9,10,11,12),                        mutableStateOf(null)),
+        ParamConfig("Charger_CAN_Loss",                 "19", eightBytesCANLossDecode("19",3,4,5,6,7,8,9,10),               mutableStateOf(null))
     )    
 
     // Group by prefix for decoding
