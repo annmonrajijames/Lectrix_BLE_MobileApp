@@ -359,7 +359,7 @@ class ReceiveActivity : ComponentActivity() {
         ParamConfig("Battery_CAN_Loss",        "07", eightBytesCANLossDecode("07",7,8,9,10,11,12,13,14),                     mutableStateOf(null)),
         ParamConfig("MCU_CAN_Loss",      "02", eightBytesCANLossDecode("02",6,7,8,9,10,11,12,13),                        mutableStateOf(null)),
         ParamConfig("Cluster_CAN_Loss",         "05", eightBytesCANLossDecode("05",5,6,7,8,9,10,11,12),                        mutableStateOf(null)),
-        ParamConfig("Charger_CAN_Loss",                 "19", eightBytesCANLossDecode("19",3,4,5,6,7,8,9,10),               mutableStateOf(null))
+        ParamConfig("Charger_Not_Connected",                 "19", eightBytesCANLossDecode("19",3,4,5,6,7,8,9,10),               mutableStateOf(null))
     )    
 
     // Group by prefix for decoding
@@ -584,7 +584,7 @@ fun ReceiveScreen(
                     "ShortCktProt", "DschgPeakProt", "ChgPeakProt", "Battery_disconnected",
                     "AC_Voltage_out_of_range", "AC_Frequency_out_of_range", "Charger_short_ckt",
                     "Current_derate_due_to_temp","Charger_Over_under_temp", "Battery_reverse_connection",
-                    "CHG_Communication_fault", "Battery_CAN_Loss", "MCU_CAN_Loss", "Cluster_CAN_Loss", "Charger_CAN_Loss"
+                    "CHG_Communication_fault", "Battery_CAN_Loss", "MCU_CAN_Loss", "Cluster_CAN_Loss", "Charger_Not_Connected"
                 )
             }            
             
