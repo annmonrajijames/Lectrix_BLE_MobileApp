@@ -75,29 +75,26 @@ class ReceiveActivity : ComponentActivity() {
             }
         }
 
-fun eightBytesCANLossDecode(
-    firstByteCheck: String,
-    vararg positions: Int
-): (String) -> String? {
-    // label the lambda so we can return from it
-    val decoder = lambda@ { data: String ->
-        // 1) make sure we have at least (maxPos+1)*2 hex chars
-        val maxPos = positions.maxOrNull() ?: return@lambda null
-        if (data.length < (maxPos + 1) * 2 || data.substring(0, 2) != firstByteCheck) {
-            return@lambda null
+        fun eightBytesCANLossDecode(
+            firstByteCheck: String,
+            vararg positions: Int
+        ): (String) -> Int? = { data: String ->
+            // 1. Sanity-check the frame length and first byte
+            val maxPos = positions.maxOrNull()
+            if (maxPos == null ||
+                data.length < (maxPos + 1) * 2 ||
+                !data.startsWith(firstByteCheck)
+            ) {
+                null                       // → decoding failed
+            } else {
+                // 2. Pull out the requested byte pairs
+                val allZero = positions.all { pos ->
+                    data.substring(pos * 2, pos * 2 + 2) == "00"
+                }
+                // 3. Return an Int (not String) so the == 1 test works
+                if (allZero) 1 else 0
+            }
         }
-
-        // 2) pull out each byte‐pair
-        val bytes = positions.map { pos ->
-            data.substring(pos * 2, pos * 2 + 2)
-        }
-
-        // 3) if *all* are "00" → "1", otherwise → "0"
-        if (bytes.all { it == "00" }) "1" else "0"
-    }
-
-    return decoder
-}
 
         fun signedEightBytesDecode(firstByte: String, multiplier: Double, vararg pos: Int) = { data: String ->
             if (data.startsWith(firstByte) && data.length >= 2 * pos.size) {
@@ -587,7 +584,7 @@ fun ReceiveScreen(
                     "ShortCktProt", "DschgPeakProt", "ChgPeakProt", "Battery_disconnected",
                     "AC_Voltage_out_of_range", "AC_Frequency_out_of_range", "Charger_short_ckt",
                     "Current_derate_due_to_temp","Charger_Over_under_temp", "Battery_reverse_connection",
-                    "CHG_Communication_fault"
+                    "CHG_Communication_fault", "Battery_CAN_Loss", "MCU_CAN_Loss", "Cluster_CAN_Loss", "Charger_CAN_Loss"
                 )
             }            
             
