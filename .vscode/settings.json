@@ -1,3 +1,4 @@
 {
-    "java.compile.nullAnalysis.mode": "automatic"
+    "java.compile.nullAnalysis.mode": "automatic",
+    "cmake.sourceDirectory": "C:/Git_Projects/Lectrix_BLE_MobileApp/BLE_Hardware_ESP32/gatt_server"
 }

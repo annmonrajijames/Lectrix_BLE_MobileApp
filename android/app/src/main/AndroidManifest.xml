@@ -1,8 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" /> <!-- Essential for API 31+ -->
+    <!-- As of Android 11 (API level 30), the system enforces scoped storage by default and the WRITE_EXTERNAL_STORAGE
+         permission is ignored. Instead, you should use the system file picker to allow users to select where to save files. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/> <!-- Consider the necessity based on use case -->
+
+    <!-- Permissions necessary for Bluetooth -->
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <!-- For Android 10 and above, consider using ACCESS_FINE_LOCATION or the more precise ACCESS_BACKGROUND_LOCATION. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> <!-- Needed for Bluetooth scanning -->
 
     <application
       android:name=".MainApplication"
@@ -23,5 +30,12 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+
+      <!-- Declaration of ReceiveActivity -->
+      <activity
+        android:name=".ReceiveActivity"
+        android:label="Receive Data"
+        android:exported="true" /> <!-- This should be set based on whether you need this activity to be launched by other apps or not -->
+
     </application>
 </manifest>
