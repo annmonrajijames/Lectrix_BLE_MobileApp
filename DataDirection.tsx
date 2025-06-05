@@ -18,7 +18,6 @@ import { db } from './firebaseConfig'; // Import your initialized Firestore inst
 
 type RootStackParamList = {
   DataDirection: { device: Device };
-  Receive: { device: Device };
   PDIEOL: { device: Device };
   AddParameters: { device: Device };
   Transmit: { device: Device };

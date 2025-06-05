@@ -6,7 +6,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import DataDirection from './DataDirection';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
-import Receive from './Receive'; 
 import PDIEOL from './PDIEOL';
 import AddParametersScreen from './AddParametersScreen';
 import Transmit from './Transmit';  // Import the Transmit component
@@ -14,7 +13,6 @@ import Transmit from './Transmit';  // Import the Transmit component
 export type RootStackParamList = {
   Home: undefined;
   DataDirection: { device: Device };
-  Receive: { device: Device };
   PDIEOL: { device: Device };
   AddParameters: { device: Device };
   Transmit: { device: Device };  // New route
@@ -123,7 +121,6 @@ const App: React.FC = () => {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Scan BLE Devices' }} />
         <Stack.Screen name="DataDirection" component={DataDirection} options={{ title: 'Data Direction' }} />
-        <Stack.Screen name="Receive" component={Receive} options={{ title: 'Receive' }} />
         <Stack.Screen name="PDIEOL" component={PDIEOL} options={{ title: 'PDIEOL' }} />
         <Stack.Screen name="AddParameters" component={AddParametersScreen} options={{ title: 'Add Parameters' }} />
         <Stack.Screen name="Transmit" component={Transmit} options={{ title: 'Transmit' }} />
