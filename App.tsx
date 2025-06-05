@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert, Platform, PermissionsAndroid } from 'react-native';
+import CheckBox from '@react-native-community/checkbox';
 import { BleManager, Device } from 'react-native-ble-plx';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import DataDirection from './DataDirection';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
+import PDIEOL from './PDIEOL';
+import AddParametersScreen from './AddParametersScreen';
+import Transmit from './Transmit';  // Import the Transmit component
 
-type RootStackParamList = {
+export type RootStackParamList = {
   Home: undefined;
-  DataTransfer: { device: Device };
   DataDirection: { device: Device };
-  AppToVCUFeatures: { device: Device };
-  CurrentLimit: {device: Device};
+  PDIEOL: { device: Device };
+  AddParameters: { device: Device };
+  Transmit: { device: Device };  // New route
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -19,6 +23,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> = ({ navigation }) => {
   const [manager] = useState(new BleManager());
   const [devices, setDevices] = useState<Device[]>([]);
+  const [showAllDevices, setShowAllDevices] = useState(false);
 
   useEffect(() => {
     checkBluetoothState();
@@ -26,7 +31,6 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
 
   const checkBluetoothState = async () => {
     const state = await BluetoothStateManager.getState();
-
     if (state === 'PoweredOff') {
       Alert.alert(
         'Enable Bluetooth',
@@ -47,7 +51,6 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
         PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
         PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
       ]);
-
       if (result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT] !== PermissionsAndroid.RESULTS.GRANTED ||
           result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN] !== PermissionsAndroid.RESULTS.GRANTED) {
         Alert.alert("Permission Error", "Bluetooth permissions are required to scan for devices.");
@@ -59,9 +62,7 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
   const connectToDevice = (device: Device) => {
     manager.stopDeviceScan();
     device.connect()
-      .then(device => {
-        return device.discoverAllServicesAndCharacteristics();
-      })
+      .then(device => device.discoverAllServicesAndCharacteristics())
       .then(device => {
         navigation.navigate('DataDirection', { device });
       })
@@ -84,21 +85,28 @@ const HomeScreen: React.FC<NativeStackScreenProps<RootStackParamList, 'Home'>> =
         });
       }
     });
-
     setTimeout(() => {
       manager.stopDeviceScan();
     }, 10000); // Stop scanning after 10 seconds
   };
 
+  const filteredDevices = showAllDevices ? devices : devices.filter(device => device.name?.toLowerCase().includes('lectrix'));
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>BLE Devices:</Text>
+      <View style={styles.checkboxContainer}>
+        <CheckBox value={showAllDevices} onValueChange={setShowAllDevices} />
+        <Text style={styles.label}>Show All Devices</Text>
+      </View>
       <FlatList
-        data={devices}
+        data={filteredDevices}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => connectToDevice(item)}>
-            <Text style={styles.deviceInfo}>{item.name || 'Unnamed device'} (ID: {item.id})</Text>
+            <Text style={styles.deviceInfo}>
+              {item.name || 'Unnamed device'} (ID: {item.id}) - RSSI: {item.rssi ?? 'N/A'}
+            </Text>
           </TouchableOpacity>
         )}
       />
@@ -113,6 +121,9 @@ const App: React.FC = () => {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Scan BLE Devices' }} />
         <Stack.Screen name="DataDirection" component={DataDirection} options={{ title: 'Data Direction' }} />
+        <Stack.Screen name="PDIEOL" component={PDIEOL} options={{ title: 'PDIEOL' }} />
+        <Stack.Screen name="AddParameters" component={AddParametersScreen} options={{ title: 'Add Parameters' }} />
+        <Stack.Screen name="Transmit" component={Transmit} options={{ title: 'Transmit' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -136,7 +147,16 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#DDD',
     borderRadius: 5,
-  }
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  label: {
+    marginLeft: 8,
+    fontSize: 16,
+  },
 });
 
 export default App;
