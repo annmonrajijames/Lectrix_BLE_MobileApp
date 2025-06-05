@@ -3,11 +3,8 @@ import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert, Plat
 import { BleManager, Device } from 'react-native-ble-plx';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
-import DataTransfer from './DataTransfer';
 import DataDirection from './DataDirection';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
-import AppToVCUFeatures from './App_to_VCU_features'; // Make sure this import is correct
-import CurrentLimit from './CurrentLimit';
 
 type RootStackParamList = {
   Home: undefined;
@@ -116,9 +113,6 @@ const App: React.FC = () => {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Scan BLE Devices' }} />
         <Stack.Screen name="DataDirection" component={DataDirection} options={{ title: 'Data Direction' }} />
-        <Stack.Screen name="DataTransfer" component={DataTransfer} options={{ title: 'Data Transfer' }} />
-        <Stack.Screen name="AppToVCUFeatures" component={AppToVCUFeatures} options={{ title: 'App to VCU Features' }} />
-        <Stack.Screen name="CurrentLimit" component={CurrentLimit} options={{ title: 'Current Limit' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
